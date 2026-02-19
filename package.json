@@ -1,0 +1,32 @@
+{
+  "name": "brainbox",
+  "version": "1.0.0",
+  "description": "Context management platform for AI agents — Your AI. Your Rules.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "concurrently \"nodemon server/index.js\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "install-all": "npm install && npm install --prefix client"
+  },
+  "keywords": [
+    "ai",
+    "context",
+    "agents",
+    "llm",
+    "brainbox"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "bcryptjs": "^3.0.3",
+    "concurrently": "^9.2.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemon": "^3.1.11",
+    "uuid": "^13.0.0"
+  }
+}
