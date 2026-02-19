@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { Trash2 } from 'lucide-react';
 import SectionList from '../components/SectionList';
 import SectionEditor from '../components/SectionEditor';
 import ContextPreview from '../components/ContextPreview';
+import BrainOverview from '../components/BrainOverview';
 import { useAuth } from '../App';
 
 export default function BrainEditor() {
@@ -17,6 +19,7 @@ export default function BrainEditor() {
   const [editingName, setEditingName] = useState(false);
   const [brainName, setBrainName] = useState('');
   const [brainDesc, setBrainDesc] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   async function fetchBrain() {
     try {
@@ -83,97 +86,135 @@ export default function BrainEditor() {
     }
   }
 
-  async function handleDelete(section) {
-    if (!confirm('Delete this section?')) return;
+  function handleDelete(section) {
+    setDeleteTarget(section);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
     try {
-      await axios.delete(`/api/brains/${id}/sections/${section.id}`);
-      setSections(prev => prev.filter(s => s.id !== section.id));
-      if (selected?.id === section.id) setSelected(null);
+      await axios.delete(`/api/brains/${id}/sections/${deleteTarget.id}`);
+      setSections(prev => prev.filter(s => s.id !== deleteTarget.id));
+      if (selected?.id === deleteTarget.id) setSelected(null);
     } catch (err) {
       console.error('Failed to delete section:', err);
+    } finally {
+      setDeleteTarget(null);
     }
   }
 
-  if (!brain) return <div className="flex items-center justify-center min-h-screen text-gray-500">Loading...</div>;
+  if (!brain) return <div className="flex items-center justify-center min-h-screen text-text-muted">Loading...</div>;
 
   return (
     <div className="h-screen flex flex-col">
       {/* Nav */}
-      <nav className="border-b border-gray-800 px-4 py-2 flex items-center justify-between flex-shrink-0">
+      <nav className="border-b border-border px-4 py-2 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-4">
-          <Link to="/" className="text-lg font-bold">🧠</Link>
-          <Link to="/" className="text-sm text-gray-400 hover:text-white">Dashboard</Link>
-          <Link to="/keys" className="text-sm text-gray-400 hover:text-white">API Keys</Link>
-          <Link to="/integration" className="text-sm text-gray-400 hover:text-white">Integration</Link>
+          <Link to="/"><img src="/images/brainboxlong.png" alt="Brainbox" className="h-10" /></Link>
+          <Link to="/" className="text-sm text-text-muted hover:text-brand-black">Dashboard</Link>
+          <Link to="/keys" className="text-sm text-text-muted hover:text-brand-black">API Keys</Link>
+          <Link to="/integration" className="text-sm text-text-muted hover:text-brand-black">Integration</Link>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className={`text-xs px-3 py-1 rounded-lg border ${showPreview ? 'border-violet-500 text-violet-400' : 'border-gray-700 text-gray-500'}`}
+            className={`text-xs px-3 py-1 rounded-lg border ${showPreview ? 'border-brand-orange text-brand-orange' : 'border-border text-text-muted'}`}
           >
             {showPreview ? 'Hide' : 'Show'} Preview
           </button>
-          <button onClick={logout} className="text-sm text-gray-400 hover:text-white">Sign Out</button>
+          <button onClick={logout} className="text-sm text-text-muted hover:text-brand-black">Sign Out</button>
         </div>
       </nav>
 
-      {/* Brain name bar */}
-      <div className="border-b border-gray-800 px-4 py-2 flex items-center gap-3 flex-shrink-0">
-        {editingName ? (
-          <>
-            <input
-              className="text-sm font-semibold flex-1"
-              value={brainName}
-              onChange={(e) => setBrainName(e.target.value)}
-              autoFocus
-              onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
-            />
-            <input
-              className="text-sm flex-1"
-              value={brainDesc}
-              onChange={(e) => setBrainDesc(e.target.value)}
-              placeholder="Description"
-              onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
-            />
-            <button onClick={saveBrainMeta} className="text-xs text-violet-400 hover:text-violet-300">Save</button>
-            <button onClick={() => setEditingName(false)} className="text-xs text-gray-500 hover:text-gray-400">Cancel</button>
-          </>
-        ) : (
-          <button onClick={() => setEditingName(true)} className="text-sm font-semibold text-white hover:text-violet-400 transition-colors">
-            {brain.name} {brain.description && <span className="font-normal text-gray-500">— {brain.description}</span>}
-          </button>
-        )}
-      </div>
-
       {/* Three-panel layout */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: Section list */}
-        <div className="w-56 border-r border-gray-800 overflow-y-auto p-3 flex-shrink-0">
-          <SectionList
-            sections={sections}
-            selectedId={selected?.id}
-            onSelect={setSelected}
-            onToggle={handleToggle}
-            onAdd={handleAddSection}
-          />
+        {/* Left: Brain info + Section list */}
+        <div className="w-56 border-r border-border overflow-y-auto flex-shrink-0 flex flex-col">
+          {/* Brain name header */}
+          <div className="p-3 border-b border-border">
+            {editingName ? (
+              <div className="space-y-2">
+                <input
+                  className="text-sm font-semibold w-full"
+                  value={brainName}
+                  onChange={(e) => setBrainName(e.target.value)}
+                  autoFocus
+                  onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
+                />
+                <input
+                  className="text-sm w-full"
+                  value={brainDesc}
+                  onChange={(e) => setBrainDesc(e.target.value)}
+                  placeholder="Description"
+                  onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
+                />
+                <div className="flex gap-2">
+                  <button onClick={saveBrainMeta} className="text-xs text-brand-orange hover:text-brand-orange-hover">Save</button>
+                  <button onClick={() => setEditingName(false)} className="text-xs text-text-muted hover:text-text-primary">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setEditingName(true)} className="text-left w-full">
+                <h3 className="text-base font-bold text-brand-black hover:text-brand-orange transition-colors">{brain.name}</h3>
+                {brain.description && <p className="text-sm text-text-muted mt-1 line-clamp-2">{brain.description}</p>}
+              </button>
+            )}
+          </div>
+
+          {/* Add section actions */}
+          <div className="flex-1 overflow-y-auto p-3">
+            <SectionList onAdd={handleAddSection} />
+          </div>
         </div>
 
-        {/* Centre: Section editor */}
+        {/* Centre: Section editor or Overview */}
         <div className="flex-1 overflow-y-auto">
-          <SectionEditor
-            section={selected}
-            onSave={handleSaveSection}
-            onDelete={handleDelete}
-          />
+          {selected ? (
+            <SectionEditor
+              section={selected}
+              onSave={handleSaveSection}
+              onDelete={handleDelete}
+            />
+          ) : (
+            <BrainOverview
+              sections={sections}
+              onAdd={handleAddSection}
+            />
+          )}
         </div>
 
         {/* Right: Context preview */}
         {showPreview && (
-          <div className="w-80 border-l border-gray-800 overflow-y-auto flex-shrink-0 bg-[#0d0d0d]">
-            <ContextPreview sections={sections} />
+          <div className="w-80 border-l border-border overflow-y-auto flex-shrink-0 bg-bg-panel">
+            <ContextPreview sections={sections} onDelete={handleDelete} onEdit={setSelected} />
           </div>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setDeleteTarget(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-sm space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={20} className="text-brand-orange" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-brand-black">Remove section</h3>
+                <p className="text-xs text-text-muted mt-0.5">This will permanently delete this section from your brain.</p>
+              </div>
+            </div>
+            <div className="bg-bg-panel rounded-lg px-3 py-2">
+              <p className="text-sm font-medium text-text-primary">{deleteTarget.title}</p>
+              {deleteTarget.content && <p className="text-xs text-text-muted mt-0.5 line-clamp-2">{deleteTarget.content}</p>}
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setDeleteTarget(null)} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
+              <button onClick={confirmDelete} className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg">Remove</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

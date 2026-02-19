@@ -1,13 +1,15 @@
+import { Pencil, Trash2 } from 'lucide-react';
+
 const SECTION_ORDER = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
 const SECTION_LABELS = {
-  rule: 'RULES',
-  memory: 'MEMORIES',
-  behaviour: 'BEHAVIOURS',
-  guardrail: 'GUARDRAILS',
-  skill: 'SKILLS',
+  rule: 'Rules',
+  memory: 'Memories',
+  behaviour: 'Behaviours',
+  guardrail: 'Guardrails',
+  skill: 'Skills',
 };
 
-export default function ContextPreview({ sections }) {
+export default function ContextPreview({ sections, onDelete, onEdit }) {
   const active = sections.filter(s => s.is_active);
 
   const grouped = {};
@@ -15,26 +17,67 @@ export default function ContextPreview({ sections }) {
     const items = active
       .filter(s => s.type === type)
       .sort((a, b) => a.priority - b.priority);
-    if (items.length > 0) grouped[type] = items;
+    grouped[type] = items;
   });
 
-  const output = Object.entries(grouped)
-    .map(([type, items]) => {
-      const label = SECTION_LABELS[type];
-      const content = items.map(i => i.content).join('\n');
-      return `=== ${label} ===\n${content}`;
-    })
-    .join('\n\n');
+  const totalActive = active.length;
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-4 py-2 border-b border-gray-800">
-        <h3 className="text-sm font-semibold text-gray-400">Context Preview</h3>
-        <p className="text-xs text-gray-600">This is what the API will return</p>
+      <div className="px-4 py-2 border-b border-border">
+        <h3 className="text-sm font-semibold text-text-primary">Context Preview</h3>
+        <p className="text-xs text-text-muted">This is what the API will return</p>
       </div>
-      <pre className="flex-1 overflow-auto p-4 text-xs text-gray-300 leading-relaxed whitespace-pre-wrap font-mono">
-        {output || 'No active sections'}
-      </pre>
+      <div className="flex-1 overflow-auto p-4 text-sm text-text-primary leading-relaxed">
+        {totalActive === 0 ? (
+          <p className="text-text-muted">No active sections</p>
+        ) : (
+          <div className="space-y-5">
+            {SECTION_ORDER.map(type => {
+              const items = grouped[type];
+              if (items.length === 0) return null;
+              return (
+                <div key={type}>
+                  <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+                    {SECTION_LABELS[type]} ({items.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {items.map((item, idx) => (
+                      <div key={item.id} className="flex items-start gap-2 group">
+                        <span className="text-xs text-text-muted mt-0.5 w-4 flex-shrink-0 text-right">{idx + 1}.</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-text-primary truncate">{item.title}</p>
+                          <p className="text-xs text-text-muted truncate">{item.content.length > 35 ? item.content.slice(0, 35) + '...' : item.content}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                          {onEdit && (
+                            <button
+                              onClick={() => onEdit(item)}
+                              className="text-brand-orange hover:text-brand-orange-hover"
+                              title="Edit"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button
+                              onClick={() => onDelete(item)}
+                              className="text-brand-orange hover:text-brand-orange-hover"
+                              title="Remove"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

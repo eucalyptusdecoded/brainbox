@@ -41,8 +41,8 @@ router.post('/', async (req, res) => {
     }
 
     const { type, title, content, priority } = req.body;
-    if (!type || !title || !content) {
-      return res.status(400).json({ error: 'type, title, and content are required' });
+    if (!type || !title) {
+      return res.status(400).json({ error: 'type and title are required' });
     }
 
     const validTypes = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
@@ -53,7 +53,7 @@ router.post('/', async (req, res) => {
     const id = uuidv4();
     await db.execute({
       sql: 'INSERT INTO brain_sections (id, brain_id, type, title, content, priority) VALUES (?, ?, ?, ?, ?, ?)',
-      args: [id, req.params.id, type, title, content, priority || 0],
+      args: [id, req.params.id, type, title, content || '', priority || 0],
     });
 
     // Update brain timestamp

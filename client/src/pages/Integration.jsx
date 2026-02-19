@@ -66,26 +66,26 @@ export default function Integration() {
 
   return (
     <div className="min-h-screen">
-      <nav className="border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+      <nav className="border-b border-border px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-lg font-bold">🧠 Brainbox</Link>
-          <Link to="/" className="text-sm text-gray-400 hover:text-white">Dashboard</Link>
-          <Link to="/keys" className="text-sm text-gray-400 hover:text-white">API Keys</Link>
-          <Link to="/integration" className="text-sm text-white font-medium">Integration</Link>
+          <Link to="/"><img src="/images/brainboxlong.png" alt="Brainbox" className="h-12" /></Link>
+          <Link to="/" className="text-sm text-text-muted hover:text-brand-black">Dashboard</Link>
+          <Link to="/keys" className="text-sm text-text-muted hover:text-brand-black">API Keys</Link>
+          <Link to="/integration" className="text-sm text-brand-black font-medium">Integration</Link>
         </div>
-        <button onClick={logout} className="text-sm text-gray-400 hover:text-white">Sign Out</button>
+        <button onClick={logout} className="text-sm text-text-muted hover:text-brand-black">Sign Out</button>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
         <div>
-          <h2 className="text-xl font-semibold mb-2">Integration Guide</h2>
-          <p className="text-gray-400 text-sm">Connect your Brainbox brain to a Custom GPT in 3 steps.</p>
+          <h2 className="text-xl font-semibold text-brand-black mb-2">Integration Guide</h2>
+          <p className="text-text-muted text-sm">Connect your Brainbox brain to a Custom GPT in 3 steps.</p>
         </div>
 
         {/* Brain selector */}
         {brains.length > 0 && (
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Select Brain</label>
+            <label className="block text-sm text-text-muted mb-1">Select Brain</label>
             <select value={selectedBrain} onChange={(e) => setSelectedBrain(e.target.value)} className="max-w-xs">
               {brains.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
@@ -93,42 +93,42 @@ export default function Integration() {
         )}
 
         {/* Step 1 */}
-        <div className="bg-[#111] border border-gray-800 rounded-xl p-5">
-          <h3 className="font-semibold mb-2">Step 1: Your API Endpoint</h3>
-          <p className="text-sm text-gray-400 mb-3">This is the URL your Custom GPT will call to fetch context.</p>
+        <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-brand-black mb-2">Step 1: Your API Endpoint</h3>
+          <p className="text-sm text-text-muted mb-3">This is the URL your Custom GPT will call to fetch context.</p>
           <div className="flex items-center gap-2">
-            <code className="bg-black/40 px-3 py-1.5 rounded text-sm text-violet-300 flex-1 font-mono overflow-x-auto">{endpoint}</code>
-            <button onClick={() => copy(endpoint, 'endpoint')} className="text-xs text-violet-400 hover:text-violet-300 px-3 py-1.5 border border-violet-500/30 rounded-lg whitespace-nowrap">
+            <code className="bg-white px-3 py-1.5 rounded text-sm text-brand-orange flex-1 font-mono overflow-x-auto border border-border">{endpoint}</code>
+            <button onClick={() => copy(endpoint, 'endpoint')} className="text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1.5 border border-brand-orange/30 rounded-lg whitespace-nowrap">
               {copied === 'endpoint' ? 'Copied!' : 'Copy'}
             </button>
           </div>
         </div>
 
         {/* Step 2 */}
-        <div className="bg-[#111] border border-gray-800 rounded-xl p-5">
-          <h3 className="font-semibold mb-2">Step 2: Custom GPT Action Schema</h3>
-          <p className="text-sm text-gray-400 mb-3">Paste this into your Custom GPT's Actions configuration (Schema tab).</p>
+        <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-brand-black mb-2">Step 2: Custom GPT Action Schema</h3>
+          <p className="text-sm text-text-muted mb-3">Paste this into your Custom GPT's Actions configuration (Schema tab).</p>
           <div className="relative">
-            <pre className="bg-black/40 rounded-lg p-4 text-xs text-gray-300 font-mono overflow-x-auto max-h-80">{actionSchema}</pre>
+            <pre className="bg-white rounded-lg p-4 text-xs text-text-primary font-mono overflow-x-auto max-h-80 border border-border">{actionSchema}</pre>
             <button
               onClick={() => copy(actionSchema, 'schema')}
-              className="absolute top-2 right-2 text-xs text-violet-400 hover:text-violet-300 px-3 py-1 border border-violet-500/30 rounded-lg bg-black/60"
+              className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
             >
               {copied === 'schema' ? 'Copied!' : 'Copy'}
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-2">Set the Authentication to "API Key", header name <code className="text-gray-400">X-API-Key</code>, and paste your API key from the Keys page.</p>
+          <p className="text-xs text-text-muted mt-2">Set the Authentication to "API Key", header name <code className="text-text-primary">X-API-Key</code>, and paste your API key from the Keys page.</p>
         </div>
 
         {/* Step 3 */}
-        <div className="bg-[#111] border border-gray-800 rounded-xl p-5">
-          <h3 className="font-semibold mb-2">Step 3: System Prompt Instructions</h3>
-          <p className="text-sm text-gray-400 mb-3">Add this to your Custom GPT's system instructions:</p>
+        <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-brand-black mb-2">Step 3: System Prompt Instructions</h3>
+          <p className="text-sm text-text-muted mb-3">Add this to your Custom GPT's system instructions:</p>
           <div className="relative">
-            <pre className="bg-black/40 rounded-lg p-4 text-sm text-gray-300 whitespace-pre-wrap">{systemPrompt}</pre>
+            <pre className="bg-white rounded-lg p-4 text-sm text-text-primary whitespace-pre-wrap border border-border">{systemPrompt}</pre>
             <button
               onClick={() => copy(systemPrompt, 'prompt')}
-              className="absolute top-2 right-2 text-xs text-violet-400 hover:text-violet-300 px-3 py-1 border border-violet-500/30 rounded-lg bg-black/60"
+              className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
             >
               {copied === 'prompt' ? 'Copied!' : 'Copy'}
             </button>

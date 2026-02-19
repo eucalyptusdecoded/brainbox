@@ -1,9 +1,21 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-orange: #FF7A00;
+  --color-brand-orange-hover: #E66E00;
+  --color-brand-orange-active: #CC6200;
+  --color-brand-black: #111111;
+  --color-text-primary: #2B2B2B;
+  --color-text-muted: #6B6B6B;
+  --color-bg-primary: #FFFFFF;
+  --color-bg-panel: #F5F5F5;
+  --color-border: #E6E6E6;
+}
+
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #0a0a0a;
-  color: #fafafa;
+  background-color: #FFFFFF;
+  color: #2B2B2B;
   margin: 0;
 }
 
@@ -12,9 +24,9 @@ body {
 }
 
 input, textarea, select {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  color: #fafafa;
+  background-color: #FFFFFF;
+  border: 1px solid #E6E6E6;
+  color: #2B2B2B;
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
@@ -23,8 +35,8 @@ input, textarea, select {
 }
 
 input:focus, textarea:focus, select:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
 }
 
 button {
@@ -38,6 +50,6 @@ button {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #E6E6E6;
   border-radius: 3px;
 }
