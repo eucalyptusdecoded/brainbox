@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Info } from 'lucide-react';
+import WritingTips from './WritingTips';
 
 const TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
 
@@ -7,7 +8,7 @@ export default function SectionEditor({ section, onSave, onDelete }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [type, setType] = useState('rule');
-  const [priority, setPriority] = useState(0);
+  const [priority, setPriority] = useState(50);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -15,7 +16,7 @@ export default function SectionEditor({ section, onSave, onDelete }) {
       setTitle(section.title);
       setContent(section.content);
       setType(section.type);
-      setPriority(section.priority || 0);
+      setPriority(section.priority ?? 50);
     }
   }, [section]);
 
@@ -54,8 +55,8 @@ export default function SectionEditor({ section, onSave, onDelete }) {
             <label className="text-xs font-medium text-text-muted">Priority</label>
             <div className="relative group">
               <Info size={12} className="text-text-muted cursor-help" />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block w-48 bg-brand-black text-white text-xs rounded-lg px-3 py-2 shadow-lg z-10">
-                Lower numbers appear first. Use this to control the order nodes are sent to the API.
+              <div className="absolute top-full left-0 mt-1.5 hidden group-hover:block w-56 bg-brand-black text-white text-xs rounded-lg px-3 py-2 shadow-lg z-10">
+                Controls the order sections appear in the compiled context sent to the API. Lower numbers appear first. Default is 50 — use 1–100 to reorder sections within each type.
               </div>
             </div>
           </div>
@@ -67,6 +68,8 @@ export default function SectionEditor({ section, onSave, onDelete }) {
           />
         </div>
       </div>
+
+      <WritingTips key={section?.id} type={type} defaultExpanded={!section?.content} />
 
       {/* Name field */}
       <div>

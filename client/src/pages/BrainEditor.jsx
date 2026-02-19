@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Trash2 } from 'lucide-react';
 import SectionList from '../components/SectionList';
 import SectionEditor from '../components/SectionEditor';
 import ContextPreview from '../components/ContextPreview';
 import BrainOverview from '../components/BrainOverview';
-import { useAuth } from '../App';
+import Header from '../components/Header';
 
 export default function BrainEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { logout } = useAuth();
   const [brain, setBrain] = useState(null);
   const [sections, setSections] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -51,7 +50,7 @@ export default function BrainEditor() {
         type,
         title: `New ${type}`,
         content: '',
-        priority: 0,
+        priority: 50,
       });
       setSections(prev => [...prev, data]);
       setSelected(data);
@@ -107,24 +106,17 @@ export default function BrainEditor() {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="border-b border-border px-4 py-2 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-4">
-          <Link to="/"><img src="/images/brainboxlong.png" alt="Brainbox" className="h-10" /></Link>
-          <Link to="/" className="text-sm text-text-muted hover:text-brand-black">Dashboard</Link>
-          <Link to="/keys" className="text-sm text-text-muted hover:text-brand-black">API Keys</Link>
-          <Link to="/integration" className="text-sm text-text-muted hover:text-brand-black">Integration</Link>
-        </div>
-        <div className="flex items-center gap-3">
+      <Header
+        compact
+        rightContent={
           <button
             onClick={() => setShowPreview(!showPreview)}
             className={`text-xs px-3 py-1 rounded-lg border ${showPreview ? 'border-brand-orange text-brand-orange' : 'border-border text-text-muted'}`}
           >
             {showPreview ? 'Hide' : 'Show'} Preview
           </button>
-          <button onClick={logout} className="text-sm text-text-muted hover:text-brand-black">Sign Out</button>
-        </div>
-      </nav>
+        }
+      />
 
       {/* Three-panel layout */}
       <div className="flex flex-1 overflow-hidden">

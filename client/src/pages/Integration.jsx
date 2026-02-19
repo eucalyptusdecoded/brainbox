@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../App';
+import Header from '../components/Header';
 
 export default function Integration() {
   const [brains, setBrains] = useState([]);
   const [selectedBrain, setSelectedBrain] = useState('');
   const [copied, setCopied] = useState('');
-  const { logout } = useAuth();
-
   useEffect(() => {
     axios.get('/api/brains').then(({ data }) => {
       setBrains(data);
@@ -22,7 +19,7 @@ export default function Integration() {
     setTimeout(() => setCopied(''), 2000);
   }
 
-  const endpoint = `https://api.brainbox.ai/api/context/${selectedBrain || '{brain_id}'}`;
+  const endpoint = `https://api.brainboxllm.site/api/context/${selectedBrain || '{brain_id}'}`;
 
   const actionSchema = JSON.stringify({
     openapi: '3.0.0',
@@ -31,7 +28,7 @@ export default function Integration() {
       version: '1.0.0',
       description: 'Retrieves compiled brain context for LLM injection',
     },
-    servers: [{ url: 'https://api.brainbox.ai' }],
+    servers: [{ url: 'https://api.brainboxllm.site' }],
     paths: {
       [`/api/context/${selectedBrain || '{brain_id}'}`]: {
         get: {
@@ -66,15 +63,7 @@ export default function Integration() {
 
   return (
     <div className="min-h-screen">
-      <nav className="border-b border-border px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link to="/"><img src="/images/brainboxlong.png" alt="Brainbox" className="h-12" /></Link>
-          <Link to="/" className="text-sm text-text-muted hover:text-brand-black">Dashboard</Link>
-          <Link to="/keys" className="text-sm text-text-muted hover:text-brand-black">API Keys</Link>
-          <Link to="/integration" className="text-sm text-brand-black font-medium">Integration</Link>
-        </div>
-        <button onClick={logout} className="text-sm text-text-muted hover:text-brand-black">Sign Out</button>
-      </nav>
+      <Header />
 
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
         <div>

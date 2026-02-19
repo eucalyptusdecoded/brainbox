@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import BrainEditor from './pages/BrainEditor';
 import APIKeys from './pages/APIKeys';
 import Integration from './pages/Integration';
+import Guide from './pages/Guide';
 
 const AuthContext = createContext(null);
 
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/brain/:id" element={<ProtectedRoute><BrainEditor /></ProtectedRoute>} />
           <Route path="/keys" element={<ProtectedRoute><APIKeys /></ProtectedRoute>} />
           <Route path="/integration" element={<ProtectedRoute><Integration /></ProtectedRoute>} />
+          <Route path="/guide" element={<ProtectedRoute><Guide /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

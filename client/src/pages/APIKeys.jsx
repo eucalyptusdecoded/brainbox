@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../App';
+import Header from '../components/Header';
 
 export default function APIKeys() {
   const [keys, setKeys] = useState([]);
@@ -12,8 +11,6 @@ export default function APIKeys() {
   const [label, setLabel] = useState('');
   const [newKey, setNewKey] = useState(null);
   const [copied, setCopied] = useState(false);
-  const { logout } = useAuth();
-
   async function fetchData() {
     try {
       const [keysRes, brainsRes] = await Promise.all([
@@ -64,15 +61,7 @@ export default function APIKeys() {
 
   return (
     <div className="min-h-screen">
-      <nav className="border-b border-border px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link to="/"><img src="/images/brainboxlong.png" alt="Brainbox" className="h-12" /></Link>
-          <Link to="/" className="text-sm text-text-muted hover:text-brand-black">Dashboard</Link>
-          <Link to="/keys" className="text-sm text-brand-black font-medium">API Keys</Link>
-          <Link to="/integration" className="text-sm text-text-muted hover:text-brand-black">Integration</Link>
-        </div>
-        <button onClick={logout} className="text-sm text-text-muted hover:text-brand-black">Sign Out</button>
-      </nav>
+      <Header />
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6">
