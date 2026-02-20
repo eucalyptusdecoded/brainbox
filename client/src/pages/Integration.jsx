@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Copy, Check, Key } from 'lucide-react';
 import Header from '../components/Header';
 
 const PLATFORMS = [
@@ -9,7 +11,7 @@ const PLATFORMS = [
 ];
 
 const PLATFORM_SUBTITLES = {
-  'custom-gpt': 'Connect your Brainbox brain to a Custom GPT in 3 steps.',
+  'custom-gpt': 'Connect your Brainbox brain to a Custom GPT in 4 steps.',
 };
 
 export default function Integration() {
@@ -17,6 +19,12 @@ export default function Integration() {
   const [selectedBrain, setSelectedBrain] = useState('');
   const [copied, setCopied] = useState('');
   const [platform, setPlatform] = useState('custom-gpt');
+
+  // API key state
+  const [keys, setKeys] = useState([]);
+  const [generatedKey, setGeneratedKey] = useState(null); // full key shown once
+  const [generating, setGenerating] = useState(false);
+
   useEffect(() => {
     axios.get('/api/brains').then(({ data }) => {
       setBrains(data);
@@ -24,13 +32,36 @@ export default function Integration() {
     });
   }, []);
 
+  // Fetch keys when brain changes
+  useEffect(() => {
+    if (!selectedBrain) return;
+    setGeneratedKey(null);
+    axios.get('/api/keys').then(({ data }) => {
+      setKeys(data.filter(k => k.brain_id === selectedBrain));
+    });
+  }, [selectedBrain]);
+
   function copy(text, label) {
     navigator.clipboard.writeText(text);
     setCopied(label);
     setTimeout(() => setCopied(''), 2000);
   }
 
-  const endpoint = `https://brainboxllm.site/api/context/${selectedBrain || '{brain_id}'}`;
+  async function handleGenerateKey() {
+    if (!selectedBrain) return;
+    setGenerating(true);
+    try {
+      const { data } = await axios.post('/api/keys', { brain_id: selectedBrain, label: 'Integration' });
+      setGeneratedKey(data.key);
+      // Refresh keys list
+      const keysRes = await axios.get('/api/keys');
+      setKeys(keysRes.data.filter(k => k.brain_id === selectedBrain));
+    } catch (err) {
+      console.error('Failed to generate key:', err);
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   const actionSchema = JSON.stringify({
     openapi: '3.1.0',
@@ -83,6 +114,8 @@ export default function Integration() {
 
   const systemPrompt = `At the start of every new conversation, call getBrainContext to retrieve your context configuration. Apply everything returned — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. If the context endpoint is unavailable, proceed normally but inform the user their Brainbox context could not be loaded.`;
 
+  const brainHasKey = keys.length > 0;
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -130,19 +163,56 @@ export default function Integration() {
         )}
 
         {platform === 'custom-gpt' && (<>
-        {/* Step 1 */}
+
+        {/* Step 1: API Key */}
         <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-2">Step 1: Your API Endpoint</h3>
-          <p className="text-sm text-text-muted mb-3">This is the URL your Custom GPT will call to fetch context.</p>
-          <div className="flex items-center gap-2">
-            <code className="bg-white px-3 py-1.5 rounded text-sm text-brand-orange flex-1 font-mono overflow-x-auto border border-border">{endpoint}</code>
-            <button onClick={() => copy(endpoint, 'endpoint')} className="text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1.5 border border-brand-orange/30 rounded-lg whitespace-nowrap">
-              {copied === 'endpoint' ? 'Copied!' : 'Copy'}
+          <h3 className="font-semibold text-brand-black mb-2">Step 1: Your API Key</h3>
+          <p className="text-sm text-text-muted mb-3">Generate an API key for this brain. You'll need it to authenticate your Custom GPT.</p>
+
+          {generatedKey ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <code className="bg-white px-3 py-2 rounded text-xs text-text-primary flex-1 font-mono overflow-x-auto border border-border">{generatedKey}</code>
+                <button
+                  onClick={() => copy(generatedKey, 'apikey')}
+                  className="text-brand-orange hover:text-brand-orange-hover flex-shrink-0 p-1"
+                  title="Copy"
+                >
+                  {copied === 'apikey' ? <Check size={16} /> : <Copy size={16} />}
+                </button>
+              </div>
+              <p className="text-xs text-amber-600 font-medium">Copy this key now — it won't be shown again.</p>
+            </div>
+          ) : brainHasKey ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Key size={14} className="text-text-muted" />
+                <code className="text-sm text-text-muted font-mono">{keys[0].key_prefix}...</code>
+                <span className="text-xs text-text-muted">— API key exists for this brain</span>
+              </div>
+              <p className="text-xs text-text-muted">
+                Need a new key? <Link to="/keys" className="text-brand-orange hover:text-brand-orange-hover">Manage keys</Link> or generate another below.
+              </p>
+              <button
+                onClick={handleGenerateKey}
+                disabled={generating}
+                className="text-xs text-brand-orange hover:text-brand-orange-hover border border-brand-orange/30 rounded-lg px-3 py-1.5 disabled:opacity-50"
+              >
+                {generating ? 'Generating...' : 'Generate New Key'}
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleGenerateKey}
+              disabled={generating || !selectedBrain}
+              className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              {generating ? 'Generating...' : 'Generate API Key'}
             </button>
-          </div>
+          )}
         </div>
 
-        {/* Step 2 */}
+        {/* Step 2: Action Schema */}
         <div className="bg-bg-panel border border-border rounded-xl p-5">
           <h3 className="font-semibold text-brand-black mb-2">Step 2: Custom GPT Action Schema</h3>
           <p className="text-sm text-text-muted mb-3">Paste this into your Custom GPT's Actions configuration (Schema tab).</p>
@@ -155,12 +225,25 @@ export default function Integration() {
               {copied === 'schema' ? 'Copied!' : 'Copy'}
             </button>
           </div>
-          <p className="text-xs text-text-muted mt-2">Set the Authentication to "API Key", header name <code className="text-text-primary">X-API-Key</code>, and paste your API key from the Keys page.</p>
         </div>
 
-        {/* Step 3 */}
+        {/* Step 3: Authentication Setup */}
         <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-2">Step 3: System Prompt Instructions</h3>
+          <h3 className="font-semibold text-brand-black mb-2">Step 3: Authentication Setup</h3>
+          <p className="text-sm text-text-muted mb-3">Configure the API key authentication in your Custom GPT.</p>
+          <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
+            <li>In your Custom GPT's Actions, click the <strong>Authentication gear icon</strong></li>
+            <li>Set Authentication Type to <strong>API Key</strong></li>
+            <li>Set Auth Type to <strong>Custom</strong></li>
+            <li>Set Custom Header Name to <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">X-API-Key</code></li>
+            <li>Paste your API key from Step 1 into the API Key field</li>
+            <li>Click <strong>Save</strong></li>
+          </ol>
+        </div>
+
+        {/* Step 4: System Prompt */}
+        <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-brand-black mb-2">Step 4: System Prompt Instructions</h3>
           <p className="text-sm text-text-muted mb-3">Add this to your Custom GPT's system instructions:</p>
           <div className="relative">
             <pre className="bg-white rounded-lg p-4 text-sm text-text-primary whitespace-pre-wrap border border-border">{systemPrompt}</pre>
@@ -172,6 +255,7 @@ export default function Integration() {
             </button>
           </div>
         </div>
+
         </>)}
       </div>
     </div>

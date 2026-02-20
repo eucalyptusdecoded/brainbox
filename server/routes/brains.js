@@ -1,18 +1,7 @@
 const express = require('express');
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { db } = require('../db/database');
 const authMiddleware = require('../middleware/auth');
-
-function generateApiKey() {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let key = 'sk_bb_';
-  for (let i = 0; i < 32; i++) {
-    key += chars.charAt(crypto.randomInt(chars.length));
-  }
-  return key;
-}
 
 const router = express.Router();
 router.use(authMiddleware);
@@ -48,21 +37,11 @@ router.post('/', async (req, res) => {
       args: [id, req.user.id, name, description || null],
     });
 
-    // Auto-generate an API key for the new brain
-    const rawKey = generateApiKey();
-    const key_hash = await bcrypt.hash(rawKey, 10);
-    const key_prefix = rawKey.substring(0, 12);
-    const keyId = uuidv4();
-    await db.execute({
-      sql: 'INSERT INTO api_keys (id, user_id, brain_id, key_hash, key_prefix, label) VALUES (?, ?, ?, ?, ?, ?)',
-      args: [keyId, req.user.id, id, key_hash, key_prefix, 'Default'],
-    });
-
     const result = await db.execute({
       sql: 'SELECT * FROM brains WHERE id = ?',
       args: [id],
     });
-    res.status(201).json({ ...result.rows[0], api_key: rawKey });
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Create brain error:', err);
     res.status(500).json({ error: 'Internal server error' });
