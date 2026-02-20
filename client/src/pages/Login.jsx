@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../App';
 import axios from 'axios';
 
@@ -33,8 +33,12 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src="/images/brainboxsquare.png" alt="Brainbox" className="h-[180px] mx-auto" />
-          <p className="text-sm text-text-muted mt-1">Your AI. Your Rules.</p>
+          <Link to="/home">
+            <img src="/images/brainboxlong.png" alt="Brainbox" className="h-[60px] mx-auto" />
+          </Link>
+          <h2 className="text-xl font-semibold text-brand-black mt-4">
+            {isRegister ? 'Create your account' : 'Sign in to your account'}
+          </h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

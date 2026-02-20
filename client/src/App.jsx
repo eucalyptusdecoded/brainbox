@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect, createContext, useContext } from 'react';
 import axios from 'axios';
+import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import BrainEditor from './pages/BrainEditor';
@@ -16,7 +17,7 @@ export function useAuth() {
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/home" replace />;
   return children;
 }
 
@@ -55,6 +56,7 @@ export default function App() {
     <AuthContext.Provider value={{ token, user, login, logout }}>
       <BrowserRouter>
         <Routes>
+          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/brain/:id" element={<ProtectedRoute><BrainEditor /></ProtectedRoute>} />

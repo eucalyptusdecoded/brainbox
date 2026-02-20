@@ -29,8 +29,8 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
     <div className="flex flex-col h-full">
       <div className="px-4 py-2 border-b border-border flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-text-primary">Context Preview</h3>
-          <p className="text-xs text-text-muted">This is what the API will return</p>
+          <h3 className="text-sm font-semibold text-text-primary">Brain Context</h3>
+          <p className="text-xs text-text-muted">Your brain's active knowledge and instructions</p>
         </div>
         <button
           onClick={() => setExpanded(true)}
@@ -50,8 +50,8 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
               if (items.length === 0) return null;
               return (
                 <div key={type}>
-                  <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
-                    {SECTION_LABELS[type]} ({items.length})
+                  <h4 className="text-xs font-semibold text-brand-orange uppercase tracking-wider mb-2">
+                    {SECTION_LABELS[type]} ({items.length}/10)
                   </h4>
                   <div className="space-y-2">
                     {items.map((item, idx) => (
@@ -98,7 +98,7 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
-              <h2 className="text-lg font-semibold text-text-primary">Context Preview</h2>
+              <h2 className="text-lg font-semibold text-text-primary">Brain Context</h2>
               <button
                 onClick={() => setExpanded(false)}
                 className="text-text-muted hover:text-text-primary transition-colors"
@@ -117,8 +117,8 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                     if (items.length === 0) return null;
                     return (
                       <div key={type}>
-                        <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-                          {SECTION_LABELS[type]} ({items.length})
+                        <h4 className="text-xs font-semibold text-brand-orange uppercase tracking-wider mb-3">
+                          {SECTION_LABELS[type]} ({items.length}/10)
                         </h4>
                         <div className="space-y-3">
                           {items.map((item, idx) => (

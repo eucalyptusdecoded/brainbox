@@ -2,6 +2,7 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { db } = require('../db/database');
 const authMiddleware = require('../middleware/auth');
+const { compileContext } = require('../utils/compileContext');
 
 const router = express.Router();
 router.use(authMiddleware);
@@ -118,6 +119,34 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'Brain deleted' });
   } catch (err) {
     console.error('Delete brain error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/brains/:id/context — download compiled brain context as .txt
+router.get('/:id/context', async (req, res) => {
+  try {
+    const brain = await db.execute({
+      sql: 'SELECT * FROM brains WHERE id = ? AND user_id = ?',
+      args: [req.params.id, req.user.id],
+    });
+    if (brain.rows.length === 0) {
+      return res.status(404).json({ error: 'Brain not found' });
+    }
+
+    const sections = await db.execute({
+      sql: 'SELECT * FROM brain_sections WHERE brain_id = ?',
+      args: [req.params.id],
+    });
+
+    const compiled = compileContext(sections.rows);
+    const filename = `brainbox-${brain.rows[0].name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-')}.txt`;
+
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(compiled || 'No active context found for this brain.');
+  } catch (err) {
+    console.error('Download context error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

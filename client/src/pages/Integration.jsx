@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Copy, Check, Key } from 'lucide-react';
+import { Copy, Check, Key, Download } from 'lucide-react';
 import Header from '../components/Header';
 
 const PLATFORMS = [
   { id: 'custom-gpt', name: 'Custom GPT', label: 'OpenAI', available: true },
+  { id: 'gemini', name: 'Gemini Gem', label: 'Google', available: true },
   { id: 'claude', name: 'Claude', label: 'Anthropic', available: false },
-  { id: 'gemini', name: 'Gemini', label: 'Google', available: false },
 ];
 
 const PLATFORM_SUBTITLES = {
   'custom-gpt': 'Connect your Brainbox brain to a Custom GPT in 4 steps.',
+  'gemini': 'Connect your Brainbox brain to a Gemini Gem in 3 steps.',
 };
 
 export default function Integration() {
@@ -24,6 +25,7 @@ export default function Integration() {
   const [keys, setKeys] = useState([]);
   const [generatedKey, setGeneratedKey] = useState(null); // full key shown once
   const [generating, setGenerating] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     axios.get('/api/brains').then(({ data }) => {
@@ -62,6 +64,27 @@ export default function Integration() {
       setGenerating(false);
     }
   }
+
+  async function handleDownloadContext() {
+    if (!selectedBrain) return;
+    setDownloading(true);
+    try {
+      const { data } = await axios.get(`/api/brains/${selectedBrain}/context`, { responseType: 'blob' });
+      const brain = brains.find(b => b.id === selectedBrain);
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `brainbox-${brain?.name || 'context'}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download context:', err);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  const geminiSystemPrompt = `You have been provided a Brainbox context file. Apply everything in it — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. Follow the context file as your primary instructions.`;
 
   const actionSchema = JSON.stringify({
     openapi: '3.1.0',
@@ -252,6 +275,53 @@ export default function Integration() {
               className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
             >
               {copied === 'prompt' ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+        </div>
+
+        </>)}
+
+        {platform === 'gemini' && (<>
+
+        {/* Step 1: Download Context */}
+        <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-brand-black mb-2">Step 1: Download Brain Context</h3>
+          <p className="text-sm text-text-muted mb-3">Download your brain's context as a text file to upload to your Gem.</p>
+          <button
+            onClick={handleDownloadContext}
+            disabled={downloading || !selectedBrain}
+            className="flex items-center gap-2 bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+          >
+            <Download size={16} />
+            {downloading ? 'Downloading...' : 'Download Context File'}
+          </button>
+          <p className="text-xs text-amber-600 font-medium mt-3">Re-download this file after making changes to your brain.</p>
+        </div>
+
+        {/* Step 2: Create Gem */}
+        <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-brand-black mb-2">Step 2: Create Your Gem</h3>
+          <p className="text-sm text-text-muted mb-3">Set up a new Gem in Google Gemini with your brain context.</p>
+          <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
+            <li>Open <strong>gemini.google.com</strong> and click <strong>Gem manager</strong> in the left sidebar</li>
+            <li>Click <strong>New Gem</strong></li>
+            <li>Give your Gem a name</li>
+            <li>In the <strong>Knowledge</strong> section, click <strong>Upload</strong> and select the downloaded <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> file</li>
+            <li>Click <strong>Save</strong></li>
+          </ol>
+        </div>
+
+        {/* Step 3: System Prompt */}
+        <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-brand-black mb-2">Step 3: System Prompt Instructions</h3>
+          <p className="text-sm text-text-muted mb-3">Paste this into your Gem's Instructions field:</p>
+          <div className="relative">
+            <pre className="bg-white rounded-lg p-4 text-sm text-text-primary whitespace-pre-wrap border border-border">{geminiSystemPrompt}</pre>
+            <button
+              onClick={() => copy(geminiSystemPrompt, 'gemini-prompt')}
+              className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+            >
+              {copied === 'gemini-prompt' ? 'Copied!' : 'Copy'}
             </button>
           </div>
         </div>

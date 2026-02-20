@@ -4,7 +4,7 @@ import WritingTips from './WritingTips';
 
 const TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
 
-export default function SectionEditor({ section, onSave, onDelete }) {
+export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [type, setType] = useState('rule');
@@ -96,12 +96,21 @@ export default function SectionEditor({ section, onSave, onDelete }) {
       </div>
 
       <div className="flex items-center justify-between">
-        <button
-          onClick={() => onDelete(section)}
-          className="text-sm text-red-600 hover:text-red-700"
-        >
-          Delete section
-        </button>
+        {section._draft ? (
+          <button
+            onClick={onCancel}
+            className="text-sm text-text-muted hover:text-brand-black"
+          >
+            Cancel
+          </button>
+        ) : (
+          <button
+            onClick={() => onDelete(section)}
+            className="text-sm text-red-600 hover:text-red-700"
+          >
+            Delete section
+          </button>
+        )}
         <button
           onClick={handleSave}
           disabled={saving || !title.trim() || !content.trim()}

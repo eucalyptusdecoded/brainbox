@@ -44,35 +44,45 @@ export default function BrainEditor() {
     }
   }
 
-  async function handleAddSection(type) {
-    try {
-      const { data } = await axios.post(`/api/brains/${id}/sections`, {
-        type,
-        title: `New ${type}`,
-        content: '',
-        priority: 50,
-      });
-      setSections(prev => [...prev, data]);
-      setSelected(data);
-    } catch (err) {
-      console.error('Failed to add section:', err);
-    }
+  function handleAddSection(type) {
+    setSelected({
+      _draft: true,
+      type,
+      title: '',
+      content: '',
+      priority: 50,
+    });
   }
 
   async function handleSaveSection(section) {
     try {
-      const { data } = await axios.put(`/api/brains/${id}/sections/${section.id}`, {
-        type: section.type,
-        title: section.title,
-        content: section.content,
-        is_active: section.is_active,
-        priority: section.priority,
-      });
-      setSections(prev => prev.map(s => (s.id === data.id ? data : s)));
-      setSelected(data);
+      if (section._draft) {
+        const { data } = await axios.post(`/api/brains/${id}/sections`, {
+          type: section.type,
+          title: section.title,
+          content: section.content,
+          priority: section.priority,
+        });
+        setSections(prev => [...prev, data]);
+        setSelected(data);
+      } else {
+        const { data } = await axios.put(`/api/brains/${id}/sections/${section.id}`, {
+          type: section.type,
+          title: section.title,
+          content: section.content,
+          is_active: section.is_active,
+          priority: section.priority,
+        });
+        setSections(prev => prev.map(s => (s.id === data.id ? data : s)));
+        setSelected(data);
+      }
     } catch (err) {
       console.error('Failed to save section:', err);
     }
+  }
+
+  function handleCancelDraft() {
+    setSelected(null);
   }
 
   async function handleToggle(section) {
@@ -122,37 +132,6 @@ export default function BrainEditor() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Brain info + Section list */}
         <div className="w-56 border-r border-border overflow-y-auto flex-shrink-0 flex flex-col">
-          {/* Brain name header */}
-          <div className="p-3 border-b border-border">
-            {editingName ? (
-              <div className="space-y-2">
-                <input
-                  className="text-sm font-semibold w-full"
-                  value={brainName}
-                  onChange={(e) => setBrainName(e.target.value)}
-                  autoFocus
-                  onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
-                />
-                <input
-                  className="text-sm w-full"
-                  value={brainDesc}
-                  onChange={(e) => setBrainDesc(e.target.value)}
-                  placeholder="Description"
-                  onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
-                />
-                <div className="flex gap-2">
-                  <button onClick={saveBrainMeta} className="text-xs text-brand-orange hover:text-brand-orange-hover">Save</button>
-                  <button onClick={() => setEditingName(false)} className="text-xs text-text-muted hover:text-text-primary">Cancel</button>
-                </div>
-              </div>
-            ) : (
-              <button onClick={() => setEditingName(true)} className="text-left w-full">
-                <h3 className="text-base font-bold text-brand-black hover:text-brand-orange transition-colors">{brain.name}</h3>
-                {brain.description && <p className="text-sm text-text-muted mt-1 line-clamp-2">{brain.description}</p>}
-              </button>
-            )}
-          </div>
-
           {/* Overview link */}
           <div className="px-3 pt-3">
             <button
@@ -177,11 +156,20 @@ export default function BrainEditor() {
               section={selected}
               onSave={handleSaveSection}
               onDelete={handleDelete}
+              onCancel={handleCancelDraft}
             />
           ) : (
             <BrainOverview
               sections={sections}
               onAdd={handleAddSection}
+              brain={brain}
+              editingName={editingName}
+              setEditingName={setEditingName}
+              brainName={brainName}
+              setBrainName={setBrainName}
+              brainDesc={brainDesc}
+              setBrainDesc={setBrainDesc}
+              saveBrainMeta={saveBrainMeta}
             />
           )}
         </div>
