@@ -19,16 +19,16 @@ export default function Integration() {
     setTimeout(() => setCopied(''), 2000);
   }
 
-  const endpoint = `https://api.brainboxllm.site/api/context/${selectedBrain || '{brain_id}'}`;
+  const endpoint = `https://brainboxllm.site/api/context/${selectedBrain || '{brain_id}'}`;
 
   const actionSchema = JSON.stringify({
-    openapi: '3.0.0',
+    openapi: '3.1.0',
     info: {
       title: 'Brainbox Context API',
       version: '1.0.0',
       description: 'Retrieves compiled brain context for LLM injection',
     },
-    servers: [{ url: 'https://api.brainboxllm.site' }],
+    servers: [{ url: 'https://brainboxllm.site' }],
     paths: {
       [`/api/context/${selectedBrain || '{brain_id}'}`]: {
         get: {
@@ -44,6 +44,16 @@ export default function Integration() {
               description: 'Comma separated list of section types to return. Options: rule, memory, behaviour, guardrail, skill',
             },
           ],
+          responses: {
+            '200': {
+              description: 'Compiled brain context as plain text',
+              content: {
+                'text/plain': {
+                  schema: { type: 'string' },
+                },
+              },
+            },
+          },
           security: [{ ApiKeyAuth: [] }],
         },
       },
@@ -56,6 +66,7 @@ export default function Integration() {
           name: 'X-API-Key',
         },
       },
+      schemas: {},
     },
   }, null, 2);
 
