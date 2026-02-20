@@ -23,11 +23,13 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// API Routes
+// Public API — allow any origin (called by ChatGPT, external services)
+app.use('/api/context', cors(), contextRoutes);
+
+// Authenticated app routes
 app.use('/api/auth', authRoutes);
 app.use('/api/brains', brainRoutes);
 app.use('/api/brains/:id/sections', sectionRoutes);
-app.use('/api/context', contextRoutes);
 app.use('/api/keys', keyRoutes);
 
 // Health check
