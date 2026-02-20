@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FileText, LayoutTemplate } from 'lucide-react';
+import { FileText, LayoutTemplate, Copy, Check } from 'lucide-react';
 import Header from '../components/Header';
 import brainTemplates from '../data/brainTemplates';
 
@@ -14,6 +14,8 @@ export default function Dashboard() {
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [creating, setCreating] = useState(false);
+  const [newBrainKey, setNewBrainKey] = useState(null); // { brainId, apiKey }
+  const [keyCopied, setKeyCopied] = useState(false);
   const navigate = useNavigate();
 
   async function fetchBrains() {
@@ -54,7 +56,11 @@ export default function Dashboard() {
     try {
       const { data } = await axios.post('/api/brains', { name: newName, description: newDesc });
       resetModal();
-      navigate(`/brain/${data.id}`);
+      if (data.api_key) {
+        setNewBrainKey({ brainId: data.id, apiKey: data.api_key });
+      } else {
+        navigate(`/brain/${data.id}`);
+      }
     } catch (err) {
       console.error('Failed to create brain:', err);
     }
@@ -75,7 +81,11 @@ export default function Dashboard() {
         });
       }
       resetModal();
-      navigate(`/brain/${brain.id}`);
+      if (brain.api_key) {
+        setNewBrainKey({ brainId: brain.id, apiKey: brain.api_key });
+      } else {
+        navigate(`/brain/${brain.id}`);
+      }
     } catch (err) {
       console.error('Failed to create brain from template:', err);
       setCreating(false);
@@ -212,6 +222,43 @@ export default function Dashboard() {
                 </form>
               )}
 
+            </div>
+          </div>
+        )}
+
+        {/* API key modal — shown once after brain creation */}
+        {newBrainKey && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white border border-border rounded-xl p-6 w-full max-w-md space-y-4" onClick={e => e.stopPropagation()}>
+              <h3 className="text-lg font-semibold text-brand-black">Your API Key</h3>
+              <p className="text-sm text-text-muted">An API key has been generated for this brain. Copy it now — it won't be shown again.</p>
+              <div className="flex items-center gap-2">
+                <code className="bg-bg-panel border border-border rounded px-3 py-2 text-xs font-mono text-text-primary flex-1 overflow-x-auto">{newBrainKey.apiKey}</code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(newBrainKey.apiKey);
+                    setKeyCopied(true);
+                    setTimeout(() => setKeyCopied(false), 2000);
+                  }}
+                  className="text-brand-orange hover:text-brand-orange-hover flex-shrink-0"
+                  title="Copy"
+                >
+                  {keyCopied ? <Check size={18} /> : <Copy size={18} />}
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => {
+                    const brainId = newBrainKey.brainId;
+                    setNewBrainKey(null);
+                    setKeyCopied(false);
+                    navigate(`/brain/${brainId}`);
+                  }}
+                  className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg"
+                >
+                  Continue to Brain
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -2,12 +2,6 @@ const bcrypt = require('bcryptjs');
 const { db } = require('../db/database');
 
 async function apiKeyMiddleware(req, res, next) {
-  // Log auth-related headers for debugging
-  const authHeaders = Object.entries(req.headers)
-    .filter(([k]) => k.includes('api') || k.includes('auth') || k.includes('key'))
-    .map(([k, v]) => `${k}: ${v.substring(0, 20)}...`);
-  console.log('Auth headers:', authHeaders);
-
   const key = req.headers['x-api-key'];
   if (!key || !key.startsWith('sk_bb_')) {
     return res.status(401).json({ error: 'Missing or invalid API key' });
