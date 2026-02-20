@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ScanSearch } from 'lucide-react';
 import SectionList from '../components/SectionList';
 import SectionEditor from '../components/SectionEditor';
 import ContextPreview from '../components/ContextPreview';
@@ -151,6 +151,17 @@ export default function BrainEditor() {
                 {brain.description && <p className="text-sm text-text-muted mt-1 line-clamp-2">{brain.description}</p>}
               </button>
             )}
+          </div>
+
+          {/* Overview link */}
+          <div className="px-3 pt-3">
+            <button
+              onClick={() => setSelected(null)}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-brand-orange hover:bg-bg-panel transition-colors font-medium"
+            >
+              <ScanSearch size={14} />
+              Brain Scan
+            </button>
           </div>
 
           {/* Add section actions */}

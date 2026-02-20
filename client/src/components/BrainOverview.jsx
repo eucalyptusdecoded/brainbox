@@ -133,11 +133,11 @@ export default function BrainOverview({ sections, onAdd }) {
     <div className="flex flex-col items-center justify-start gap-8 p-8 h-full overflow-y-auto">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-brand-black mb-1">Brain Overview</h2>
+        <h2 className="text-xl font-semibold text-brand-black mb-1">Brain Scan</h2>
         <p className="text-sm text-text-muted">
           {isEmpty
-            ? 'Start building your brain by adding nodes below.'
-            : `${totalCount} of ${TOTAL_TARGET} nodes — ${Math.round(totalPct)}% complete`}
+            ? 'Start building your brain by adding neurons below.'
+            : `${totalCount} of ${TOTAL_TARGET} neurons — ${Math.round(totalPct)}% brain capacity`}
         </p>
       </div>
 
@@ -149,7 +149,7 @@ export default function BrainOverview({ sections, onAdd }) {
         {/* Overall */}
         <div className="mb-6">
           <div className="flex justify-between text-sm text-text-muted mb-2">
-            <span>Overall Brain</span>
+            <span>Brain Capacity</span>
             <span>{totalCount}/{TOTAL_TARGET}</span>
           </div>
           <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
@@ -183,7 +183,7 @@ export default function BrainOverview({ sections, onAdd }) {
       {isEmpty && (
         <div className="border border-dashed border-border rounded-xl p-6 text-center max-w-md w-full">
           <p className="text-text-muted text-sm mb-1">Your brain is empty.</p>
-          <p className="text-text-muted text-sm mb-4">Add your first section to get started.</p>
+          <p className="text-text-muted text-sm mb-4">Add your first neuron to get started.</p>
           <div className="flex flex-wrap gap-2 justify-center">
             {TYPES.map(t => (
               <button
