@@ -2,10 +2,21 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/Header';
 
+const PLATFORMS = [
+  { id: 'custom-gpt', name: 'Custom GPT', label: 'OpenAI', available: true },
+  { id: 'claude', name: 'Claude', label: 'Anthropic', available: false },
+  { id: 'gemini', name: 'Gemini', label: 'Google', available: false },
+];
+
+const PLATFORM_SUBTITLES = {
+  'custom-gpt': 'Connect your Brainbox brain to a Custom GPT in 3 steps.',
+};
+
 export default function Integration() {
   const [brains, setBrains] = useState([]);
   const [selectedBrain, setSelectedBrain] = useState('');
   const [copied, setCopied] = useState('');
+  const [platform, setPlatform] = useState('custom-gpt');
   useEffect(() => {
     axios.get('/api/brains').then(({ data }) => {
       setBrains(data);
@@ -79,7 +90,33 @@ export default function Integration() {
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
         <div>
           <h2 className="text-xl font-semibold text-brand-black mb-2">Integration Guide</h2>
-          <p className="text-text-muted text-sm">Connect your Brainbox brain to a Custom GPT in 3 steps.</p>
+          <p className="text-text-muted text-sm">{PLATFORM_SUBTITLES[platform] || 'Choose a platform to get started.'}</p>
+        </div>
+
+        {/* Platform selector */}
+        <div className="flex gap-3">
+          {PLATFORMS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => p.available && setPlatform(p.id)}
+              disabled={!p.available}
+              className={`relative flex-1 border rounded-xl px-4 py-3 text-left transition-colors ${
+                p.available && platform === p.id
+                  ? 'border-brand-orange bg-brand-orange/5'
+                  : p.available
+                    ? 'border-border hover:border-brand-orange/40'
+                    : 'border-border opacity-50 cursor-not-allowed'
+              }`}
+            >
+              <p className={`text-sm font-medium ${platform === p.id ? 'text-brand-orange' : 'text-brand-black'}`}>{p.name}</p>
+              <p className="text-xs text-text-muted">{p.label}</p>
+              {!p.available && (
+                <span className="absolute top-2 right-2 text-[10px] font-medium text-text-muted bg-bg-panel border border-border rounded px-1.5 py-0.5">
+                  Coming Soon
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Brain selector */}
@@ -92,6 +129,7 @@ export default function Integration() {
           </div>
         )}
 
+        {platform === 'custom-gpt' && (<>
         {/* Step 1 */}
         <div className="bg-bg-panel border border-border rounded-xl p-5">
           <h3 className="font-semibold text-brand-black mb-2">Step 1: Your API Endpoint</h3>
@@ -134,6 +172,7 @@ export default function Integration() {
             </button>
           </div>
         </div>
+        </>)}
       </div>
     </div>
   );
