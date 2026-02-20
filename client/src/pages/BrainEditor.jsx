@@ -17,7 +17,7 @@ export default function BrainEditor() {
   const [brain, setBrain] = useState(null);
   const [sections, setSections] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(() => !window.matchMedia('(max-width: 767px)').matches);
   const [editingName, setEditingName] = useState(false);
   const [brainName, setBrainName] = useState('');
   const [brainDesc, setBrainDesc] = useState('');
