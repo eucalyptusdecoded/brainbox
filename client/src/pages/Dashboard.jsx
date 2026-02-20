@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FileText, LayoutTemplate, Copy, Check } from 'lucide-react';
+import { FileText, LayoutTemplate, Copy, Check, MoreVertical, Trash2 } from 'lucide-react';
 import Header from '../components/Header';
 import brainTemplates from '../data/brainTemplates';
 
@@ -16,6 +16,9 @@ export default function Dashboard() {
   const [creating, setCreating] = useState(false);
   const [newBrainKey, setNewBrainKey] = useState(null); // { brainId, apiKey }
   const [keyCopied, setKeyCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(null); // brain id or null
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // brain object or null
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
   async function fetchBrains() {
@@ -92,8 +95,22 @@ export default function Dashboard() {
     }
   }
 
+  async function handleDelete() {
+    if (!deleteConfirm) return;
+    setDeleting(true);
+    try {
+      await axios.delete(`/api/brains/${deleteConfirm.id}`);
+      setDeleteConfirm(null);
+      setDeleting(false);
+      fetchBrains();
+    } catch (err) {
+      console.error('Failed to delete brain:', err);
+      setDeleting(false);
+    }
+  }
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" onClick={() => setMenuOpen(null)}>
       <Header />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
@@ -263,6 +280,28 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Delete confirmation modal */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
+            <div className="bg-white border border-border rounded-xl p-6 w-full max-w-sm space-y-4" onClick={e => e.stopPropagation()}>
+              <h3 className="text-lg font-semibold text-brand-black">Delete Brain</h3>
+              <p className="text-sm text-text-muted">
+                Are you sure you want to delete <strong className="text-text-primary">{deleteConfirm.name}</strong>? This will permanently remove all sections and API keys associated with this brain.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => setDeleteConfirm(null)} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Brain grid */}
         {loading ? (
           <p className="text-text-muted">Loading...</p>
@@ -274,23 +313,40 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {brains.map((brain) => (
-              <Link
-                key={brain.id}
-                to={`/brain/${brain.id}`}
-                className="border border-border rounded-xl overflow-hidden hover:border-brand-orange/50 transition-colors group"
-              >
-                <div className="bg-bg-panel flex items-center justify-center px-5 py-6">
-                  <img src="/images/brainboxlogo.png" alt="" className="h-12 opacity-80 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="bg-white p-5 border-t border-border">
-                  <h3 className="font-semibold text-brand-black group-hover:text-brand-orange transition-colors">{brain.name}</h3>
-                  {brain.description && <p className="text-sm text-text-muted mt-1 line-clamp-2">{brain.description}</p>}
-                  <div className="flex items-center gap-3 mt-3 text-xs text-text-muted">
-                    <span>{brain.section_count || 0} sections</span>
-                    <span>Updated {new Date(brain.updated_at).toLocaleDateString()}</span>
+              <div key={brain.id} className="relative border border-border rounded-xl overflow-hidden hover:border-brand-orange/50 transition-colors group">
+                <Link to={`/brain/${brain.id}`}>
+                  <div className="bg-bg-panel flex items-center justify-center px-5 py-6">
+                    <img src="/images/brainboxlogo.png" alt="" className="h-12 opacity-80 group-hover:opacity-100 transition-opacity" />
                   </div>
+                  <div className="bg-white p-5 border-t border-border">
+                    <h3 className="font-semibold text-brand-black group-hover:text-brand-orange transition-colors">{brain.name}</h3>
+                    {brain.description && <p className="text-sm text-text-muted mt-1 line-clamp-2">{brain.description}</p>}
+                    <div className="flex items-center gap-3 mt-3 text-xs text-text-muted">
+                      <span>{brain.section_count || 0} sections</span>
+                      <span>Updated {new Date(brain.updated_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </Link>
+                <div className="absolute top-2 right-2">
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(menuOpen === brain.id ? null : brain.id); }}
+                    className="p-1 rounded-lg text-text-muted hover:text-brand-black hover:bg-white/80 transition-colors"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+                  {menuOpen === brain.id && (
+                    <div className="absolute right-0 top-8 bg-white border border-border rounded-lg shadow-lg py-1 z-10 w-36" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => { setMenuOpen(null); setDeleteConfirm(brain); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                        Delete Brain
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
