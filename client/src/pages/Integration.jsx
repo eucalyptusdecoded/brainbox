@@ -143,14 +143,14 @@ export default function Integration() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-8">
         <div>
           <h2 className="text-xl font-semibold text-brand-black mb-2">Integration Guide</h2>
           <p className="text-text-muted text-sm">{PLATFORM_SUBTITLES[platform] || 'Choose a platform to get started.'}</p>
         </div>
 
         {/* Platform selector */}
-        <div className="flex gap-3">
+        <div className="flex flex-col md:flex-row gap-3">
           {PLATFORMS.map((p) => (
             <button
               key={p.id}

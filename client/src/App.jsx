@@ -21,20 +21,32 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function decodeUser(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return { id: payload.id, email: payload.email };
+  } catch {
+    return null;
+  }
+}
+
+// Set the Authorization header synchronously on load so that
+// child components' initial requests already include the token.
+const savedToken = localStorage.getItem('bb_token');
+if (savedToken) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+}
+
 export default function App() {
-  const [token, setToken] = useState(localStorage.getItem('bb_token'));
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(savedToken);
+  const [user, setUser] = useState(() => savedToken ? decodeUser(savedToken) : null);
 
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // Decode user from JWT payload
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ id: payload.id, email: payload.email });
-      } catch {
-        logout();
-      }
+      const decoded = decodeUser(token);
+      if (!decoded) logout();
+      else setUser(decoded);
     }
   }, [token]);
 

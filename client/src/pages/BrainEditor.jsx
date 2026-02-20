@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Trash2, ScanSearch } from 'lucide-react';
+import { Trash2, ScanSearch, PanelLeft, Eye, X } from 'lucide-react';
 import SectionList from '../components/SectionList';
 import SectionEditor from '../components/SectionEditor';
 import ContextPreview from '../components/ContextPreview';
 import BrainOverview from '../components/BrainOverview';
+import FileUploader from '../components/FileUploader';
 import Header from '../components/Header';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function BrainEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const [brain, setBrain] = useState(null);
   const [sections, setSections] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -19,6 +22,17 @@ export default function BrainEditor() {
   const [brainName, setBrainName] = useState('');
   const [brainDesc, setBrainDesc] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Lock body scroll when mobile overlays are open
+  useEffect(() => {
+    if (isMobile && (sidebarOpen || showPreview)) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isMobile, sidebarOpen, showPreview]);
 
   async function fetchBrain() {
     try {
@@ -52,6 +66,12 @@ export default function BrainEditor() {
       content: '',
       priority: 50,
     });
+    setSidebarOpen(false);
+  }
+
+  function handleUploadStart() {
+    setSelected({ _upload: true });
+    setSidebarOpen(false);
   }
 
   async function handleSaveSection(section) {
@@ -121,21 +141,57 @@ export default function BrainEditor() {
         rightContent={
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className={`text-xs px-3 py-1 rounded-lg border ${showPreview ? 'border-brand-orange text-brand-orange' : 'border-border text-text-muted'}`}
+            className={`text-xs px-3 py-1 rounded-lg border hidden md:block ${showPreview ? 'border-brand-orange text-brand-orange' : 'border-border text-text-muted'}`}
           >
             {showPreview ? 'Hide' : 'Show'} Preview
           </button>
         }
       />
 
+      {/* Mobile toolbar */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border md:hidden flex-shrink-0">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="flex items-center gap-1.5 text-sm text-text-muted hover:text-brand-black"
+        >
+          <PanelLeft size={16} />
+          Sections
+        </button>
+        <button
+          onClick={() => setShowPreview(true)}
+          className="flex items-center gap-1.5 text-sm text-text-muted hover:text-brand-black ml-auto"
+        >
+          <Eye size={16} />
+          Preview
+        </button>
+      </div>
+
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* Three-panel layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Brain info + Section list */}
-        <div className="w-56 border-r border-border overflow-y-auto flex-shrink-0 flex flex-col">
+        <div className={`
+          fixed inset-y-0 left-0 z-40 w-64 bg-white transform transition-transform duration-200
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:relative md:translate-x-0 md:w-56 md:z-auto md:transition-none
+          border-r border-border overflow-y-auto flex-shrink-0 flex flex-col
+        `}>
+          {/* Mobile close button */}
+          <div className="flex items-center justify-between px-3 pt-3 md:hidden">
+            <span className="text-sm font-medium text-text-muted">Sections</span>
+            <button onClick={() => setSidebarOpen(false)} className="text-text-muted hover:text-brand-black p-1">
+              <X size={18} />
+            </button>
+          </div>
+
           {/* Overview link */}
           <div className="px-3 pt-3">
             <button
-              onClick={() => setSelected(null)}
+              onClick={() => { setSelected(null); setSidebarOpen(false); }}
               className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-brand-orange hover:bg-bg-panel transition-colors font-medium"
             >
               <ScanSearch size={14} />
@@ -145,13 +201,19 @@ export default function BrainEditor() {
 
           {/* Add section actions */}
           <div className="flex-1 overflow-y-auto p-3">
-            <SectionList onAdd={handleAddSection} />
+            <SectionList onAdd={handleAddSection} onUpload={handleUploadStart} />
           </div>
         </div>
 
         {/* Centre: Section editor or Overview */}
         <div className="flex-1 overflow-y-auto">
-          {selected ? (
+          {selected?._upload ? (
+            <FileUploader
+              brainId={id}
+              onSave={handleSaveSection}
+              onCancel={() => setSelected(null)}
+            />
+          ) : selected ? (
             <SectionEditor
               section={selected}
               onSave={handleSaveSection}
@@ -162,6 +224,7 @@ export default function BrainEditor() {
             <BrainOverview
               sections={sections}
               onAdd={handleAddSection}
+              onUpload={handleUploadStart}
               brain={brain}
               editingName={editingName}
               setEditingName={setEditingName}
@@ -174,18 +237,37 @@ export default function BrainEditor() {
           )}
         </div>
 
-        {/* Right: Context preview */}
-        {showPreview && (
+        {/* Right: Context preview — desktop only */}
+        {showPreview && !isMobile && (
           <div className="w-80 border-l border-border overflow-y-auto flex-shrink-0 bg-bg-panel">
             <ContextPreview sections={sections} onDelete={handleDelete} onEdit={setSelected} />
           </div>
         )}
       </div>
 
+      {/* Mobile preview overlay */}
+      {showPreview && isMobile && (
+        <div className="fixed inset-0 bg-white z-50 flex flex-col md:hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
+            <h3 className="text-sm font-semibold text-text-primary">Brain Context</h3>
+            <button onClick={() => setShowPreview(false)} className="text-text-muted hover:text-brand-black p-1">
+              <X size={20} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <ContextPreview
+              sections={sections}
+              onDelete={handleDelete}
+              onEdit={(item) => { setSelected(item); setShowPreview(false); }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Delete confirmation modal */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setDeleteTarget(null)}>
-          <div onClick={(e) => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-sm space-y-4">
+          <div onClick={(e) => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-sm mx-4 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center flex-shrink-0">
                 <Trash2 size={20} className="text-brand-orange" />

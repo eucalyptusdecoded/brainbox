@@ -63,7 +63,7 @@ export default function APIKeys() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-4 md:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-brand-black">API Keys</h2>
           <button
@@ -94,7 +94,7 @@ export default function APIKeys() {
             <form
               onClick={(e) => e.stopPropagation()}
               onSubmit={handleCreate}
-              className="bg-white border border-border rounded-xl p-6 w-full max-w-md space-y-4"
+              className="bg-white border border-border rounded-xl p-6 w-full max-w-md mx-4 space-y-4"
             >
               <h3 className="text-lg font-semibold text-brand-black">Generate API Key</h3>
               <div>
@@ -123,7 +123,8 @@ export default function APIKeys() {
           <p className="text-text-muted text-center py-12">No API keys yet. Generate one to get started.</p>
         ) : (
           <div className="border border-border rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-border text-text-muted text-left">
                   <th className="px-4 py-3 font-medium">Label</th>
@@ -149,6 +150,7 @@ export default function APIKeys() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

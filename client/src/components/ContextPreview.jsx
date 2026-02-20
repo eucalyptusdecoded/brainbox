@@ -61,11 +61,11 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                           <p className="text-sm font-medium text-text-primary truncate">{item.title}</p>
                           <p className="text-xs text-text-muted truncate">{item.content.length > 35 ? item.content.slice(0, 35) + '...' : item.content}</p>
                         </div>
-                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                        <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
                           {onEdit && (
                             <button
                               onClick={() => onEdit(item)}
-                              className="text-brand-orange hover:text-brand-orange-hover"
+                              className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
                               title="Edit"
                             >
                               <Pencil size={14} />
@@ -74,7 +74,7 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                           {onDelete && (
                             <button
                               onClick={() => onDelete(item)}
-                              className="text-brand-orange hover:text-brand-orange-hover"
+                              className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
                               title="Remove"
                             >
                               <Trash2 size={14} />
@@ -94,10 +94,10 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
       {expanded && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center" onClick={() => setExpanded(false)}>
           <div
-            className="bg-white max-w-3xl w-full mx-auto my-8 rounded-xl shadow-xl max-h-[calc(100vh-4rem)] flex flex-col"
+            className="bg-white max-w-3xl w-full mx-auto my-0 md:my-8 rounded-none md:rounded-xl shadow-xl h-full md:h-auto md:max-h-[calc(100vh-4rem)] flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
+            <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b border-border flex-shrink-0">
               <h2 className="text-lg font-semibold text-text-primary">Brain Context</h2>
               <button
                 onClick={() => setExpanded(false)}
@@ -107,7 +107,7 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                 <X size={20} />
               </button>
             </div>
-            <div className="overflow-y-auto p-6 text-sm text-text-primary leading-relaxed">
+            <div className="overflow-y-auto p-4 md:p-6 text-sm text-text-primary leading-relaxed">
               {totalActive === 0 ? (
                 <p className="text-text-muted">No active sections</p>
               ) : (
@@ -128,11 +128,11 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                                 <p className="text-sm font-medium text-text-primary">{item.title}</p>
                                 <p className="text-xs text-text-muted whitespace-pre-wrap mt-1">{item.content}</p>
                               </div>
-                              <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                              <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
                                 {onEdit && (
                                   <button
                                     onClick={() => onEdit(item)}
-                                    className="text-brand-orange hover:text-brand-orange-hover"
+                                    className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
                                     title="Edit"
                                   >
                                     <Pencil size={14} />
@@ -141,7 +141,7 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                                 {onDelete && (
                                   <button
                                     onClick={() => onDelete(item)}
-                                    className="text-brand-orange hover:text-brand-orange-hover"
+                                    className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
                                     title="Remove"
                                   >
                                     <Trash2 size={14} />

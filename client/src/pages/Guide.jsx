@@ -88,7 +88,7 @@ export default function Guide() {
     <div className="min-h-screen">
       <Header />
 
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-10">
+      <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-10">
         <div>
           <h1 className="text-2xl font-bold text-brand-black">Writing Guide</h1>
           <p className="text-text-muted mt-2">Learn how to write effective nodes for each section type in your brain.</p>
@@ -104,6 +104,46 @@ export default function Guide() {
             <li className="flex gap-2"><span className="text-brand-orange font-bold">4.</span>Test and iterate — after adding nodes, use the Preview panel to see the compiled output and refine.</li>
           </ul>
         </div>
+
+        {/* File uploads */}
+        <section id="uploads" className="scroll-mt-20 space-y-4">
+          <h2 className="text-lg font-semibold text-brand-black">File Uploads</h2>
+          <p className="text-sm text-text-muted">You can upload documents to quickly populate your brain with existing content instead of typing everything manually.</p>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">How It Works</h3>
+            <ol className="space-y-1.5 text-sm text-text-primary list-decimal list-inside">
+              <li>Click <strong>Upload File</strong> in the sidebar to open the upload form.</li>
+              <li>Select a file from your device. Supported formats: <strong>TXT, PDF, DOCX, and CSV</strong>.</li>
+              <li>Brainbox extracts the text content from your file on the server. The original file is <strong>not stored</strong> — only the extracted text is kept.</li>
+              <li>The extracted text and a name (auto-filled from the filename) appear in the form for you to review.</li>
+              <li>Choose a section type (e.g. Memory, Rule) and adjust the priority if needed, then click <strong>Save</strong>.</li>
+              <li>The content is saved as a regular brain section. You can edit it afterwards just like any other section.</li>
+            </ol>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">Tips</h3>
+            <ul className="space-y-1.5">
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                Maximum extracted text size is 500KB per file. Very large documents will be rejected — consider splitting them into smaller files.
+              </li>
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                Choose the section type that best fits the content — use Memory for reference documents, Rule for guidelines, Skill for process docs.
+              </li>
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                After saving, review and trim the extracted content. Removing unnecessary boilerplate or headers keeps your brain clean and focused.
+              </li>
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                PDF extraction works best with text-based PDFs. Scanned documents or image-heavy PDFs may produce poor results.
+              </li>
+            </ul>
+          </div>
+        </section>
 
         {/* Per-type sections */}
         {SECTIONS.map(({ id, title, description, tips, examples }) => (

@@ -1,3 +1,5 @@
+import { Upload } from 'lucide-react';
+
 const TYPES = [
   { key: 'rule', label: 'Rule', plural: 'Rules' },
   { key: 'memory', label: 'Memory', plural: 'Memories' },
@@ -119,7 +121,7 @@ function BrainDiagram({ countByType }) {
   );
 }
 
-export default function BrainOverview({ sections, onAdd, brain, editingName, setEditingName, brainName, setBrainName, brainDesc, setBrainDesc, saveBrainMeta }) {
+export default function BrainOverview({ sections, onAdd, onUpload, brain, editingName, setEditingName, brainName, setBrainName, brainDesc, setBrainDesc, saveBrainMeta }) {
   const countByType = {};
   TYPES.forEach(t => {
     countByType[t.key] = sections.filter(s => s.type === t.key).length;
@@ -222,6 +224,15 @@ export default function BrainOverview({ sections, onAdd, brain, editingName, set
                 + {t.label}
               </button>
             ))}
+            {onUpload && (
+              <button
+                onClick={onUpload}
+                className="text-sm px-3 py-1.5 rounded-lg border border-border text-text-muted hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-1"
+              >
+                <Upload size={14} />
+                Upload File
+              </button>
+            )}
           </div>
         </div>
       )}

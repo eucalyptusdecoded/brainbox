@@ -34,16 +34,22 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
     );
   }
 
+  const heading = section._draft
+    ? `Add ${type.charAt(0).toUpperCase() + type.slice(1)}`
+    : `Edit ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+
   return (
-    <div className="flex flex-col h-full p-5 space-y-4">
+    <div className="flex flex-col h-full p-4 md:p-5 space-y-4">
+      <h2 className="text-xl font-semibold text-brand-black">{heading}</h2>
+
       {/* Type & Priority row */}
-      <div className="flex items-end gap-3">
-        <div>
+      <div className="flex flex-col md:flex-row items-start md:items-end gap-3">
+        <div className="w-full md:w-auto">
           <label className="block text-xs font-medium text-text-muted mb-1">Type</label>
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="text-sm w-36"
+            className="text-sm w-full md:w-36"
           >
             {TYPES.map(t => (
               <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>

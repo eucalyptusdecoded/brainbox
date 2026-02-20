@@ -103,7 +103,7 @@ export default function Dashboard() {
     <div className="min-h-screen" onClick={() => setMenuOpen(null)}>
       <Header />
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-brand-black">Your Brains</h2>
           <button
@@ -117,7 +117,7 @@ export default function Dashboard() {
         {/* Create modal */}
         {showCreate && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={resetModal}>
-            <div onClick={(e) => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-lg space-y-4">
+            <div onClick={(e) => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-lg mx-4 space-y-4">
 
               {/* Step 1: Choose method */}
               {!createMode && (
@@ -236,7 +236,7 @@ export default function Dashboard() {
         {/* Delete confirmation modal */}
         {deleteConfirm && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
-            <div className="bg-white border border-border rounded-xl p-6 w-full max-w-sm space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="bg-white border border-border rounded-xl p-6 w-full max-w-sm mx-4 space-y-4" onClick={e => e.stopPropagation()}>
               <h3 className="text-lg font-semibold text-brand-black">Delete Brain</h3>
               <p className="text-sm text-text-muted">
                 Are you sure you want to delete <strong className="text-text-primary">{deleteConfirm.name}</strong>? This will permanently remove all sections and API keys associated with this brain.
