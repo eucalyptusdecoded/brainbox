@@ -179,13 +179,13 @@ export default function Dashboard() {
       <Header />
 
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
           <h2 className="text-xl font-semibold text-brand-black">Your Brains</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => importRef.current?.click()}
               disabled={importing}
-              className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-lg border border-border text-text-muted hover:border-brand-orange hover:text-brand-orange transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 text-sm whitespace-nowrap px-3 py-2 rounded-lg border border-border text-text-muted hover:border-brand-orange hover:text-brand-orange transition-colors disabled:opacity-50"
             >
               <Upload size={14} />
               {importing ? 'Importing...' : 'Import Brain'}
@@ -193,7 +193,7 @@ export default function Dashboard() {
             <input ref={importRef} type="file" accept=".brainbox" onChange={handleImport} className="hidden" />
             <button
               onClick={() => setShowCreate(true)}
-              className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium whitespace-nowrap px-4 py-2 rounded-lg transition-colors"
             >
               + New Brain
             </button>

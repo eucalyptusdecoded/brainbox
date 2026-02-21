@@ -100,7 +100,7 @@ function BrainDiagram({ countByType }) {
             textAnchor="middle"
             dominantBaseline="central"
             fill={n.count > 0 ? '#FF7A00' : '#6B6B6B'}
-            fontSize="14"
+            fontSize="16"
             fontWeight="600"
             fontFamily="Inter, system-ui, sans-serif"
           >
@@ -112,7 +112,8 @@ function BrainDiagram({ countByType }) {
             y={n.y < CY - 20 ? n.y - NODE_R - 10 : n.y + NODE_R + 18}
             textAnchor="middle"
             fill="#6B6B6B"
-            fontSize="13"
+            fontSize="16"
+            fontWeight="500"
             fontFamily="Inter, system-ui, sans-serif"
           >
             {n.plural}
@@ -144,6 +145,7 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
 
   const totalCount = sections.length;
   const totalPct = Math.min((totalCount / TOTAL_TARGET) * 100, 100);
+  const currentLevel = getBrainLevel(totalCount);
   const isEmpty = totalCount === 0;
 
   return (
@@ -190,7 +192,7 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
         <h3 className="font-semibold text-brand-black mb-3">Brain Capacity</h3>
         <div className="flex justify-between text-sm text-text-muted mb-2">
           <span>{totalCount}/{TOTAL_TARGET} neurons</span>
-          <span className="font-medium text-brand-orange">{getBrainLevel(totalCount).label}</span>
+          <span className="font-medium text-brand-orange">{currentLevel.label}</span>
         </div>
         <div className="relative">
           <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
@@ -199,8 +201,8 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
               style={{ width: `${totalPct}%` }}
             />
           </div>
-          {/* Level tick marks */}
-          <div className="relative mt-1.5 h-6">
+          {/* Level tick marks — hidden on mobile */}
+          <div className="relative mt-1.5 h-6 hidden md:block">
             {LEVELS.map((level) => {
               const isActive = totalCount >= level.min;
               return (

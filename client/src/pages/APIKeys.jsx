@@ -64,11 +64,11 @@ export default function APIKeys() {
       <Header />
 
       <div className="max-w-4xl mx-auto px-4 md:px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
           <h2 className="text-xl font-semibold text-brand-black">API Keys</h2>
           <button
             onClick={() => setShowCreate(true)}
-            className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg"
+            className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium whitespace-nowrap w-fit px-4 py-2 rounded-lg"
           >
             + Generate Key
           </button>
