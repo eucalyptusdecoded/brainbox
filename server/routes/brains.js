@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
 // POST /api/brains
 router.post('/', async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, template_id } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
 
     if (await checkBrainLimit(req.user.id)) {
@@ -56,8 +56,8 @@ router.post('/', async (req, res) => {
 
     const id = uuidv4();
     await db.execute({
-      sql: 'INSERT INTO brains (id, user_id, name, description) VALUES (?, ?, ?, ?)',
-      args: [id, req.user.id, name, description || null],
+      sql: 'INSERT INTO brains (id, user_id, name, description, template_id) VALUES (?, ?, ?, ?, ?)',
+      args: [id, req.user.id, name, description || null, template_id || null],
     });
 
     const result = await db.execute({

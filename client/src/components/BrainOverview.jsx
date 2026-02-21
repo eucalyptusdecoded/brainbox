@@ -1,4 +1,4 @@
-import { Upload } from 'lucide-react';
+import { Upload, ImageOff } from 'lucide-react';
 
 const TYPES = [
   { key: 'rule', label: 'Rule', plural: 'Rules' },
@@ -187,73 +187,101 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
         </button>
       )}
 
-      {/* Brain Capacity card — full width */}
-      <div className="bg-bg-panel border border-border rounded-xl p-5 mt-6">
-        <h3 className="font-semibold text-brand-black mb-3">Brain Capacity</h3>
-        <div className="flex justify-between text-sm text-text-muted mb-2">
-          <span>{totalCount}/{TOTAL_TARGET} neurons</span>
-          <span className="font-medium text-brand-orange">{currentLevel.label}</span>
-        </div>
-        <div className="relative">
-          <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-brand-orange rounded-full transition-all duration-500"
-              style={{ width: `${totalPct}%` }}
-            />
-          </div>
-          {/* Level tick marks — hidden on mobile */}
-          <div className="relative mt-1.5 h-6 hidden md:block">
-            {LEVELS.map((level) => {
-              const isActive = totalCount >= level.min;
-              return (
-                <div
-                  key={level.label}
-                  className="absolute flex flex-col items-center"
-                  style={{ left: `${level.pos}%`, transform: level.pos === 100 ? 'translateX(-100%)' : level.pos === 0 ? 'none' : 'translateX(-50%)' }}
-                >
-                  <div className={`w-px h-2 ${isActive ? 'bg-brand-orange' : 'bg-gray-300'}`} />
-                  <span className={`text-[10px] mt-0.5 whitespace-nowrap ${isActive ? 'text-brand-orange font-medium' : 'text-text-muted'}`}>
-                    {level.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Image references indicator */}
-      <div className="flex items-center gap-3 mt-3 px-1">
-        <span className="text-xs text-text-muted">{images.length}/10 reference images</span>
-      </div>
-
       {/* 2-column grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Mind Map card */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 items-start">
+        {/* Left column */}
+        <div className="flex flex-col gap-6">
+          {/* Brain Capacity card (merged with per-type bars) */}
+          <div className="bg-bg-panel border border-border rounded-xl p-5">
+            <h3 className="font-semibold text-brand-black mb-3">Brain Capacity</h3>
+            <div className="flex justify-between text-sm text-text-muted mb-2">
+              <span>{totalCount}/{TOTAL_TARGET} neurons</span>
+              <span className="font-medium text-brand-orange">{currentLevel.label}</span>
+            </div>
+            <div className="relative">
+              <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-brand-orange rounded-full transition-all duration-500"
+                  style={{ width: `${totalPct}%` }}
+                />
+              </div>
+              {/* Level tick marks — hidden on mobile */}
+              <div className="relative mt-1.5 h-6 hidden md:block">
+                {LEVELS.map((level) => {
+                  const isActive = totalCount >= level.min;
+                  return (
+                    <div
+                      key={level.label}
+                      className="absolute flex flex-col items-center"
+                      style={{ left: `${level.pos}%`, transform: level.pos === 100 ? 'translateX(-100%)' : level.pos === 0 ? 'none' : 'translateX(-50%)' }}
+                    >
+                      <div className={`w-px h-2 ${isActive ? 'bg-brand-orange' : 'bg-gray-300'}`} />
+                      <span className={`text-[10px] mt-0.5 whitespace-nowrap ${isActive ? 'text-brand-orange font-medium' : 'text-text-muted'}`}>
+                        {level.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Per-type progress bars */}
+            <div className="mt-4">
+              {TYPES.map(t => {
+                const count = countByType[t.key];
+                const pct = Math.min((count / TARGET) * 100, 100);
+                return (
+                  <div key={t.key} className="flex items-center gap-3 mb-3">
+                    <span className="text-sm text-text-muted w-24 flex-shrink-0">{t.plural}</span>
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-brand-orange rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="text-sm text-text-muted w-10 text-right flex-shrink-0">{count}/{TARGET}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Imaging card */}
+          <div className="bg-bg-panel border border-border rounded-xl p-5">
+            <h3 className="font-semibold text-brand-black mb-3">
+              Imaging <span className="text-sm font-normal text-text-muted">({images.length}/10)</span>
+            </h3>
+            {images.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {images.sort((a, b) => a.priority - b.priority).map(img => (
+                  <div key={img.id} className="group">
+                    <div className="aspect-square rounded-lg border border-border overflow-hidden bg-white">
+                      <img
+                        src={img.url}
+                        alt={img.description}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="hidden items-center justify-center w-full h-full text-text-muted">
+                        <ImageOff size={28} />
+                      </div>
+                    </div>
+                    <p className="text-xs text-text-muted mt-1.5 line-clamp-2">{img.description}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-text-muted">No reference images yet. Add images to include visual context in your brain.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Right column — Mind Map */}
         <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col items-center">
           <h3 className="font-semibold text-brand-black mb-3 self-start">Mind Map</h3>
           <BrainDiagram countByType={countByType} />
-        </div>
-
-        {/* Context card */}
-        <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-3">Context</h3>
-          {TYPES.map(t => {
-            const count = countByType[t.key];
-            const pct = Math.min((count / TARGET) * 100, 100);
-            return (
-              <div key={t.key} className="flex items-center gap-3 mb-3">
-                <span className="text-sm text-text-muted w-24 flex-shrink-0">{t.plural}</span>
-                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-brand-orange rounded-full transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                <span className="text-sm text-text-muted w-10 text-right flex-shrink-0">{count}/{TARGET}</span>
-              </div>
-            );
-          })}
         </div>
       </div>
 

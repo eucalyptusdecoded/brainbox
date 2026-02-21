@@ -61,7 +61,7 @@ export default function ContextPreview({ sections, images = [], onDelete, onDele
                           <p className="text-sm font-medium text-text-primary truncate">{item.title}</p>
                           <p className="text-xs text-text-muted truncate">{item.content.length > 35 ? item.content.slice(0, 35) + '...' : item.content}</p>
                         </div>
-                        <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                        <div className="flex items-center gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
                           {onEdit && (
                             <button
                               onClick={() => onEdit(item)}
@@ -100,7 +100,7 @@ export default function ContextPreview({ sections, images = [], onDelete, onDele
                         <p className="text-sm font-medium text-text-primary truncate">{img.description}</p>
                         <p className="text-xs text-text-muted truncate">{img.url}</p>
                       </div>
-                      <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                      <div className="flex items-center gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
                         {onEdit && (
                           <button
                             onClick={() => onEdit({ ...img, _image: true })}
@@ -132,10 +132,10 @@ export default function ContextPreview({ sections, images = [], onDelete, onDele
       {expanded && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center" onClick={() => setExpanded(false)}>
           <div
-            className="bg-white max-w-3xl w-full mx-auto my-0 md:my-8 rounded-none md:rounded-xl shadow-xl h-full md:h-auto md:max-h-[calc(100vh-4rem)] flex flex-col"
+            className="bg-white max-w-3xl w-full mx-auto my-0 lg:my-8 rounded-none lg:rounded-xl shadow-xl h-full lg:h-auto lg:max-h-[calc(100vh-4rem)] flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b border-border flex-shrink-0">
+            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-border flex-shrink-0">
               <h2 className="text-lg font-semibold text-text-primary">Brain Context</h2>
               <button
                 onClick={() => setExpanded(false)}
@@ -145,7 +145,7 @@ export default function ContextPreview({ sections, images = [], onDelete, onDele
                 <X size={20} />
               </button>
             </div>
-            <div className="overflow-y-auto p-4 md:p-6 text-sm text-text-primary leading-relaxed">
+            <div className="overflow-y-auto p-4 lg:p-6 text-sm text-text-primary leading-relaxed">
               {totalActive === 0 ? (
                 <p className="text-text-muted">No active sections</p>
               ) : (
@@ -166,7 +166,7 @@ export default function ContextPreview({ sections, images = [], onDelete, onDele
                                 <p className="text-sm font-medium text-text-primary">{item.title}</p>
                                 <p className="text-xs text-text-muted whitespace-pre-wrap mt-1">{item.content}</p>
                               </div>
-                              <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                              <div className="flex items-center gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
                                 {onEdit && (
                                   <button
                                     onClick={() => onEdit(item)}
@@ -206,7 +206,7 @@ export default function ContextPreview({ sections, images = [], onDelete, onDele
                               <p className="text-xs text-text-muted mt-1 break-all">{img.url}</p>
                               <img src={img.url} alt={img.description} className="mt-2 max-h-24 rounded border border-border object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
                             </div>
-                            <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                            <div className="flex items-center gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
                               {onEdit && (
                                 <button
                                   onClick={() => onEdit({ ...img, _image: true })}

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS brains (
   user_id TEXT NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
+  template_id TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)

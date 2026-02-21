@@ -90,7 +90,7 @@ export default function Guide() {
 
       <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-10">
         <div>
-          <h1 className="text-2xl font-bold text-brand-black">Writing Guide</h1>
+          <h1 className="text-2xl font-bold text-brand-black">How to Build a Brain</h1>
           <p className="text-text-muted mt-2">Learn how to write effective nodes for each section type in your brain.</p>
         </div>
 
@@ -142,6 +142,60 @@ export default function Guide() {
                 PDF extraction works best with text-based PDFs. Scanned documents or image-heavy PDFs may produce poor results.
               </li>
             </ul>
+          </div>
+        </section>
+
+        {/* Image references */}
+        <section id="images" className="scroll-mt-20 space-y-4">
+          <h2 className="text-lg font-semibold text-brand-black">Image References</h2>
+          <p className="text-sm text-text-muted">Image references let you attach visual context to your brain — logos, style guides, mood boards, screenshots, and more. They appear in the compiled context as a <strong>REFERENCE IMAGES</strong> section so AI models with vision can see and interpret them.</p>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">How It Works</h3>
+            <ol className="space-y-1.5 text-sm text-text-primary list-decimal list-inside">
+              <li>Click <strong>+ Add Image</strong> in the sidebar to open the image form.</li>
+              <li>Paste a publicly accessible <strong>image URL</strong> (the image is not uploaded — only the link is stored).</li>
+              <li>Write a short <strong>description</strong> (up to 200 characters) that tells the AI what the image represents.</li>
+              <li>Set a <strong>priority</strong> to control ordering. Lower numbers appear first in the compiled context.</li>
+              <li>The image and description are included in the <strong>=== REFERENCE IMAGES ===</strong> block of your compiled brain output.</li>
+            </ol>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">Tips</h3>
+            <ul className="space-y-1.5">
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                Write descriptive, specific descriptions — "Primary brand logo, full colour on white background" is better than "Logo".
+              </li>
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                Use priority to order images by importance. For image-heavy brains (like Brand Image Generator), consider setting priority to 100 so images are emphasised in the context.
+              </li>
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                Images must be publicly accessible via URL. Private or authenticated links won't work when the AI tries to fetch them.
+              </li>
+              <li className="text-sm text-text-primary flex gap-2">
+                <span className="text-brand-orange flex-shrink-0">&#x2022;</span>
+                You can add up to 10 images per brain. Focus on the most important visual references rather than adding everything.
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">Example Descriptions</h3>
+            <div className="space-y-2">
+              <div className="bg-bg-panel border border-border rounded-lg px-4 py-3 text-sm text-text-primary">
+                Brand logo (primary, full colour on white background)
+              </div>
+              <div className="bg-bg-panel border border-border rounded-lg px-4 py-3 text-sm text-text-primary">
+                Colour palette — hex values: #FF7A00 (orange), #1A1A1A (black), #F5F5F0 (cream)
+              </div>
+              <div className="bg-bg-panel border border-border rounded-lg px-4 py-3 text-sm text-text-primary">
+                Product screenshot showing the dashboard layout and navigation hierarchy
+              </div>
+            </div>
           </div>
         </section>
 

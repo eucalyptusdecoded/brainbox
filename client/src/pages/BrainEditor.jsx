@@ -14,12 +14,12 @@ import useMediaQuery from '../hooks/useMediaQuery';
 export default function BrainEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isMobile = useMediaQuery('(max-width: 767px)');
+  const isMobile = useMediaQuery('(max-width: 1023px)');
   const [brain, setBrain] = useState(null);
   const [sections, setSections] = useState([]);
   const [images, setImages] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [showPreview, setShowPreview] = useState(() => !window.matchMedia('(max-width: 767px)').matches);
+  const [showPreview, setShowPreview] = useState(() => !window.matchMedia('(max-width: 1023px)').matches);
   const [editingName, setEditingName] = useState(false);
   const [brainName, setBrainName] = useState('');
   const [brainDesc, setBrainDesc] = useState('');
@@ -78,7 +78,8 @@ export default function BrainEditor() {
   }
 
   function handleAddImage() {
-    setSelected({ _image: true, _draft: true, url: '', description: '', priority: 0 });
+    const defaultPriority = brain?.template_id === 'brand-image-generator' ? 100 : 0;
+    setSelected({ _image: true, _draft: true, url: '', description: '', priority: defaultPriority });
     setSidebarOpen(false);
   }
 
@@ -182,7 +183,7 @@ export default function BrainEditor() {
         rightContent={
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className={`text-xs px-3 py-1 rounded-lg border hidden md:block ${showPreview ? 'border-brand-orange text-brand-orange' : 'border-border text-text-muted'}`}
+            className={`text-xs px-3 py-1 rounded-lg border hidden lg:block ${showPreview ? 'border-brand-orange text-brand-orange' : 'border-border text-text-muted'}`}
           >
             {showPreview ? 'Hide' : 'Show'} Preview
           </button>
@@ -190,7 +191,7 @@ export default function BrainEditor() {
       />
 
       {/* Mobile toolbar */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border md:hidden flex-shrink-0">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border lg:hidden flex-shrink-0">
         <button
           onClick={() => setSidebarOpen(true)}
           className="flex items-center gap-1.5 text-sm text-text-muted hover:text-brand-black"
@@ -209,7 +210,7 @@ export default function BrainEditor() {
 
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Three-panel layout */}
@@ -218,11 +219,11 @@ export default function BrainEditor() {
         <div className={`
           fixed inset-y-0 left-0 z-40 w-64 bg-white transform transition-transform duration-200
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:relative md:translate-x-0 md:w-56 md:z-auto md:transition-none
+          lg:relative lg:translate-x-0 lg:w-56 lg:z-auto lg:transition-none
           border-r border-border overflow-y-auto flex-shrink-0 flex flex-col
         `}>
           {/* Mobile close button */}
-          <div className="flex items-center justify-between px-3 pt-3 md:hidden">
+          <div className="flex items-center justify-between px-3 pt-3 lg:hidden">
             <span className="text-sm font-medium text-text-muted">Sections</span>
             <button onClick={() => setSidebarOpen(false)} className="text-text-muted hover:text-brand-black p-1">
               <X size={18} />
@@ -296,7 +297,7 @@ export default function BrainEditor() {
 
       {/* Mobile preview overlay */}
       {showPreview && isMobile && (
-        <div className="fixed inset-0 bg-white z-50 flex flex-col md:hidden">
+        <div className="fixed inset-0 bg-white z-50 flex flex-col lg:hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
             <h3 className="text-sm font-semibold text-text-primary">Brain Context</h3>
             <button onClick={() => setShowPreview(false)} className="text-text-muted hover:text-brand-black p-1">

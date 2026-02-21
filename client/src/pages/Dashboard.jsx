@@ -73,7 +73,7 @@ export default function Dashboard() {
     if (!newName.trim() || !selectedTemplate) return;
     setCreating(true);
     try {
-      const { data: brain } = await axios.post('/api/brains', { name: newName, description: newDesc });
+      const { data: brain } = await axios.post('/api/brains', { name: newName, description: newDesc, template_id: selectedTemplate.id });
       for (const section of selectedTemplate.sections) {
         await axios.post(`/api/brains/${brain.id}/sections`, {
           type: section.type,
