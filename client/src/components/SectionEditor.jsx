@@ -83,11 +83,11 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
         <input
           className="text-sm font-semibold"
           value={title}
-          onChange={(e) => setTitle(e.target.value.slice(0, 20))}
+          onChange={(e) => setTitle(e.target.value.slice(0, 50))}
           placeholder="e.g. Spelling Rule"
-          maxLength={20}
+          maxLength={50}
         />
-        <p className="text-xs text-text-muted mt-1 text-right">{title.length}/20</p>
+        <p className="text-xs text-text-muted mt-1 text-right">{title.length}/50</p>
       </div>
 
       {/* Content field */}
@@ -96,9 +96,11 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
         <textarea
           className="flex-1 resize-none text-sm leading-relaxed min-h-[200px]"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => setContent(e.target.value.slice(0, 2000))}
           placeholder="Enter the full detail for this section..."
+          maxLength={2000}
         />
+        <p className="text-xs text-text-muted mt-1 text-right">{content.length}/2000</p>
       </div>
 
       <div className="flex items-center justify-between">

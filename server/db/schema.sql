@@ -39,3 +39,13 @@ CREATE TABLE IF NOT EXISTS api_keys (
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (brain_id) REFERENCES brains(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS brain_images (
+  id TEXT PRIMARY KEY,
+  brain_id TEXT NOT NULL,
+  url TEXT NOT NULL,
+  description TEXT NOT NULL,
+  priority INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (brain_id) REFERENCES brains(id) ON DELETE CASCADE
+);

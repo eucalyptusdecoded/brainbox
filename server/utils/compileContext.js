@@ -7,7 +7,7 @@ const SECTION_LABELS = {
   skill: 'SKILLS',
 };
 
-function compileContext(sections, filterTypes = null) {
+function compileContext(sections, filterTypes = null, images = []) {
   const active = sections.filter(s => s.is_active);
   const filtered = filterTypes
     ? active.filter(s => filterTypes.includes(s.type))
@@ -21,13 +21,20 @@ function compileContext(sections, filterTypes = null) {
     if (items.length > 0) grouped[type] = items;
   });
 
-  return Object.entries(grouped)
+  const parts = Object.entries(grouped)
     .map(([type, items]) => {
       const label = SECTION_LABELS[type];
       const content = items.map(i => i.content).join('\n');
       return `=== ${label} ===\n${content}`;
-    })
-    .join('\n\n');
+    });
+
+  if (images.length > 0) {
+    const sorted = [...images].sort((a, b) => a.priority - b.priority);
+    const imageContent = sorted.map(img => `${img.description}: ${img.url}`).join('\n');
+    parts.push(`=== REFERENCE IMAGES ===\n${imageContent}`);
+  }
+
+  return parts.join('\n\n');
 }
 
 module.exports = { compileContext };

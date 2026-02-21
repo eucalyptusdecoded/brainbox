@@ -32,7 +32,12 @@ export default function FileUploader({ brainId, onSave, onCancel }) {
     try {
       const { data } = await axios.post(`/api/brains/${brainId}/extract`, formData);
       setTitle(data.filename);
-      setContent(data.text);
+      if (data.text.length > 2000) {
+        setContent(data.text.slice(0, 2000));
+        setError('Extracted text exceeded 2000 characters and was trimmed. Review the content before saving.');
+      } else {
+        setContent(data.text);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to extract text from file');
       setFile(null);
@@ -129,12 +134,12 @@ export default function FileUploader({ brainId, onSave, onCancel }) {
         <input
           className="text-sm font-semibold"
           value={title}
-          onChange={(e) => setTitle(e.target.value.slice(0, 20))}
+          onChange={(e) => setTitle(e.target.value.slice(0, 50))}
           placeholder="Auto-filled from filename"
-          maxLength={20}
+          maxLength={50}
           disabled={!content}
         />
-        <p className="text-xs text-text-muted mt-1 text-right">{title.length}/20</p>
+        <p className="text-xs text-text-muted mt-1 text-right">{title.length}/50</p>
       </div>
 
       {/* File picker / drop zone */}
@@ -196,6 +201,7 @@ export default function FileUploader({ brainId, onSave, onCancel }) {
             value={content}
             readOnly
           />
+          <p className="text-xs text-text-muted mt-1 text-right">{content.length}/2000</p>
         </div>
       )}
 

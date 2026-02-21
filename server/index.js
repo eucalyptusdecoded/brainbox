@@ -11,6 +11,7 @@ const brainRoutes = require('./routes/brains');
 const sectionRoutes = require('./routes/sections');
 const contextRoutes = require('./routes/context');
 const keyRoutes = require('./routes/keys');
+const imageRoutes = require('./routes/images');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,6 +32,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/brains', brainRoutes);
 app.use('/api/brains/:id/sections', sectionRoutes);
 app.use('/api/keys', keyRoutes);
+app.use('/api/brains/:id/images', imageRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

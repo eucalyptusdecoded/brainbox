@@ -68,12 +68,18 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Brain not found' });
     }
 
-    const sections = await db.execute({
-      sql: 'SELECT * FROM brain_sections WHERE brain_id = ? ORDER BY type, priority',
-      args: [req.params.id],
-    });
+    const [sections, images] = await Promise.all([
+      db.execute({
+        sql: 'SELECT * FROM brain_sections WHERE brain_id = ? ORDER BY type, priority',
+        args: [req.params.id],
+      }),
+      db.execute({
+        sql: 'SELECT * FROM brain_images WHERE brain_id = ? ORDER BY priority',
+        args: [req.params.id],
+      }),
+    ]);
 
-    res.json({ ...brain.rows[0], sections: sections.rows });
+    res.json({ ...brain.rows[0], sections: sections.rows, images: images.rows });
   } catch (err) {
     console.error('Get brain error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -184,7 +190,7 @@ async function extractText(file) {
     return { error: `Extracted text is too large (${Math.round(text.length / 1000)}KB). Maximum is 50KB.` };
   }
 
-  const filename = path.basename(file.originalname, ext).slice(0, 20);
+  const filename = path.basename(file.originalname, ext).slice(0, 50);
   return { text, filename };
 }
 

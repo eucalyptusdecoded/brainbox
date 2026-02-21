@@ -44,6 +44,9 @@ router.post('/', async (req, res) => {
     if (!type || !title) {
       return res.status(400).json({ error: 'type and title are required' });
     }
+    if (content && content.length > 2000) {
+      return res.status(400).json({ error: 'Content must be 2000 characters or fewer' });
+    }
 
     const validTypes = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
     if (!validTypes.includes(type)) {
@@ -81,6 +84,9 @@ router.put('/:sid', async (req, res) => {
     }
 
     const { type, title, content, is_active, priority } = req.body;
+    if (content && content.length > 2000) {
+      return res.status(400).json({ error: 'Content must be 2000 characters or fewer' });
+    }
 
     const existing = await db.execute({
       sql: 'SELECT * FROM brain_sections WHERE id = ? AND brain_id = ?',

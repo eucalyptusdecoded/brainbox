@@ -13,16 +13,22 @@ router.get('/:brain_id', apiKeyMiddleware, async (req, res) => {
       return res.status(403).json({ error: 'API key is not authorized for this brain' });
     }
 
-    const result = await db.execute({
-      sql: 'SELECT * FROM brain_sections WHERE brain_id = ?',
-      args: [req.params.brain_id],
-    });
+    const [result, imagesResult] = await Promise.all([
+      db.execute({
+        sql: 'SELECT * FROM brain_sections WHERE brain_id = ?',
+        args: [req.params.brain_id],
+      }),
+      db.execute({
+        sql: 'SELECT * FROM brain_images WHERE brain_id = ? ORDER BY priority',
+        args: [req.params.brain_id],
+      }),
+    ]);
 
     // Parse optional type filter
     const typesParam = req.query.types;
     const filterTypes = typesParam ? typesParam.split(',').map(t => t.trim()) : null;
 
-    const compiled = compileContext(result.rows, filterTypes);
+    const compiled = compileContext(result.rows, filterTypes, imagesResult.rows);
 
     if (!compiled) {
       return res.type('text/plain').send('No active context found for this brain.');

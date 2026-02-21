@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FileText, LayoutTemplate, MoreVertical, Trash2 } from 'lucide-react';
+import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil } from 'lucide-react';
 import Header from '../components/Header';
 import brainTemplates from '../data/brainTemplates';
 
@@ -17,6 +17,9 @@ export default function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(null); // brain id or null
   const [deleteConfirm, setDeleteConfirm] = useState(null); // brain object or null
   const [deleting, setDeleting] = useState(false);
+  const [renameTarget, setRenameTarget] = useState(null); // brain object or null
+  const [renameValue, setRenameValue] = useState('');
+  const [duplicating, setDuplicating] = useState(null); // brain id or null
   const navigate = useNavigate();
 
   async function fetchBrains() {
@@ -82,6 +85,42 @@ export default function Dashboard() {
     } catch (err) {
       console.error('Failed to create brain from template:', err);
       setCreating(false);
+    }
+  }
+
+  async function handleRename(e) {
+    e.preventDefault();
+    if (!renameTarget || !renameValue.trim()) return;
+    try {
+      await axios.put(`/api/brains/${renameTarget.id}`, { name: renameValue });
+      setRenameTarget(null);
+      fetchBrains();
+    } catch (err) {
+      console.error('Failed to rename brain:', err);
+    }
+  }
+
+  async function handleDuplicate(brain) {
+    setDuplicating(brain.id);
+    try {
+      const { data: source } = await axios.get(`/api/brains/${brain.id}`);
+      const { data: newBrain } = await axios.post('/api/brains', {
+        name: `Copy of ${brain.name}`,
+        description: brain.description,
+      });
+      for (const section of source.sections || []) {
+        await axios.post(`/api/brains/${newBrain.id}/sections`, {
+          type: section.type,
+          title: section.title,
+          content: section.content,
+          priority: section.priority,
+        });
+      }
+      fetchBrains();
+    } catch (err) {
+      console.error('Failed to duplicate brain:', err);
+    } finally {
+      setDuplicating(null);
     }
   }
 
@@ -255,6 +294,23 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Rename modal */}
+        {renameTarget && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setRenameTarget(null)}>
+            <form onSubmit={handleRename} onClick={e => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-sm mx-4 space-y-4">
+              <h3 className="text-lg font-semibold text-brand-black">Rename Brain</h3>
+              <div>
+                <label className="block text-sm text-text-muted mb-1">Name</label>
+                <input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} autoFocus required />
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button type="button" onClick={() => setRenameTarget(null)} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
+                <button type="submit" className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg">Save</button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Brain grid */}
         {loading ? (
           <p className="text-text-muted">Loading...</p>
@@ -266,7 +322,7 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {brains.map((brain) => (
-              <div key={brain.id} className="relative border border-border rounded-xl overflow-hidden hover:border-brand-orange/50 transition-colors group">
+              <div key={brain.id} className={`relative border border-border rounded-xl overflow-hidden hover:border-brand-orange/50 transition-colors group ${duplicating === brain.id ? 'opacity-50 pointer-events-none' : ''}`}>
                 <Link to={`/brain/${brain.id}`}>
                   <div className="bg-bg-panel flex items-center justify-center px-5 py-6">
                     <img src="/images/brainboxlogo.png" alt="" className="h-12 opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -275,7 +331,7 @@ export default function Dashboard() {
                     <h3 className="font-semibold text-brand-black group-hover:text-brand-orange transition-colors">{brain.name}</h3>
                     {brain.description && <p className="text-sm text-text-muted mt-1 line-clamp-2">{brain.description}</p>}
                     <div className="flex items-center gap-3 mt-3 text-xs text-text-muted">
-                      <span>{brain.section_count || 0} sections</span>
+                      <span>{brain.section_count || 0}/50 nodes</span>
                       <span>Updated {new Date(brain.updated_at).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -288,13 +344,27 @@ export default function Dashboard() {
                     <MoreVertical size={16} />
                   </button>
                   {menuOpen === brain.id && (
-                    <div className="absolute right-0 top-8 bg-white border border-border rounded-lg shadow-lg py-1 z-10 w-36" onClick={e => e.stopPropagation()}>
+                    <div className="absolute right-0 top-8 bg-white border border-border rounded-lg shadow-lg py-1 z-10 w-40" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => { setMenuOpen(null); setRenameTarget(brain); setRenameValue(brain.name); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-panel transition-colors"
+                      >
+                        <Pencil size={14} />
+                        Rename
+                      </button>
+                      <button
+                        onClick={() => { setMenuOpen(null); handleDuplicate(brain); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-panel transition-colors"
+                      >
+                        <Copy size={14} />
+                        Duplicate
+                      </button>
                       <button
                         onClick={() => { setMenuOpen(null); setDeleteConfirm(brain); }}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <Trash2 size={14} />
-                        Delete Brain
+                        Delete
                       </button>
                     </div>
                   )}

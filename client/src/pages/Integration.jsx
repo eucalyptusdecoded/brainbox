@@ -84,6 +84,8 @@ export default function Integration() {
     }
   }
 
+  const selectedBrainObj = brains.find(b => b.id === selectedBrain);
+
   const geminiSystemPrompt = `You have been provided a Brainbox context file. Apply everything in it — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. Follow the context file as your primary instructions.`;
 
   const actionSchema = JSON.stringify({
@@ -301,28 +303,63 @@ export default function Integration() {
         {/* Step 2: Create Gem */}
         <div className="bg-bg-panel border border-border rounded-xl p-5">
           <h3 className="font-semibold text-brand-black mb-2">Step 2: Create Your Gem</h3>
-          <p className="text-sm text-text-muted mb-3">Set up a new Gem in Google Gemini with your brain context.</p>
+          <p className="text-sm text-text-muted mb-3">Create a new Gem in Google Gemini and configure it using the values from Step 3.</p>
           <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
             <li>Open <strong>gemini.google.com</strong> and click <strong>Gem manager</strong> in the left sidebar</li>
             <li>Click <strong>New Gem</strong></li>
-            <li>Give your Gem a name</li>
-            <li>In the <strong>Knowledge</strong> section, click <strong>Upload</strong> and select the downloaded <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> file</li>
+            <li>Copy the <strong>Name</strong>, <strong>Description</strong> and <strong>Instructions</strong> from Step 3 below into the corresponding fields</li>
+            <li>In the <strong>Knowledge</strong> section, click <strong>Upload</strong> and select the <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> file downloaded in Step 1</li>
             <li>Click <strong>Save</strong></li>
           </ol>
         </div>
 
-        {/* Step 3: System Prompt */}
+        {/* Step 3: Gem Configuration */}
         <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-2">Step 3: System Prompt Instructions</h3>
-          <p className="text-sm text-text-muted mb-3">Paste this into your Gem's Instructions field:</p>
-          <div className="relative">
-            <pre className="bg-white rounded-lg p-4 text-sm text-text-primary whitespace-pre-wrap border border-border">{geminiSystemPrompt}</pre>
-            <button
-              onClick={() => copy(geminiSystemPrompt, 'gemini-prompt')}
-              className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
-            >
-              {copied === 'gemini-prompt' ? 'Copied!' : 'Copy'}
-            </button>
+          <h3 className="font-semibold text-brand-black mb-2">Step 3: Configure Your Gem</h3>
+          <p className="text-sm text-text-muted mb-4">Copy and paste each of these into your Gem's fields:</p>
+
+          <div className="space-y-4">
+            {/* Name */}
+            <div>
+              <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
+              <div className="relative">
+                <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary border border-border">{selectedBrainObj?.name || ''}</pre>
+                <button
+                  onClick={() => copy(selectedBrainObj?.name || '', 'gemini-name')}
+                  className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                >
+                  {copied === 'gemini-name' ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-xs font-medium text-text-muted mb-1">Description</label>
+              <div className="relative">
+                <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{selectedBrainObj?.description || '—'}</pre>
+                <button
+                  onClick={() => copy(selectedBrainObj?.description || '', 'gemini-desc')}
+                  className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                >
+                  {copied === 'gemini-desc' ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div>
+              <label className="block text-xs font-medium text-text-muted mb-1">Instructions</label>
+              <div className="relative">
+                <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{geminiSystemPrompt}</pre>
+                <button
+                  onClick={() => copy(geminiSystemPrompt, 'gemini-prompt')}
+                  className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                >
+                  {copied === 'gemini-prompt' ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

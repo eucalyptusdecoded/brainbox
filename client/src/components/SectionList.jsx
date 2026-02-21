@@ -1,4 +1,4 @@
-import { Plus, Upload } from 'lucide-react';
+import { Plus, Upload, ImagePlus } from 'lucide-react';
 
 const TYPE_LABELS = {
   rule: 'Rule',
@@ -10,7 +10,7 @@ const TYPE_LABELS = {
 
 const TYPE_ORDER = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
 
-export default function SectionList({ onAdd, onUpload }) {
+export default function SectionList({ onAdd, onUpload, onAddImage }) {
   return (
     <div className="space-y-1">
       {TYPE_ORDER.map(type => (
@@ -24,16 +24,27 @@ export default function SectionList({ onAdd, onUpload }) {
         </button>
       ))}
 
-      {onUpload && (
+      {(onUpload || onAddImage) && (
         <>
           <div className="border-t border-border my-2" />
-          <button
-            onClick={onUpload}
-            className="w-full flex items-center gap-2 px-2 py-3 rounded-lg text-sm text-text-muted hover:bg-bg-panel hover:text-brand-orange transition-colors"
-          >
-            <Upload size={16} className="text-brand-orange flex-shrink-0" />
-            <span>Upload File</span>
-          </button>
+          {onUpload && (
+            <button
+              onClick={onUpload}
+              className="w-full flex items-center gap-2 px-2 py-3 rounded-lg text-sm text-text-muted hover:bg-bg-panel hover:text-brand-orange transition-colors"
+            >
+              <Upload size={16} className="text-brand-orange flex-shrink-0" />
+              <span>Upload File</span>
+            </button>
+          )}
+          {onAddImage && (
+            <button
+              onClick={onAddImage}
+              className="w-full flex items-center gap-2 px-2 py-3 rounded-lg text-sm text-text-muted hover:bg-bg-panel hover:text-brand-orange transition-colors"
+            >
+              <ImagePlus size={16} className="text-brand-orange flex-shrink-0" />
+              <span>Add Image</span>
+            </button>
+          )}
         </>
       )}
     </div>

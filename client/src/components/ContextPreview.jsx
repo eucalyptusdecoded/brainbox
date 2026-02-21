@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pencil, Trash2, Maximize2, X } from 'lucide-react';
+import { Pencil, Trash2, Maximize2, X, ImageIcon } from 'lucide-react';
 
 const SECTION_ORDER = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
 const SECTION_LABELS = {
@@ -10,7 +10,7 @@ const SECTION_LABELS = {
   skill: 'Skills',
 };
 
-export default function ContextPreview({ sections, onDelete, onEdit }) {
+export default function ContextPreview({ sections, images = [], onDelete, onDeleteImage, onEdit }) {
   const [expanded, setExpanded] = useState(false);
 
   const active = sections.filter(s => s.is_active);
@@ -87,6 +87,44 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                 </div>
               );
             })}
+            {images.length > 0 && (
+              <div>
+                <h4 className="text-xs font-semibold text-brand-orange uppercase tracking-wider mb-2">
+                  REFERENCE IMAGES ({images.length}/10)
+                </h4>
+                <div className="space-y-2">
+                  {images.sort((a, b) => a.priority - b.priority).map((img, idx) => (
+                    <div key={img.id} className="flex items-start gap-2 group">
+                      <span className="text-xs text-text-muted mt-0.5 w-4 flex-shrink-0 text-right">{idx + 1}.</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-text-primary truncate">{img.description}</p>
+                        <p className="text-xs text-text-muted truncate">{img.url}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                        {onEdit && (
+                          <button
+                            onClick={() => onEdit({ ...img, _image: true })}
+                            className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
+                            title="Edit"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                        )}
+                        {onDeleteImage && (
+                          <button
+                            onClick={() => onDeleteImage(img)}
+                            className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
+                            title="Remove"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -154,6 +192,45 @@ export default function ContextPreview({ sections, onDelete, onEdit }) {
                       </div>
                     );
                   })}
+                  {images.length > 0 && (
+                    <div>
+                      <h4 className="text-xs font-semibold text-brand-orange uppercase tracking-wider mb-3">
+                        REFERENCE IMAGES ({images.length}/10)
+                      </h4>
+                      <div className="space-y-3">
+                        {images.sort((a, b) => a.priority - b.priority).map((img, idx) => (
+                          <div key={img.id} className="flex items-start gap-2 group">
+                            <span className="text-xs text-text-muted mt-0.5 w-4 flex-shrink-0 text-right">{idx + 1}.</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-text-primary">{img.description}</p>
+                              <p className="text-xs text-text-muted mt-1 break-all">{img.url}</p>
+                              <img src={img.url} alt={img.description} className="mt-2 max-h-24 rounded border border-border object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
+                            </div>
+                            <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">
+                              {onEdit && (
+                                <button
+                                  onClick={() => onEdit({ ...img, _image: true })}
+                                  className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
+                                  title="Edit"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                              )}
+                              {onDeleteImage && (
+                                <button
+                                  onClick={() => onDeleteImage(img)}
+                                  className="p-1.5 text-brand-orange hover:text-brand-orange-hover"
+                                  title="Remove"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

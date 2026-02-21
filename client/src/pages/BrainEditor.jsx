@@ -7,6 +7,7 @@ import SectionEditor from '../components/SectionEditor';
 import ContextPreview from '../components/ContextPreview';
 import BrainOverview from '../components/BrainOverview';
 import FileUploader from '../components/FileUploader';
+import ImageEditor from '../components/ImageEditor';
 import Header from '../components/Header';
 import useMediaQuery from '../hooks/useMediaQuery';
 
@@ -16,6 +17,7 @@ export default function BrainEditor() {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const [brain, setBrain] = useState(null);
   const [sections, setSections] = useState([]);
+  const [images, setImages] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showPreview, setShowPreview] = useState(() => !window.matchMedia('(max-width: 767px)').matches);
   const [editingName, setEditingName] = useState(false);
@@ -39,6 +41,7 @@ export default function BrainEditor() {
       const { data } = await axios.get(`/api/brains/${id}`);
       setBrain(data);
       setSections(data.sections || []);
+      setImages(data.images || []);
       setBrainName(data.name);
       setBrainDesc(data.description || '');
     } catch (err) {
@@ -72,6 +75,39 @@ export default function BrainEditor() {
   function handleUploadStart() {
     setSelected({ _upload: true });
     setSidebarOpen(false);
+  }
+
+  function handleAddImage() {
+    setSelected({ _image: true, _draft: true, url: '', description: '', priority: 0 });
+    setSidebarOpen(false);
+  }
+
+  async function handleSaveImage(image) {
+    try {
+      if (image._draft) {
+        const { data } = await axios.post(`/api/brains/${id}/images`, {
+          url: image.url,
+          description: image.description,
+          priority: image.priority,
+        });
+        setImages(prev => [...prev, data]);
+        setSelected(null);
+      } else {
+        const { data } = await axios.put(`/api/brains/${id}/images/${image.id}`, {
+          url: image.url,
+          description: image.description,
+          priority: image.priority,
+        });
+        setImages(prev => prev.map(i => (i.id === data.id ? data : i)));
+        setSelected(null);
+      }
+    } catch (err) {
+      console.error('Failed to save image:', err);
+    }
+  }
+
+  function handleDeleteImage(image) {
+    setDeleteTarget({ ...image, _isImage: true });
   }
 
   async function handleSaveSection(section) {
@@ -122,11 +158,16 @@ export default function BrainEditor() {
   async function confirmDelete() {
     if (!deleteTarget) return;
     try {
-      await axios.delete(`/api/brains/${id}/sections/${deleteTarget.id}`);
-      setSections(prev => prev.filter(s => s.id !== deleteTarget.id));
+      if (deleteTarget._isImage) {
+        await axios.delete(`/api/brains/${id}/images/${deleteTarget.id}`);
+        setImages(prev => prev.filter(i => i.id !== deleteTarget.id));
+      } else {
+        await axios.delete(`/api/brains/${id}/sections/${deleteTarget.id}`);
+        setSections(prev => prev.filter(s => s.id !== deleteTarget.id));
+      }
       if (selected?.id === deleteTarget.id) setSelected(null);
     } catch (err) {
-      console.error('Failed to delete section:', err);
+      console.error('Failed to delete:', err);
     } finally {
       setDeleteTarget(null);
     }
@@ -201,7 +242,7 @@ export default function BrainEditor() {
 
           {/* Add section actions */}
           <div className="flex-1 overflow-y-auto p-3">
-            <SectionList onAdd={handleAddSection} onUpload={handleUploadStart} />
+            <SectionList onAdd={handleAddSection} onUpload={handleUploadStart} onAddImage={handleAddImage} />
           </div>
         </div>
 
@@ -211,6 +252,13 @@ export default function BrainEditor() {
             <FileUploader
               brainId={id}
               onSave={handleSaveSection}
+              onCancel={() => setSelected(null)}
+            />
+          ) : selected?._image || selected?._isImage ? (
+            <ImageEditor
+              image={selected}
+              onSave={handleSaveImage}
+              onDelete={handleDeleteImage}
               onCancel={() => setSelected(null)}
             />
           ) : selected ? (
@@ -223,6 +271,7 @@ export default function BrainEditor() {
           ) : (
             <BrainOverview
               sections={sections}
+              images={images}
               onAdd={handleAddSection}
               onUpload={handleUploadStart}
               brain={brain}
@@ -240,7 +289,7 @@ export default function BrainEditor() {
         {/* Right: Context preview — desktop only */}
         {showPreview && !isMobile && (
           <div className="w-80 border-l border-border overflow-y-auto flex-shrink-0 bg-bg-panel">
-            <ContextPreview sections={sections} onDelete={handleDelete} onEdit={setSelected} />
+            <ContextPreview sections={sections} images={images} onDelete={handleDelete} onDeleteImage={handleDeleteImage} onEdit={setSelected} />
           </div>
         )}
       </div>
@@ -257,7 +306,9 @@ export default function BrainEditor() {
           <div className="flex-1 overflow-y-auto">
             <ContextPreview
               sections={sections}
+              images={images}
               onDelete={handleDelete}
+              onDeleteImage={handleDeleteImage}
               onEdit={(item) => { setSelected(item); setShowPreview(false); }}
             />
           </div>
@@ -273,12 +324,12 @@ export default function BrainEditor() {
                 <Trash2 size={20} className="text-brand-orange" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-brand-black">Remove section</h3>
-                <p className="text-xs text-text-muted mt-0.5">This will permanently delete this section from your brain.</p>
+                <h3 className="text-sm font-semibold text-brand-black">Remove {deleteTarget._isImage ? 'image' : 'section'}</h3>
+                <p className="text-xs text-text-muted mt-0.5">This will permanently delete this {deleteTarget._isImage ? 'image' : 'section'} from your brain.</p>
               </div>
             </div>
             <div className="bg-bg-panel rounded-lg px-3 py-2">
-              <p className="text-sm font-medium text-text-primary">{deleteTarget.title}</p>
+              <p className="text-sm font-medium text-text-primary">{deleteTarget.title || deleteTarget.description}</p>
               {deleteTarget.content && <p className="text-xs text-text-muted mt-0.5 line-clamp-2">{deleteTarget.content}</p>}
             </div>
             <div className="flex gap-3 justify-end">

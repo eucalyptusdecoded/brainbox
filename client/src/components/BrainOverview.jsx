@@ -10,6 +10,21 @@ const TYPES = [
 
 const TARGET = 10;
 const TOTAL_TARGET = TYPES.length * TARGET;
+
+const LEVELS = [
+  { min: 0, label: 'Nascent', pos: 0 },
+  { min: 11, label: 'Developing', pos: 22 },
+  { min: 26, label: 'Sharp', pos: 52 },
+  { min: 41, label: 'Brilliant', pos: 82 },
+  { min: 50, label: 'Genius', pos: 100 },
+];
+
+function getBrainLevel(count) {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (count >= LEVELS[i].min) return LEVELS[i];
+  }
+  return LEVELS[0];
+}
 const CX = 200;
 const CY = 200;
 const R = 140;
@@ -121,7 +136,7 @@ function BrainDiagram({ countByType }) {
   );
 }
 
-export default function BrainOverview({ sections, onAdd, onUpload, brain, editingName, setEditingName, brainName, setBrainName, brainDesc, setBrainDesc, saveBrainMeta }) {
+export default function BrainOverview({ sections, images = [], onAdd, onUpload, brain, editingName, setEditingName, brainName, setBrainName, brainDesc, setBrainDesc, saveBrainMeta }) {
   const countByType = {};
   TYPES.forEach(t => {
     countByType[t.key] = sections.filter(s => s.type === t.key).length;
@@ -135,32 +150,38 @@ export default function BrainOverview({ sections, onAdd, onUpload, brain, editin
     <div className="p-6 h-full overflow-y-auto">
       {/* Page title — click to edit */}
       {editingName ? (
-        <div className="space-y-2">
-          <input
-            className="text-xl font-semibold text-brand-black w-full bg-transparent border-b border-brand-orange outline-none"
-            value={brainName}
-            onChange={(e) => setBrainName(e.target.value)}
-            autoFocus
-            onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
-          />
-          <input
-            className="text-sm text-text-muted w-full bg-transparent border-b border-border outline-none"
-            value={brainDesc}
-            onChange={(e) => setBrainDesc(e.target.value)}
-            placeholder="Description"
-            onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
-          />
-          <div className="flex gap-3">
-            <button onClick={saveBrainMeta} className="text-sm text-brand-orange hover:text-brand-orange-hover">Save</button>
-            <button onClick={() => setEditingName(false)} className="text-sm text-text-muted hover:text-text-primary">Cancel</button>
+        <div className="flex items-start gap-4">
+          <img src="/images/brainboxlogo.png" alt="" className="w-12 h-12 rounded-full object-cover bg-bg-panel flex-shrink-0" />
+          <div className="flex-1 space-y-2">
+            <input
+              className="text-xl font-semibold text-brand-black w-full bg-transparent border-b border-brand-orange outline-none"
+              value={brainName}
+              onChange={(e) => setBrainName(e.target.value)}
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
+            />
+            <input
+              className="text-sm text-text-muted w-full bg-transparent border-b border-border outline-none"
+              value={brainDesc}
+              onChange={(e) => setBrainDesc(e.target.value)}
+              placeholder="Description"
+              onKeyDown={(e) => e.key === 'Enter' && saveBrainMeta()}
+            />
+            <div className="flex gap-3">
+              <button onClick={saveBrainMeta} className="text-sm text-brand-orange hover:text-brand-orange-hover">Save</button>
+              <button onClick={() => setEditingName(false)} className="text-sm text-text-muted hover:text-text-primary">Cancel</button>
+            </div>
           </div>
         </div>
       ) : (
-        <button onClick={() => setEditingName(true)} className="text-left group">
-          <h2 className="text-xl font-semibold text-brand-black group-hover:text-brand-orange transition-colors">{brain?.name || 'Brain Scan'}</h2>
-          {brain?.description && (
-            <p className="text-sm text-text-muted mt-1">{brain.description}</p>
-          )}
+        <button onClick={() => setEditingName(true)} className="text-left group flex items-center gap-4">
+          <img src="/images/brainboxlogo.png" alt="" className="w-12 h-12 rounded-full object-cover bg-bg-panel flex-shrink-0" />
+          <div>
+            <h2 className="text-xl font-semibold text-brand-black group-hover:text-brand-orange transition-colors">{brain?.name || 'Brain Scan'}</h2>
+            {brain?.description && (
+              <p className="text-sm text-text-muted mt-1">{brain.description}</p>
+            )}
+          </div>
         </button>
       )}
 
@@ -169,14 +190,39 @@ export default function BrainOverview({ sections, onAdd, onUpload, brain, editin
         <h3 className="font-semibold text-brand-black mb-3">Brain Capacity</h3>
         <div className="flex justify-between text-sm text-text-muted mb-2">
           <span>{totalCount}/{TOTAL_TARGET} neurons</span>
-          <span>{Math.round(totalPct)}%</span>
+          <span className="font-medium text-brand-orange">{getBrainLevel(totalCount).label}</span>
         </div>
-        <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-brand-orange rounded-full transition-all duration-500"
-            style={{ width: `${totalPct}%` }}
-          />
+        <div className="relative">
+          <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-brand-orange rounded-full transition-all duration-500"
+              style={{ width: `${totalPct}%` }}
+            />
+          </div>
+          {/* Level tick marks */}
+          <div className="relative mt-1.5 h-6">
+            {LEVELS.map((level) => {
+              const isActive = totalCount >= level.min;
+              return (
+                <div
+                  key={level.label}
+                  className="absolute flex flex-col items-center"
+                  style={{ left: `${level.pos}%`, transform: level.pos === 100 ? 'translateX(-100%)' : level.pos === 0 ? 'none' : 'translateX(-50%)' }}
+                >
+                  <div className={`w-px h-2 ${isActive ? 'bg-brand-orange' : 'bg-gray-300'}`} />
+                  <span className={`text-[10px] mt-0.5 whitespace-nowrap ${isActive ? 'text-brand-orange font-medium' : 'text-text-muted'}`}>
+                    {level.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
+      </div>
+
+      {/* Image references indicator */}
+      <div className="flex items-center gap-3 mt-3 px-1">
+        <span className="text-xs text-text-muted">{images.length}/10 reference images</span>
       </div>
 
       {/* 2-column grid */}
