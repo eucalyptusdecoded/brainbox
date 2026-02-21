@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../App';
 import axios from 'axios';
 
 export default function Login() {
-  const [isRegister, setIsRegister] = useState(false);
+  const location = useLocation();
+  const [isRegister, setIsRegister] = useState(location.state?.register || false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
