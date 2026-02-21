@@ -137,6 +137,111 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET /api/brains/:id/export — export brain as .brainbox JSON file
+router.get('/:id/export', async (req, res) => {
+  try {
+    const brain = await db.execute({
+      sql: 'SELECT * FROM brains WHERE id = ? AND user_id = ?',
+      args: [req.params.id, req.user.id],
+    });
+    if (brain.rows.length === 0) return res.status(404).json({ error: 'Brain not found' });
+
+    const [sections, images] = await Promise.all([
+      db.execute({ sql: 'SELECT * FROM brain_sections WHERE brain_id = ? ORDER BY type, priority', args: [req.params.id] }),
+      db.execute({ sql: 'SELECT * FROM brain_images WHERE brain_id = ? ORDER BY priority', args: [req.params.id] }),
+    ]);
+
+    const payload = {
+      version: 1,
+      name: brain.rows[0].name,
+      description: brain.rows[0].description || '',
+      exported_at: new Date().toISOString(),
+      sections: sections.rows.map(s => ({
+        type: s.type,
+        title: s.title,
+        content: s.content,
+        priority: s.priority,
+        is_active: s.is_active,
+      })),
+      images: images.rows.map(i => ({
+        url: i.url,
+        description: i.description,
+        priority: i.priority,
+      })),
+    };
+
+    const filename = `${brain.rows[0].name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-')}.brainbox`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(JSON.stringify(payload, null, 2));
+  } catch (err) {
+    console.error('Export brain error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/brains/import — import a .brainbox JSON file
+const importUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
+router.post('/import', importUpload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    let data;
+    try {
+      data = JSON.parse(req.file.buffer.toString('utf-8'));
+    } catch {
+      return res.status(400).json({ error: 'Invalid file format. Expected a .brainbox JSON file.' });
+    }
+
+    if (!data.version || !data.name || !Array.isArray(data.sections)) {
+      return res.status(400).json({ error: 'Invalid .brainbox file structure' });
+    }
+
+    const VALID_TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
+    for (const s of data.sections) {
+      if (!VALID_TYPES.includes(s.type)) return res.status(400).json({ error: `Invalid section type: ${s.type}` });
+      if (!s.title) return res.status(400).json({ error: 'Each section must have a title' });
+      if (s.content && s.content.length > 2000) return res.status(400).json({ error: `Section "${s.title}" exceeds 2000 character limit` });
+      if (s.title.length > 50) return res.status(400).json({ error: `Section title "${s.title}" exceeds 50 character limit` });
+    }
+
+    const imgs = Array.isArray(data.images) ? data.images.slice(0, 10) : [];
+    for (const img of imgs) {
+      if (!img.url || !img.description) return res.status(400).json({ error: 'Each image must have a url and description' });
+      if (img.description.length > 200) return res.status(400).json({ error: `Image description exceeds 200 character limit` });
+    }
+
+    // Create brain
+    const brainId = uuidv4();
+    await db.execute({
+      sql: 'INSERT INTO brains (id, user_id, name, description) VALUES (?, ?, ?, ?)',
+      args: [brainId, req.user.id, data.name, data.description || null],
+    });
+
+    // Insert sections
+    for (const s of data.sections) {
+      await db.execute({
+        sql: 'INSERT INTO brain_sections (id, brain_id, type, title, content, is_active, priority) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        args: [uuidv4(), brainId, s.type, s.title, s.content || '', s.is_active ?? 1, s.priority ?? 50],
+      });
+    }
+
+    // Insert images
+    for (const img of imgs) {
+      await db.execute({
+        sql: 'INSERT INTO brain_images (id, brain_id, url, description, priority) VALUES (?, ?, ?, ?, ?)',
+        args: [uuidv4(), brainId, img.url, img.description, img.priority ?? 0],
+      });
+    }
+
+    const result = await db.execute({ sql: 'SELECT * FROM brains WHERE id = ?', args: [brainId] });
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Import brain error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/brains/:id/context — download compiled brain context as .txt
 router.get('/:id/context', async (req, res) => {
   try {

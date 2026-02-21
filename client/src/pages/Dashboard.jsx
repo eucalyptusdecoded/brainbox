@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil } from 'lucide-react';
+import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil, Download, Upload } from 'lucide-react';
 import Header from '../components/Header';
 import brainTemplates from '../data/brainTemplates';
 
@@ -20,6 +20,8 @@ export default function Dashboard() {
   const [renameTarget, setRenameTarget] = useState(null); // brain object or null
   const [renameValue, setRenameValue] = useState('');
   const [duplicating, setDuplicating] = useState(null); // brain id or null
+  const [importing, setImporting] = useState(false);
+  const importRef = useRef(null);
   const navigate = useNavigate();
 
   async function fetchBrains() {
@@ -124,6 +126,40 @@ export default function Dashboard() {
     }
   }
 
+  async function handleExport(brain) {
+    try {
+      const response = await axios.get(`/api/brains/${brain.id}/export`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${brain.name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-')}.brainbox`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to export brain:', err);
+    }
+  }
+
+  async function handleImport(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await axios.post('/api/brains/import', formData);
+      navigate(`/brain/${data.id}`);
+    } catch (err) {
+      console.error('Failed to import brain:', err);
+      alert(err.response?.data?.error || 'Failed to import brain');
+    } finally {
+      setImporting(false);
+    }
+  }
+
   async function handleDelete() {
     if (!deleteConfirm) return;
     setDeleting(true);
@@ -145,12 +181,23 @@ export default function Dashboard() {
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-brand-black">Your Brains</h2>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-          >
-            + New Brain
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => importRef.current?.click()}
+              disabled={importing}
+              className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-lg border border-border text-text-muted hover:border-brand-orange hover:text-brand-orange transition-colors disabled:opacity-50"
+            >
+              <Upload size={14} />
+              {importing ? 'Importing...' : 'Import Brain'}
+            </button>
+            <input ref={importRef} type="file" accept=".brainbox" onChange={handleImport} className="hidden" />
+            <button
+              onClick={() => setShowCreate(true)}
+              className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              + New Brain
+            </button>
+          </div>
         </div>
 
         {/* Create modal */}
@@ -358,6 +405,13 @@ export default function Dashboard() {
                       >
                         <Copy size={14} />
                         Duplicate
+                      </button>
+                      <button
+                        onClick={() => { setMenuOpen(null); handleExport(brain); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-panel transition-colors"
+                      >
+                        <Download size={14} />
+                        Export
                       </button>
                       <button
                         onClick={() => { setMenuOpen(null); setDeleteConfirm(brain); }}
