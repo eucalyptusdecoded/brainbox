@@ -93,7 +93,7 @@ app.get('/documentation', (req, res) => {
   <meta property="og:description" content="Build portable AI brains that work across ChatGPT, Claude, Gemini, Perplexity, Copilot, and Grok.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://brainboxllm.site/documentation">
-  <meta property="og:image" content="https://brainboxllm.site/images/brainboxsquare.png">
+  <meta property="og:image" content="https://brainboxllm.site/images/brainboxlogothumb.jpg">
   <link rel="icon" type="image/png" href="/images/brainboxfavecon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,9 +141,9 @@ app.get('/documentation', (req, res) => {
 <body>
   <div class="header">
     <div class="header-inner">
-      <a href="/home"><img src="/images/brainboxlong.png" alt="Brainbox"></a>
+      <a href="/"><img src="/images/brainboxlong.png" alt="Brainbox"></a>
       <nav>
-        <a href="/home">Home</a>
+        <a href="/">Home</a>
         <a href="/login">Sign In</a>
       </nav>
     </div>

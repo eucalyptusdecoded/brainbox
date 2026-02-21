@@ -34,7 +34,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <Link to="/home">
+          <Link to="/">
             <img src="/images/brainboxlong.png" alt="Brainbox" className="h-[60px] mx-auto" />
           </Link>
           <h2 className="text-xl font-semibold text-brand-black mt-4">

@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../App';
-import { Navigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
 const SECTIONS = [
@@ -96,10 +94,6 @@ const SECTIONS = [
 ];
 
 export default function Home() {
-  const { token } = useAuth();
-
-  if (token) return <Navigate to="/" replace />;
-
   return (
     <div className="min-h-screen">
       {/* Hero */}

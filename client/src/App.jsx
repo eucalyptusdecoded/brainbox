@@ -17,8 +17,13 @@ export function useAuth() {
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
-  if (!token) return <Navigate to="/home" replace />;
+  if (!token) return <Navigate to="/" replace />;
   return children;
+}
+
+function RootRoute() {
+  const { token } = useAuth();
+  return token ? <Dashboard /> : <Home />;
 }
 
 function decodeUser(token) {
@@ -68,9 +73,9 @@ export default function App() {
     <AuthContext.Provider value={{ token, user, login, logout }}>
       <BrowserRouter>
         <Routes>
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<RootRoute />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/brain/:id" element={<ProtectedRoute><BrainEditor /></ProtectedRoute>} />
           <Route path="/keys" element={<ProtectedRoute><APIKeys /></ProtectedRoute>} />
           <Route path="/integration" element={<ProtectedRoute><Integration /></ProtectedRoute>} />
