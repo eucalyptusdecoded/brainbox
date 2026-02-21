@@ -8,13 +8,10 @@ const PLATFORMS = [
   { id: 'custom-gpt', name: 'Custom GPT', label: 'OpenAI', available: true },
   { id: 'gemini', name: 'Gemini Gem', label: 'Google', available: true },
   { id: 'claude', name: 'Claude', label: 'Anthropic', available: true },
+  { id: 'perplexity', name: 'Perplexity Space', label: 'Perplexity', available: true },
+  { id: 'copilot', name: 'Copilot Agent', label: 'Microsoft', available: true },
+  { id: 'grok', name: 'Grok', label: 'xAI', available: true },
 ];
-
-const PLATFORM_SUBTITLES = {
-  'custom-gpt': 'Connect your Brainbox brain to a Custom GPT in 4 steps.',
-  'gemini': 'Connect your Brainbox brain to a Gemini Gem in 3 steps.',
-  'claude': 'Connect your Brainbox brain to a Claude Project in 3 steps.',
-};
 
 export default function Integration() {
   const [brains, setBrains] = useState([]);
@@ -91,6 +88,10 @@ export default function Integration() {
 
   const claudeSystemPrompt = `You have been provided a Brainbox context file in your project knowledge. Apply everything in it — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. Follow the context file as your primary instructions.`;
 
+  const perplexitySystemPrompt = `You have been provided a Brainbox context file. Apply everything in it — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. Follow the context file as your primary instructions.`;
+
+  const copilotSystemPrompt = `You have been provided a Brainbox context file in your knowledge. Apply everything in it — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. Follow the context file as your primary instructions.`;
+
   const actionSchema = JSON.stringify({
     openapi: '3.1.0',
     info: {
@@ -151,11 +152,13 @@ export default function Integration() {
       <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-8">
         <div>
           <h2 className="text-xl font-semibold text-brand-black mb-2">Integration Guide</h2>
-          <p className="text-text-muted text-sm">{PLATFORM_SUBTITLES[platform] || 'Choose a platform to get started.'}</p>
+          <p className="text-text-muted text-sm">Connect your brain to any of the following models.</p>
         </div>
 
         {/* Platform selector */}
-        <div className="flex flex-col md:flex-row gap-3">
+        <div>
+          <label className="block text-sm text-text-muted mb-1">Select LLM</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {PLATFORMS.map((p) => (
             <button
               key={p.id}
@@ -178,6 +181,7 @@ export default function Integration() {
               )}
             </button>
           ))}
+          </div>
         </div>
 
         {/* Brain selector */}
@@ -572,6 +576,316 @@ print(message.content[0].text)`}</pre>
                 </button>
               </div>
               <p className="text-sm text-text-muted">Claude will respond using your brain context as its instructions. You can change the <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">"Hello!"</code> message in the code to anything you like.</p>
+            </div>
+          </div>
+        </details>
+
+        </>)}
+
+        {platform === 'perplexity' && (<>
+
+        {/* Perplexity Space Setup */}
+        <details open className="bg-bg-panel border border-border rounded-xl">
+          <summary className="font-semibold text-brand-black p-5 cursor-pointer select-none">
+            Perplexity Space Setup
+          </summary>
+          <div className="px-5 pb-5 space-y-5">
+            {/* Step 1: Download Context */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 1: Download Brain Context</h3>
+              <p className="text-sm text-text-muted">Download your brain's context as a text file to upload to your Space.</p>
+              <button
+                onClick={handleDownloadContext}
+                disabled={downloading || !selectedBrain}
+                className="flex items-center gap-2 bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+              >
+                <Download size={16} />
+                {downloading ? 'Downloading...' : 'Download Context File'}
+              </button>
+              <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
+            </div>
+
+            {/* Step 2: Create Space */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 2: Create Your Space</h3>
+              <p className="text-sm text-text-muted">Create a new Space in Perplexity and upload your brain context.</p>
+              <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
+                <li>Open <strong>perplexity.ai</strong> and hover over <strong>Spaces</strong> in the left sidebar</li>
+                <li>Click <strong>Create a Space</strong></li>
+                <li>Enter the <strong>Name</strong> and <strong>Description</strong> from Step 3 below</li>
+                <li>Paste the <strong>Instructions</strong> from Step 3 into the custom instructions field</li>
+                <li>Click <strong>Continue</strong></li>
+                <li>In the <strong>Sources</strong> panel on the right, click the <strong>file icon</strong> and upload the <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> file from Step 1</li>
+              </ol>
+            </div>
+
+            {/* Step 3: Configuration */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-text-primary">Step 3: Configure Your Space</h3>
+              <p className="text-sm text-text-muted">Copy and paste each of these into your Space's fields:</p>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary border border-border">{selectedBrainObj?.name || ''}</pre>
+                  <button onClick={() => copy(selectedBrainObj?.name || '', 'pplx-name')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                    {copied === 'pplx-name' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Description</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{selectedBrainObj?.description || '—'}</pre>
+                  <button onClick={() => copy(selectedBrainObj?.description || '', 'pplx-desc')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                    {copied === 'pplx-desc' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Custom Instructions</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{perplexitySystemPrompt}</pre>
+                  <button onClick={() => copy(perplexitySystemPrompt, 'pplx-prompt')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                    {copied === 'pplx-prompt' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        </>)}
+
+        {platform === 'copilot' && (<>
+
+        {/* Copilot Agent Setup */}
+        <details open className="bg-bg-panel border border-border rounded-xl">
+          <summary className="font-semibold text-brand-black p-5 cursor-pointer select-none">
+            Copilot Agent Setup
+          </summary>
+          <div className="px-5 pb-5 space-y-5">
+            {/* Step 1: Download Context */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 1: Download Brain Context</h3>
+              <p className="text-sm text-text-muted">Download your brain's context as a text file to upload to your Copilot Agent.</p>
+              <button
+                onClick={handleDownloadContext}
+                disabled={downloading || !selectedBrain}
+                className="flex items-center gap-2 bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+              >
+                <Download size={16} />
+                {downloading ? 'Downloading...' : 'Download Context File'}
+              </button>
+              <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
+            </div>
+
+            {/* Step 2: Create Agent */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 2: Create Your Agent</h3>
+              <p className="text-sm text-text-muted">Create a new Agent in Microsoft 365 Copilot and upload your brain context.</p>
+              <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
+                <li>Open <strong>Microsoft 365 Copilot</strong> at <strong>copilot.microsoft.com</strong></li>
+                <li>Click <strong>Create agent</strong> in the left pane</li>
+                <li>Go to the <strong>Configure</strong> tab</li>
+                <li>Enter the <strong>Name</strong>, <strong>Description</strong>, and <strong>Instructions</strong> from Step 3 below</li>
+                <li>In the <strong>Knowledge</strong> section, click the search bar and upload the <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> file from Step 1</li>
+                <li>Test your agent in the preview pane, then click <strong>Create</strong></li>
+              </ol>
+            </div>
+
+            {/* Step 3: Configuration */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-text-primary">Step 3: Configure Your Agent</h3>
+              <p className="text-sm text-text-muted">Copy and paste each of these into your Agent's fields:</p>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary border border-border">{selectedBrainObj?.name || ''}</pre>
+                  <button onClick={() => copy(selectedBrainObj?.name || '', 'copilot-name')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                    {copied === 'copilot-name' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Description</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{selectedBrainObj?.description || '—'}</pre>
+                  <button onClick={() => copy(selectedBrainObj?.description || '', 'copilot-desc')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                    {copied === 'copilot-desc' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Instructions</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{copilotSystemPrompt}</pre>
+                  <button onClick={() => copy(copilotSystemPrompt, 'copilot-prompt')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                    {copied === 'copilot-prompt' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        </>)}
+
+        {platform === 'grok' && (<>
+
+        {/* Grok Setup */}
+        <details open className="bg-bg-panel border border-border rounded-xl">
+          <summary className="font-semibold text-brand-black p-5 cursor-pointer select-none">
+            Grok Custom Instructions Setup
+          </summary>
+          <div className="px-5 pb-5 space-y-5">
+            {/* Step 1: Download Context */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 1: Download Brain Context</h3>
+              <p className="text-sm text-text-muted">Download your brain's context as a text file. You'll paste its contents into Grok's custom instructions.</p>
+              <button
+                onClick={handleDownloadContext}
+                disabled={downloading || !selectedBrain}
+                className="flex items-center gap-2 bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+              >
+                <Download size={16} />
+                {downloading ? 'Downloading...' : 'Download Context File'}
+              </button>
+              <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
+            </div>
+
+            {/* Step 2: Set Custom Instructions */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 2: Set Custom Instructions</h3>
+              <p className="text-sm text-text-muted">Paste your brain context into Grok's custom instructions.</p>
+              <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
+                <li>Open <strong>grok.com</strong> and go to <strong>Settings</strong></li>
+                <li>Find the <strong>Custom Instructions</strong> section</li>
+                <li>Open the <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> file from Step 1 in a text editor, select all the text, and copy it</li>
+                <li>Paste the contents into the custom instructions field</li>
+                <li>Click <strong>Save</strong></li>
+              </ol>
+              <p className="text-xs text-text-muted mt-2">Note: Grok has a character limit on custom instructions. If your brain is too large, consider disabling less important sections or using the API approach below.</p>
+            </div>
+          </div>
+        </details>
+
+        {/* For Developers: Grok API */}
+        <details className="bg-bg-panel border border-border rounded-xl">
+          <summary className="font-semibold text-brand-black p-5 cursor-pointer select-none">
+            For Developers: Grok API Integration
+          </summary>
+          <div className="px-5 pb-5 space-y-5">
+            <p className="text-sm text-text-muted">This section is for developers building their own apps with the xAI API. If you just want to use your brain in Grok, follow the steps above instead — no code needed.</p>
+
+            {/* Step 1: Install */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-text-primary">Step 1: Install the required packages</p>
+              <p className="text-sm text-text-muted">Open a terminal on your computer and run this command:</p>
+              <div className="relative">
+                <pre className="bg-white rounded-lg px-4 py-3 text-xs text-text-primary font-mono border border-border">pip install openai requests</pre>
+                <button onClick={() => copy('pip install openai requests', 'grok-pip')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                  {copied === 'grok-pip' ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+            </div>
+
+            {/* Step 2: API Keys */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-text-primary">Step 2: Get your API keys</p>
+              <p className="text-sm text-text-muted">You need two API keys — one from Brainbox and one from xAI.</p>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-text-muted uppercase tracking-wide">Brainbox API Key</p>
+                {generatedKey ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <code className="bg-white px-3 py-2 rounded text-xs text-text-primary flex-1 font-mono overflow-x-auto border border-border">{generatedKey}</code>
+                      <button onClick={() => copy(generatedKey, 'grok-apikey')} className="text-brand-orange hover:text-brand-orange-hover flex-shrink-0 p-1" title="Copy">
+                        {copied === 'grok-apikey' ? <Check size={16} /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-amber-600 font-medium">Copy this key now — it won't be shown again.</p>
+                  </div>
+                ) : brainHasKey ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Key size={14} className="text-text-muted" />
+                      <code className="text-sm text-text-muted font-mono">{keys[0].key_prefix}...</code>
+                      <span className="text-xs text-text-muted">— API key exists for this brain</span>
+                    </div>
+                    <button onClick={handleGenerateKey} disabled={generating} className="text-xs text-brand-orange hover:text-brand-orange-hover border border-brand-orange/30 rounded-lg px-3 py-1.5 disabled:opacity-50">
+                      {generating ? 'Generating...' : 'Generate New Key'}
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={handleGenerateKey} disabled={generating || !selectedBrain} className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">
+                    {generating ? 'Generating...' : 'Generate API Key'}
+                  </button>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-text-muted uppercase tracking-wide">xAI API Key</p>
+                <p className="text-sm text-text-muted">Get your xAI API key from <strong>console.x.ai</strong> &rarr; <strong>API Keys</strong>. You'll need an xAI account.</p>
+              </div>
+            </div>
+
+            {/* Step 3: Python file */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-text-primary">Step 3: Create a Python file</p>
+              <p className="text-sm text-text-muted">Create a new file called <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">brainbox_grok.py</code> and paste the following code. Replace the two placeholder API keys with your real keys from Step 2.</p>
+              <div className="relative">
+                <pre className="bg-white rounded-lg p-4 text-xs text-text-primary font-mono overflow-x-auto border border-border whitespace-pre">{`import requests
+from openai import OpenAI
+
+# Replace these with your real API keys from Step 2
+BRAINBOX_API_KEY = "your_brainbox_api_key_here"
+XAI_API_KEY = "your_xai_api_key_here"
+
+# 1. Fetch your brain context from Brainbox
+response = requests.get(
+    "https://brainboxllm.site/api/context/${selectedBrain || '{brain_id}'}",
+    headers={"X-API-Key": BRAINBOX_API_KEY}
+)
+brain_context = response.text
+
+# 2. Send a message to Grok with your brain as the system prompt
+client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
+message = client.chat.completions.create(
+    model="grok-3-latest",
+    messages=[
+        {"role": "system", "content": brain_context},
+        {"role": "user", "content": "Hello!"}
+    ]
+)
+
+print(message.choices[0].message.content)`}</pre>
+                <button
+                  onClick={() => copy(`import requests\nfrom openai import OpenAI\n\n# Replace these with your real API keys from Step 2\nBRAINBOX_API_KEY = "your_brainbox_api_key_here"\nXAI_API_KEY = "your_xai_api_key_here"\n\n# 1. Fetch your brain context from Brainbox\nresponse = requests.get(\n    "https://brainboxllm.site/api/context/${selectedBrain || '{brain_id}'}",\n    headers={"X-API-Key": BRAINBOX_API_KEY}\n)\nbrain_context = response.text\n\n# 2. Send a message to Grok with your brain as the system prompt\nclient = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")\nmessage = client.chat.completions.create(\n    model="grok-3-latest",\n    messages=[\n        {"role": "system", "content": brain_context},\n        {"role": "user", "content": "Hello!"}\n    ]\n)\n\nprint(message.choices[0].message.content)`, 'grok-python')}
+                  className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                >
+                  {copied === 'grok-python' ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+            </div>
+
+            {/* Step 4: Run */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-text-primary">Step 4: Run it</p>
+              <p className="text-sm text-text-muted">Open a terminal, navigate to the folder where you saved the file, and run:</p>
+              <div className="relative">
+                <pre className="bg-white rounded-lg px-4 py-3 text-xs text-text-primary font-mono border border-border">python brainbox_grok.py</pre>
+                <button onClick={() => copy('python brainbox_grok.py', 'grok-run')} className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white">
+                  {copied === 'grok-run' ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+              <p className="text-sm text-text-muted">Grok will respond using your brain context as its instructions. You can change the <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">"Hello!"</code> message in the code to anything you like.</p>
             </div>
           </div>
         </details>
