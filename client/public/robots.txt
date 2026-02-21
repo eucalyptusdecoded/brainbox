@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /home
+Allow: /documentation
+Disallow: /brain/
+Disallow: /keys
+Disallow: /integration
+Disallow: /guide
+Disallow: /api/
+Sitemap: https://brainboxllm.site/sitemap.xml

@@ -120,13 +120,21 @@ export default function Home() {
             ))}
           </div>
 
-          <Link
-            to="/login"
-            state={{ register: true }}
-            className="inline-block mt-8 bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white font-medium px-8 py-3 rounded-lg transition-colors text-lg"
-          >
-            Build your brain
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-8">
+            <Link
+              to="/login"
+              state={{ register: true }}
+              className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white font-medium px-8 py-3 rounded-lg transition-colors text-lg"
+            >
+              Build your brain
+            </Link>
+            <a
+              href="/documentation"
+              className="border border-border text-text-muted hover:border-brand-orange hover:text-brand-orange font-medium px-8 py-3 rounded-lg transition-colors text-lg"
+            >
+              Read Documentation
+            </a>
+          </div>
 
           <p className="text-sm text-text-muted mt-4">
             Already have an account?{' '}
