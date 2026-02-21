@@ -4,6 +4,22 @@ import WritingTips from './WritingTips';
 
 const TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
 
+const NAME_PLACEHOLDERS = {
+  rule:      'e.g. Spelling & Language',
+  memory:    'e.g. Tech Stack',
+  behaviour: 'e.g. Tone of Voice',
+  guardrail: 'e.g. No Financial Advice',
+  skill:     'e.g. Blog Post Workflow',
+};
+
+const CONTENT_PLACEHOLDERS = {
+  rule:      'e.g. Always respond in Australian English with Australian spelling conventions.',
+  memory:    'e.g. The user is a frontend developer working with React and TypeScript at a fintech startup.',
+  behaviour: 'e.g. Respond in a warm, encouraging tone. Keep responses under 300 words unless asked for more detail.',
+  guardrail: 'e.g. Never provide medical, legal, or financial advice. Redirect the user to consult a qualified professional.',
+  skill:     'e.g. When asked to write a blog post:\n1. Ask for the topic and target audience.\n2. Propose three title options.\n3. Write a 500-word draft once a title is approved.',
+};
+
 export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -84,7 +100,7 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
           className="text-base md:text-sm font-semibold"
           value={title}
           onChange={(e) => setTitle(e.target.value.slice(0, 50))}
-          placeholder="e.g. Spelling Rule"
+          placeholder={NAME_PLACEHOLDERS[type]}
           maxLength={50}
         />
         <p className="text-sm text-text-muted mt-1 text-right">{title.length}/50</p>
@@ -97,7 +113,7 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
           className="flex-1 resize-none text-base md:text-sm leading-relaxed min-h-[200px]"
           value={content}
           onChange={(e) => setContent(e.target.value.slice(0, 2000))}
-          placeholder="Enter the full detail for this section..."
+          placeholder={CONTENT_PLACEHOLDERS[type]}
           maxLength={2000}
         />
         <p className="text-sm text-text-muted mt-1 text-right">{content.length}/2000</p>

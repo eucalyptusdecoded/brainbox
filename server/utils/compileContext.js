@@ -24,14 +24,16 @@ function compileContext(sections, filterTypes = null, images = []) {
   const parts = Object.entries(grouped)
     .map(([type, items]) => {
       const label = SECTION_LABELS[type];
-      const content = items.map(i => i.content).join('\n');
-      return `=== ${label} ===\n${content}`;
+      const content = items
+        .map(i => `[${i.title}]\n${i.content}`)
+        .join('\n\n');
+      return `## ${label}\n\n${content}`;
     });
 
   if (images.length > 0) {
     const sorted = [...images].sort((a, b) => a.priority - b.priority);
     const imageContent = sorted.map(img => `${img.description}: ${img.url}`).join('\n');
-    parts.push(`=== REFERENCE IMAGES ===\n${imageContent}`);
+    parts.push(`## REFERENCE IMAGES\n\n${imageContent}`);
   }
 
   return parts.join('\n\n');

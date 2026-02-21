@@ -10,35 +10,35 @@ const brainTemplates = [
         type: 'rule',
         title: 'Brand Voice',
         content:
-          'Always write in the brand\'s established voice and tone. Maintain consistency across all content — whether it\'s a social post, blog article, email, or landing page. Never drift into a generic or robotic tone. [Insert your brand\'s voice description here: e.g. "Confident and warm, like a knowledgeable friend giving advice"]',
+          'Always write in the brand\'s established voice and tone. Maintain consistency across all content — whether it\'s a social post, blog article, email, or landing page. Never drift into a generic or robotic tone. [REPLACE: Your brand\'s voice description, e.g. "Confident and warm, like a knowledgeable friend giving advice"]',
         priority: 10,
       },
       {
         type: 'rule',
         title: 'Brand Name Usage',
         content:
-          'Always refer to the brand by its official name with correct capitalisation and spelling. Never abbreviate, alter, or use slang variations of the brand name unless explicitly part of the brand guidelines. [Insert your brand name and any approved variations here]',
+          'Always refer to the brand by its official name with correct capitalisation and spelling. Never abbreviate, alter, or use slang variations of the brand name unless explicitly part of the brand guidelines. [REPLACE: Your brand name and any approved variations]',
         priority: 20,
       },
       {
         type: 'rule',
         title: 'Language & Spelling',
         content:
-          '[Insert your preferred English variant here: e.g. "Use Australian English spelling conventions at all times — colour not color, organise not organize, centre not center. Use DD/MM/YYYY date format." Or specify American English, British English, etc.]',
+          '[REPLACE: Your preferred English variant, e.g. "Use Australian English spelling conventions at all times — colour not color, organise not organize, centre not center. Use DD/MM/YYYY date format." Or specify American English, British English, etc.]',
         priority: 30,
       },
       {
         type: 'rule',
         title: 'Terminology & Vocabulary',
         content:
-          'Use approved brand terminology consistently. Avoid jargon, buzzwords, and corporate-speak unless it\'s standard in the brand\'s industry. When technical terms are necessary, explain them in plain language. [Insert any specific terms to always use or always avoid here]',
+          'Use approved brand terminology consistently. Avoid jargon, buzzwords, and corporate-speak unless it\'s standard in the brand\'s industry. When technical terms are necessary, explain them in plain language. [REPLACE: any specific terms to always use or always avoid]',
         priority: 40,
       },
       {
         type: 'rule',
         title: 'Content Structure Standards',
         content:
-          'All content must follow the brand\'s structural standards. Use sentence case for headings. Always include a clear call-to-action. Every piece of content must have a defined purpose (inform, persuade, engage, convert). [Insert any additional structural rules specific to your brand here]',
+          'All content must follow the brand\'s structural standards. Use sentence case for headings. Always include a clear call-to-action. Every piece of content must have a defined purpose (inform, persuade, engage, convert). [REPLACE: any additional structural rules specific to your brand]',
         priority: 50,
       },
       {
@@ -54,42 +54,42 @@ const brainTemplates = [
         type: 'memory',
         title: 'Brand Guidelines',
         content:
-          '[Insert your brand guidelines summary here. Include: brand mission, vision, values, tone of voice description, and any key messaging pillars. e.g. "Our mission is to make complex topics feel simple and actionable. We are confident, warm, and approachable."]',
+          '[REPLACE: Your brand guidelines summary. Include: brand mission, vision, values, tone of voice description, and any key messaging pillars. e.g. "Our mission is to make complex topics feel simple and actionable. We are confident, warm, and approachable."]',
         priority: 10,
       },
       {
         type: 'memory',
         title: 'Target Audience',
         content:
-          '[Insert your target audience here. Include: demographics, psychographics, pain points, motivations, and preferred content formats. e.g. "SMB owners aged 28–45, time-poor, digitally savvy, value practical advice over theory."]',
+          '[REPLACE: Your target audience. Include: demographics, psychographics, pain points, motivations, and preferred content formats. e.g. "SMB owners aged 28–45, time-poor, digitally savvy, value practical advice over theory."]',
         priority: 20,
       },
       {
         type: 'memory',
         title: 'Brand Story & Positioning',
         content:
-          '[Insert your brand story and market positioning here. Include: what makes you different, your origin story (if relevant), and how you want to be perceived relative to competitors. This gives the AI context for crafting authentic messaging.]',
+          '[REPLACE: Your brand story and market positioning. Include: what makes you different, your origin story (if relevant), and how you want to be perceived relative to competitors. This gives the AI context for crafting authentic messaging.]',
         priority: 30,
       },
       {
         type: 'memory',
         title: 'Products & Services',
         content:
-          '[Insert your key products, services, or offerings here. Include: names, descriptions, key benefits, pricing tiers (if public), and any specific language used to describe them. This ensures the AI accurately represents what you sell.]',
+          '[REPLACE: Your key products, services, or offerings. Include: names, descriptions, key benefits, pricing tiers (if public), and any specific language used to describe them. This ensures the AI accurately represents what you sell.]',
         priority: 40,
       },
       {
         type: 'memory',
         title: 'Content Pillars',
         content:
-          '[Insert your content pillars or themes here. e.g. "1. Industry thought leadership 2. Practical how-to guides 3. Customer success stories 4. Product updates and tips." Content pillars define the topics you consistently create content about.]',
+          '[REPLACE: Your content pillars or themes. e.g. "1. Industry thought leadership 2. Practical how-to guides 3. Customer success stories 4. Product updates and tips." Content pillars define the topics you consistently create content about.]',
         priority: 50,
       },
       {
         type: 'memory',
         title: 'Key Messages & Taglines',
         content:
-          '[Insert your approved key messages, taglines, boilerplate copy, and elevator pitch here. These are pre-approved phrases that should be used consistently across all communications.]',
+          '[REPLACE: Your approved key messages, taglines, boilerplate copy, and elevator pitch. These are pre-approved phrases that should be used consistently across all communications.]',
         priority: 60,
       },
 
@@ -98,14 +98,14 @@ const brainTemplates = [
         type: 'behaviour',
         title: 'Tone of Voice',
         content:
-          'Write in the brand\'s established tone. Use short sentences and active voice. Address the reader as "you". Be direct and helpful — get to the point quickly, then provide supporting detail. Inject personality but stay professional. [Insert your specific tone descriptors: e.g. "conversational but authoritative", "playful but not flippant", "empathetic and encouraging"]',
+          'Write in the brand\'s established tone. Use short sentences and active voice. Address the reader as "you". Be direct and helpful — get to the point quickly, then provide supporting detail. Inject personality but stay professional. [REPLACE: Your specific tone descriptors: e.g. "conversational but authoritative", "playful but not flippant", "empathetic and encouraging"]',
         priority: 10,
       },
       {
         type: 'behaviour',
         title: 'Formatting Style',
         content:
-          'Use short paragraphs (2–3 sentences max). Break up long content with subheadings, bullet points, and bold key phrases. Use white space generously. Make content scannable — most readers skim before they read. [Insert any brand-specific formatting preferences here]',
+          'Use short paragraphs (2–3 sentences max). Break up long content with subheadings, bullet points, and bold key phrases. Use white space generously. Make content scannable — most readers skim before they read. [REPLACE: any brand-specific formatting preferences]',
         priority: 20,
       },
       {
@@ -119,7 +119,7 @@ const brainTemplates = [
         type: 'behaviour',
         title: 'Call-to-Action Approach',
         content:
-          'Every piece of content must end with a clear, specific call-to-action. Match the CTA to the content\'s goal (read more, sign up, buy, share, comment). Use action verbs and create urgency without being pushy. [Insert your preferred CTA style: e.g. "soft and suggestive" or "direct and urgent"]',
+          'Every piece of content must end with a clear, specific call-to-action. Match the CTA to the content\'s goal (read more, sign up, buy, share, comment). Use action verbs and create urgency without being pushy. [REPLACE: Your preferred CTA style: e.g. "soft and suggestive" or "direct and urgent"]',
         priority: 40,
       },
       {
@@ -149,14 +149,14 @@ const brainTemplates = [
         type: 'guardrail',
         title: 'Competitor Mentions',
         content:
-          'Never mention competitors by name unless specifically asked. Do not make comparative claims against other brands. If a comparison is needed, focus on our strengths rather than their weaknesses. Stay positive and forward-looking. [Insert any specific competitor guidelines here]',
+          'Never mention competitors by name unless specifically asked. Do not make comparative claims against other brands. If a comparison is needed, focus on our strengths rather than their weaknesses. Stay positive and forward-looking. [REPLACE: any specific competitor guidelines]',
         priority: 20,
       },
       {
         type: 'guardrail',
         title: 'Legal & Compliance',
         content:
-          'Never make claims that could create legal liability — including health claims, financial guarantees, employment promises, or results guarantees. Include required disclaimers where applicable. When in doubt, flag content for legal review. [Insert any industry-specific compliance requirements here]',
+          'Never make claims that could create legal liability — including health claims, financial guarantees, employment promises, or results guarantees. Include required disclaimers where applicable. When in doubt, flag content for legal review. [REPLACE: any industry-specific compliance requirements]',
         priority: 30,
       },
       {
@@ -237,28 +237,28 @@ const brainTemplates = [
         type: 'rule',
         title: 'Visual Identity Consistency',
         content:
-          'Always follow the brand\'s established visual identity. Every image must feel like it belongs to the same brand, whether it\'s a social post graphic, a website hero, or a presentation slide. Refer to the brand\'s reference images for guidance on style, mood, and aesthetic. [Insert your brand\'s core visual style/aesthetic here]',
+          'Always follow the brand\'s established visual identity. Every image must feel like it belongs to the same brand, whether it\'s a social post graphic, a website hero, or a presentation slide. Refer to the brand\'s reference images for guidance on style, mood, and aesthetic. [REPLACE: Your brand\'s core visual style/aesthetic]',
         priority: 10,
       },
       {
         type: 'rule',
         title: 'Colour Palette Enforcement',
         content:
-          'Only use approved brand colours in generated imagery. This includes backgrounds, overlays, accents, and any graphic elements. Never introduce colours that are not part of the brand palette unless depicting real-world subjects (e.g. sky, skin tones). [Insert your brand colour hex codes and usage rules here]',
+          'Only use approved brand colours in generated imagery. This includes backgrounds, overlays, accents, and any graphic elements. Never introduce colours that are not part of the brand palette unless depicting real-world subjects (e.g. sky, skin tones). [REPLACE: Your brand colour hex codes and usage rules]',
         priority: 20,
       },
       {
         type: 'rule',
         title: 'Typography in Graphics',
         content:
-          'When text appears in images, only use brand-approved typefaces. Maintain the brand\'s typographic hierarchy (headings, body, captions). Ensure text is legible at the intended viewing size and has sufficient contrast against backgrounds. [Insert your brand font names and hierarchy here]',
+          'When text appears in images, only use brand-approved typefaces. Maintain the brand\'s typographic hierarchy (headings, body, captions). Ensure text is legible at the intended viewing size and has sufficient contrast against backgrounds. [REPLACE: Your brand font names and hierarchy]',
         priority: 30,
       },
       {
         type: 'rule',
         title: 'Logo Placement',
         content:
-          'Follow brand guidelines for logo usage in all generated imagery. Maintain minimum clear space around the logo. Never distort, recolour, or place the logo on backgrounds that reduce legibility. [Insert your logo placement rules, minimum size, and clear space requirements here]',
+          'Follow brand guidelines for logo usage in all generated imagery. Maintain minimum clear space around the logo. Never distort, recolour, or place the logo on backgrounds that reduce legibility. [REPLACE: Your logo placement rules, minimum size, and clear space requirements]',
         priority: 40,
       },
       {
@@ -281,35 +281,35 @@ const brainTemplates = [
         type: 'memory',
         title: 'Brand Visual Guidelines',
         content:
-          '[Insert your brand\'s visual identity here. Include: primary and secondary colour palette (with hex codes), approved fonts, logo variations (full colour, mono, reversed), photography style, illustration style, and any visual motifs or recurring graphic elements.]',
+          '[REPLACE: Your brand\'s visual identity. Include: primary and secondary colour palette (with hex codes), approved fonts, logo variations (full colour, mono, reversed), photography style, illustration style, and any visual motifs or recurring graphic elements.]',
         priority: 10,
       },
       {
         type: 'memory',
         title: 'Target Audience',
         content:
-          '[Insert your target audience here. Understanding who will see these images helps ensure they resonate. Include: demographics, interests, platforms they use, and what visual styles appeal to them.]',
+          '[REPLACE: Your target audience. Understanding who will see these images helps ensure they resonate. Include: demographics, interests, platforms they use, and what visual styles appeal to them.]',
         priority: 20,
       },
       {
         type: 'memory',
         title: 'Brand Personality',
         content:
-          '[Insert your brand personality traits here. e.g. "Bold and energetic — we use vibrant colours, dynamic compositions, and high-contrast imagery" or "Calm and minimal — we favour muted tones, generous white space, and clean compositions." These traits guide every visual decision.]',
+          '[REPLACE: Your brand personality traits. e.g. "Bold and energetic — we use vibrant colours, dynamic compositions, and high-contrast imagery" or "Calm and minimal — we favour muted tones, generous white space, and clean compositions." These traits guide every visual decision.]',
         priority: 30,
       },
       {
         type: 'memory',
         title: 'Industry Context',
         content:
-          '[Insert your industry and its visual conventions here. e.g. "Tech industry — clean, minimal, geometric shapes, blue tones" or "Food & beverage — warm tones, textural close-ups, natural lighting." Understanding industry norms helps us either align with or intentionally break from expectations.]',
+          '[REPLACE: Your industry and its visual conventions. e.g. "Tech industry — clean, minimal, geometric shapes, blue tones" or "Food & beverage — warm tones, textural close-ups, natural lighting." Understanding industry norms helps us either align with or intentionally break from expectations.]',
         priority: 40,
       },
       {
         type: 'memory',
         title: 'Existing Brand Assets',
         content:
-          '[Insert descriptions of your existing imagery, style references, and mood board themes here. Reference specific campaigns or visual directions that define your current look. e.g. "Our 2025 campaign used flat illustration with thick outlines and a limited palette of navy, coral, and cream."]',
+          '[REPLACE: descriptions of your existing imagery, style references, and mood board themes. Reference specific campaigns or visual directions that define your current look. e.g. "Our 2025 campaign used flat illustration with thick outlines and a limited palette of navy, coral, and cream."]',
         priority: 50,
       },
       {
@@ -353,7 +353,7 @@ const brainTemplates = [
         type: 'behaviour',
         title: 'Mood and Lighting',
         content:
-          'Match the emotional tone of the brand in every image through deliberate lighting and mood choices. Lighting sets the tone more than any other element. [Insert your preferred mood and lighting: e.g. "Bright, natural daylight — optimistic and approachable" or "Moody editorial lighting — dramatic shadows, rich contrast, sophisticated"]',
+          'Match the emotional tone of the brand in every image through deliberate lighting and mood choices. Lighting sets the tone more than any other element. [REPLACE: Your preferred mood and lighting: e.g. "Bright, natural daylight — optimistic and approachable" or "Moody editorial lighting — dramatic shadows, rich contrast, sophisticated"]',
         priority: 50,
       },
       {
@@ -448,7 +448,7 @@ const brainTemplates = [
         type: 'skill',
         title: 'Product & Lifestyle Photography',
         content:
-          'When directing product or lifestyle image generation:\n1. Specify the setting, lighting setup, and props.\n2. Match the brand\'s established photography style.\n3. Ensure the product is the clear focal point.\n4. Use natural, believable compositions — avoid overly staged looks.\n5. Include context that shows the product in use by the target audience.\n[Insert your preferred photography style: e.g. flat lay on marble, lifestyle in-situ, studio white background, environmental portrait]',
+          'When directing product or lifestyle image generation:\n1. Specify the setting, lighting setup, and props.\n2. Match the brand\'s established photography style.\n3. Ensure the product is the clear focal point.\n4. Use natural, believable compositions — avoid overly staged looks.\n5. Include context that shows the product in use by the target audience.\n[REPLACE: Your preferred photography style: e.g. flat lay on marble, lifestyle in-situ, studio white background, environmental portrait]',
         priority: 60,
       },
     ],
@@ -471,7 +471,7 @@ const brainTemplates = [
         type: 'rule',
         title: 'Source Attribution',
         content:
-          'Always reference the data source, date range, and sample size when presenting findings. Every number must be traceable back to its origin. If a data source is uncertain or secondary, note that clearly. [Insert your primary data sources here]',
+          'Always reference the data source, date range, and sample size when presenting findings. Every number must be traceable back to its origin. If a data source is uncertain or secondary, note that clearly. [REPLACE: Your primary data sources]',
         priority: 20,
       },
       {
@@ -485,21 +485,21 @@ const brainTemplates = [
         type: 'rule',
         title: 'Consistent Metrics',
         content:
-          'Use the same metric definitions across all reports and analyses. A metric must mean the same thing every time it appears. Document definitions clearly. [Insert your key metric definitions here: e.g. "MAU = unique users with at least 1 session in 30 days", "Churn = accounts cancelled / total active accounts at period start"]',
+          'Use the same metric definitions across all reports and analyses. A metric must mean the same thing every time it appears. Document definitions clearly. [REPLACE: Your key metric definitions, e.g. "MAU = unique users with at least 1 session in 30 days", "Churn = accounts cancelled / total active accounts at period start"]',
         priority: 40,
       },
       {
         type: 'rule',
         title: 'Number Formatting',
         content:
-          'Format numbers consistently across all outputs. Use commas for thousands separators. Display percentages to one decimal place unless more precision is needed. Round currency to two decimal places. Use consistent date formats throughout. [Insert your preferred number, currency, and date format conventions here]',
+          'Format numbers consistently across all outputs. Use commas for thousands separators. Display percentages to one decimal place unless more precision is needed. Round currency to two decimal places. Use consistent date formats throughout. [REPLACE: Your preferred number, currency, and date format conventions]',
         priority: 50,
       },
       {
         type: 'rule',
         title: 'Naming Conventions',
         content:
-          'Use consistent naming for dimensions, segments, categories, and cohorts across all outputs. Never rename a segment mid-report. Align naming with the business terminology stakeholders already use. [Insert your standard naming conventions for key segments, cohorts, and dimensions here]',
+          'Use consistent naming for dimensions, segments, categories, and cohorts across all outputs. Never rename a segment mid-report. Align naming with the business terminology stakeholders already use. [REPLACE: Your standard naming conventions for key segments, cohorts, and dimensions]',
         priority: 60,
       },
 
@@ -508,42 +508,42 @@ const brainTemplates = [
         type: 'memory',
         title: 'Business Context',
         content:
-          '[Insert your business overview here. Include: industry, business model, revenue drivers, growth stage, and what success looks like. This helps the AI contextualise data findings and provide relevant recommendations. e.g. "B2B SaaS, subscription model, 500 customers, focused on reducing churn and increasing expansion revenue."]',
+          '[REPLACE: Your business overview. Include: industry, business model, revenue drivers, growth stage, and what success looks like. This helps the AI contextualise data findings and provide relevant recommendations. e.g. "B2B SaaS, subscription model, 500 customers, focused on reducing churn and increasing expansion revenue."]',
         priority: 10,
       },
       {
         type: 'memory',
         title: 'Key Metrics & KPIs',
         content:
-          '[Insert your primary KPIs here. Include: metric name, calculation method, current target/benchmark, and which stakeholders care about each. e.g. "MRR (Monthly Recurring Revenue): sum of all active subscription values. Target: $120K. Reported to: CEO, board."]',
+          '[REPLACE: Your primary KPIs. Include: metric name, calculation method, current target/benchmark, and which stakeholders care about each. e.g. "MRR (Monthly Recurring Revenue): sum of all active subscription values. Target: $120K. Reported to: CEO, board."]',
         priority: 20,
       },
       {
         type: 'memory',
         title: 'Data Sources & Tools',
         content:
-          '[Insert your data stack here. e.g. "Google Analytics 4 for web traffic, Stripe for revenue data, PostgreSQL data warehouse, Mixpanel for product analytics, Looker for dashboards, dbt for data transformation."]',
+          '[REPLACE: Your data stack. e.g. "Google Analytics 4 for web traffic, Stripe for revenue data, PostgreSQL data warehouse, Mixpanel for product analytics, Looker for dashboards, dbt for data transformation."]',
         priority: 30,
       },
       {
         type: 'memory',
         title: 'Audience Segments',
         content:
-          '[Insert how you segment your users or customers here. e.g. "By plan tier: Free, Pro, Enterprise. By lifecycle stage: Trial, Active, At-risk, Churned. By geography: ANZ, North America, EMEA. By company size: SMB (<50 employees), Mid-market (50-500), Enterprise (500+)."]',
+          '[REPLACE: how you segment your users or customers. e.g. "By plan tier: Free, Pro, Enterprise. By lifecycle stage: Trial, Active, At-risk, Churned. By geography: ANZ, North America, EMEA. By company size: SMB (<50 employees), Mid-market (50-500), Enterprise (500+)."]',
         priority: 40,
       },
       {
         type: 'memory',
         title: 'Historical Benchmarks',
         content:
-          '[Insert key historical benchmarks and seasonal patterns here. e.g. "Average monthly conversion rate: 3.2%. Q4 typically sees a 15% uplift due to annual planning cycles. Churn spikes in January after annual renewals. Best performing acquisition channel: organic search at 40% of signups."]',
+          '[REPLACE: key historical benchmarks and seasonal patterns. e.g. "Average monthly conversion rate: 3.2%. Q4 typically sees a 15% uplift due to annual planning cycles. Churn spikes in January after annual renewals. Best performing acquisition channel: organic search at 40% of signups."]',
         priority: 50,
       },
       {
         type: 'memory',
         title: 'Reporting Cadence',
         content:
-          '[Insert your reporting schedule and stakeholders here. e.g. "Weekly: product metrics to engineering and product leads. Monthly: business review dashboard to leadership team. Quarterly: board deck with financial metrics, growth, and strategic KPIs. Ad hoc: deep-dive analyses requested by department heads."]',
+          '[REPLACE: Your reporting schedule and stakeholders. e.g. "Weekly: product metrics to engineering and product leads. Monthly: business review dashboard to leadership team. Quarterly: board deck with financial metrics, growth, and strategic KPIs. Ad hoc: deep-dive analyses requested by department heads."]',
         priority: 60,
       },
 
@@ -610,7 +610,7 @@ const brainTemplates = [
         type: 'guardrail',
         title: 'Privacy & Compliance',
         content:
-          'Never include personally identifiable information (PII) in reports, dashboards, or analysis outputs. Always aggregate data to group level. Do not expose individual user behaviour, email addresses, or account details in shared reports. [Insert your specific data privacy requirements here: e.g. GDPR, SOC2, HIPAA, CCPA]',
+          'Never include personally identifiable information (PII) in reports, dashboards, or analysis outputs. Always aggregate data to group level. Do not expose individual user behaviour, email addresses, or account details in shared reports. [REPLACE: Your specific data privacy requirements, e.g. GDPR, SOC2, HIPAA, CCPA]',
         priority: 30,
       },
       {
@@ -624,7 +624,7 @@ const brainTemplates = [
         type: 'guardrail',
         title: 'Confidence Thresholds',
         content:
-          'Do not present findings as statistically significant unless they meet the agreed confidence threshold. Clearly state when results are directional but not yet significant. [Insert your significance thresholds here: e.g. "p < 0.05 for A/B tests, minimum 1000 observations per variant, 95% confidence interval for forecasts"]',
+          'Do not present findings as statistically significant unless they meet the agreed confidence threshold. Clearly state when results are directional but not yet significant. [REPLACE: Your significance thresholds, e.g. "p < 0.05 for A/B tests, minimum 1000 observations per variant, 95% confidence interval for forecasts"]',
         priority: 50,
       },
       {
@@ -698,7 +698,7 @@ const brainTemplates = [
         type: 'rule',
         title: 'RACI Compliance',
         content:
-          'Always respect the project\'s RACI matrix. Route decisions to the Accountable party. Consult the right people before decisions are made. Inform stakeholders after. Never bypass the decision-making structure. [Insert your RACI or decision-making framework here]',
+          'Always respect the project\'s RACI matrix. Route decisions to the Accountable party. Consult the right people before decisions are made. Inform stakeholders after. Never bypass the decision-making structure. [REPLACE: Your RACI or decision-making framework]',
         priority: 20,
       },
       {
@@ -719,14 +719,14 @@ const brainTemplates = [
         type: 'rule',
         title: 'Deadline Communication',
         content:
-          'Always communicate deadlines with realistic buffer built in. Flag risks to deadlines at least one week before they become critical. Never surprise stakeholders with a missed deadline. [Insert your escalation timeframes and buffer policy here]',
+          'Always communicate deadlines with realistic buffer built in. Flag risks to deadlines at least one week before they become critical. Never surprise stakeholders with a missed deadline. [REPLACE: Your escalation timeframes and buffer policy]',
         priority: 50,
       },
       {
         type: 'rule',
         title: 'Naming & Versioning',
         content:
-          'Use consistent naming for all documents, deliverables, and workstreams. Include version numbers on all shared documents. Archive superseded versions rather than deleting them. [Insert your naming conventions here: e.g. "PROJECT-PHASE-Deliverable-v1.0"]',
+          'Use consistent naming for all documents, deliverables, and workstreams. Include version numbers on all shared documents. Archive superseded versions rather than deleting them. [REPLACE: Your naming conventions, e.g. "PROJECT-PHASE-Deliverable-v1.0"]',
         priority: 60,
       },
 
@@ -735,42 +735,42 @@ const brainTemplates = [
         type: 'memory',
         title: 'Project Overview',
         content:
-          '[Insert your project overview here. Include: project name, business objectives, success criteria, high-level timeline, budget, key constraints, and any assumptions. e.g. "Website redesign project. Objective: increase conversion rate by 20%. Timeline: 12 weeks. Budget: $50K. Constraint: must launch before Q3 campaign."]',
+          '[REPLACE: Your project overview. Include: project name, business objectives, success criteria, high-level timeline, budget, key constraints, and any assumptions. e.g. "Website redesign project. Objective: increase conversion rate by 20%. Timeline: 12 weeks. Budget: $50K. Constraint: must launch before Q3 campaign."]',
         priority: 10,
       },
       {
         type: 'memory',
         title: 'Stakeholder Map',
         content:
-          '[Insert your key stakeholders here. Include: name, role, interest in the project, communication preference, decision authority level, and how often they need updates. e.g. "Sarah Chen, VP Marketing — project sponsor, final sign-off on deliverables, weekly email update, monthly face-to-face."]',
+          '[REPLACE: Your key stakeholders. Include: name, role, interest in the project, communication preference, decision authority level, and how often they need updates. e.g. "Sarah Chen, VP Marketing — project sponsor, final sign-off on deliverables, weekly email update, monthly face-to-face."]',
         priority: 20,
       },
       {
         type: 'memory',
         title: 'Team Structure',
         content:
-          '[Insert your team members here. Include: name, role, availability (full-time/part-time), key skills, and reporting line. Note any shared resources or external contractors. e.g. "Dev team: 3 FTE engineers. Design: 1 contractor (3 days/week). QA: shared resource, available Tue-Thu."]',
+          '[REPLACE: Your team members. Include: name, role, availability (full-time/part-time), key skills, and reporting line. Note any shared resources or external contractors. e.g. "Dev team: 3 FTE engineers. Design: 1 contractor (3 days/week). QA: shared resource, available Tue-Thu."]',
         priority: 30,
       },
       {
         type: 'memory',
         title: 'Tools & Processes',
         content:
-          '[Insert your project management tools and processes here. e.g. "Jira for task tracking and sprint planning. Confluence for documentation. Slack #project-alpha for daily comms. Google Sheets for budget tracking. Figma for design reviews. Bi-weekly sprint ceremonies: planning Monday, retro Friday."]',
+          '[REPLACE: Your project management tools and processes. e.g. "Jira for task tracking and sprint planning. Confluence for documentation. Slack #project-alpha for daily comms. Google Sheets for budget tracking. Figma for design reviews. Bi-weekly sprint ceremonies: planning Monday, retro Friday."]',
         priority: 40,
       },
       {
         type: 'memory',
         title: 'Key Milestones',
         content:
-          '[Insert your major milestones here. Include: milestone name, target date, dependencies, deliverables, and acceptance criteria. e.g. "M1: Design approved — 15 March. M2: Development complete — 12 April. M3: UAT sign-off — 26 April. M4: Go-live — 3 May."]',
+          '[REPLACE: Your major milestones. Include: milestone name, target date, dependencies, deliverables, and acceptance criteria. e.g. "M1: Design approved — 15 March. M2: Development complete — 12 April. M3: UAT sign-off — 26 April. M4: Go-live — 3 May."]',
         priority: 50,
       },
       {
         type: 'memory',
         title: 'Lessons Learned',
         content:
-          '[Insert relevant lessons from past projects here. e.g. "Vendor reviews always take 2x longer than estimated — buffer accordingly. QA needs at least 5 business days for a full regression. Stakeholder feedback rounds average 3 iterations, not 1. Always get written sign-off, not verbal."]',
+          '[REPLACE: relevant lessons from past projects. e.g. "Vendor reviews always take 2x longer than estimated — buffer accordingly. QA needs at least 5 business days for a full regression. Stakeholder feedback rounds average 3 iterations, not 1. Always get written sign-off, not verbal."]',
         priority: 60,
       },
 
@@ -844,7 +844,7 @@ const brainTemplates = [
         type: 'guardrail',
         title: 'Confidentiality',
         content:
-          'Never share budget details, personnel decisions, vendor pricing, internal tensions, or draft strategies in external-facing communications or with unauthorised parties. Maintain clear boundaries between internal working documents and external-ready materials. [Insert your specific confidentiality boundaries here]',
+          'Never share budget details, personnel decisions, vendor pricing, internal tensions, or draft strategies in external-facing communications or with unauthorised parties. Maintain clear boundaries between internal working documents and external-ready materials. [REPLACE: Your specific confidentiality boundaries]',
         priority: 40,
       },
       {
@@ -858,7 +858,7 @@ const brainTemplates = [
         type: 'guardrail',
         title: 'Escalation Protocol',
         content:
-          'Escalate blockers that cannot be resolved at team level within 48 hours. Never let an issue sit unresolved without visibility to the appropriate level of management. Escalation is not failure — it is responsible project management. [Insert your escalation path and thresholds here]',
+          'Escalate blockers that cannot be resolved at team level within 48 hours. Never let an issue sit unresolved without visibility to the appropriate level of management. Escalation is not failure — it is responsible project management. [REPLACE: Your escalation path and thresholds]',
         priority: 60,
       },
 
