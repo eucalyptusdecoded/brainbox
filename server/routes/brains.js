@@ -15,6 +15,16 @@ const MAX_TEXT_LENGTH = 500000;
 const router = express.Router();
 router.use(authMiddleware);
 
+const MAX_BRAINS_PER_USER = 15;
+
+async function checkBrainLimit(userId) {
+  const result = await db.execute({
+    sql: 'SELECT COUNT(*) as count FROM brains WHERE user_id = ?',
+    args: [userId],
+  });
+  return result.rows[0].count >= MAX_BRAINS_PER_USER;
+}
+
 // GET /api/brains
 router.get('/', async (req, res) => {
   try {
@@ -40,6 +50,10 @@ router.post('/', async (req, res) => {
     const { name, description } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
 
+    if (await checkBrainLimit(req.user.id)) {
+      return res.status(400).json({ error: `You can have a maximum of ${MAX_BRAINS_PER_USER} brains. Delete an existing brain to create a new one.` });
+    }
+
     const id = uuidv4();
     await db.execute({
       sql: 'INSERT INTO brains (id, user_id, name, description) VALUES (?, ?, ?, ?)',
@@ -53,6 +67,69 @@ router.post('/', async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Create brain error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/brains/import — import a .brainbox JSON file (must be before /:id routes)
+const importUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
+router.post('/import', importUpload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    if (await checkBrainLimit(req.user.id)) {
+      return res.status(400).json({ error: `You can have a maximum of ${MAX_BRAINS_PER_USER} brains. Delete an existing brain to import a new one.` });
+    }
+
+    let data;
+    try {
+      data = JSON.parse(req.file.buffer.toString('utf-8'));
+    } catch {
+      return res.status(400).json({ error: 'Invalid file format. Expected a .brainbox JSON file.' });
+    }
+
+    if (!data.version || !data.name || !Array.isArray(data.sections)) {
+      return res.status(400).json({ error: 'Invalid .brainbox file structure' });
+    }
+
+    const VALID_TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
+    for (const s of data.sections) {
+      if (!VALID_TYPES.includes(s.type)) return res.status(400).json({ error: `Invalid section type: ${s.type}` });
+      if (!s.title) return res.status(400).json({ error: 'Each section must have a title' });
+      if (s.content && s.content.length > 2000) return res.status(400).json({ error: `Section "${s.title}" exceeds 2000 character limit` });
+      if (s.title.length > 50) return res.status(400).json({ error: `Section title "${s.title}" exceeds 50 character limit` });
+    }
+
+    const imgs = Array.isArray(data.images) ? data.images.slice(0, 10) : [];
+    for (const img of imgs) {
+      if (!img.url || !img.description) return res.status(400).json({ error: 'Each image must have a url and description' });
+      if (img.description.length > 200) return res.status(400).json({ error: `Image description exceeds 200 character limit` });
+    }
+
+    const brainId = uuidv4();
+    await db.execute({
+      sql: 'INSERT INTO brains (id, user_id, name, description) VALUES (?, ?, ?, ?)',
+      args: [brainId, req.user.id, data.name, data.description || null],
+    });
+
+    for (const s of data.sections) {
+      await db.execute({
+        sql: 'INSERT INTO brain_sections (id, brain_id, type, title, content, is_active, priority) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        args: [uuidv4(), brainId, s.type, s.title, s.content || '', s.is_active ?? 1, s.priority ?? 50],
+      });
+    }
+
+    for (const img of imgs) {
+      await db.execute({
+        sql: 'INSERT INTO brain_images (id, brain_id, url, description, priority) VALUES (?, ?, ?, ?, ?)',
+        args: [uuidv4(), brainId, img.url, img.description, img.priority ?? 0],
+      });
+    }
+
+    const result = await db.execute({ sql: 'SELECT * FROM brains WHERE id = ?', args: [brainId] });
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Import brain error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -176,68 +253,6 @@ router.get('/:id/export', async (req, res) => {
     res.send(JSON.stringify(payload, null, 2));
   } catch (err) {
     console.error('Export brain error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// POST /api/brains/import — import a .brainbox JSON file
-const importUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
-router.post('/import', importUpload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-
-    let data;
-    try {
-      data = JSON.parse(req.file.buffer.toString('utf-8'));
-    } catch {
-      return res.status(400).json({ error: 'Invalid file format. Expected a .brainbox JSON file.' });
-    }
-
-    if (!data.version || !data.name || !Array.isArray(data.sections)) {
-      return res.status(400).json({ error: 'Invalid .brainbox file structure' });
-    }
-
-    const VALID_TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
-    for (const s of data.sections) {
-      if (!VALID_TYPES.includes(s.type)) return res.status(400).json({ error: `Invalid section type: ${s.type}` });
-      if (!s.title) return res.status(400).json({ error: 'Each section must have a title' });
-      if (s.content && s.content.length > 2000) return res.status(400).json({ error: `Section "${s.title}" exceeds 2000 character limit` });
-      if (s.title.length > 50) return res.status(400).json({ error: `Section title "${s.title}" exceeds 50 character limit` });
-    }
-
-    const imgs = Array.isArray(data.images) ? data.images.slice(0, 10) : [];
-    for (const img of imgs) {
-      if (!img.url || !img.description) return res.status(400).json({ error: 'Each image must have a url and description' });
-      if (img.description.length > 200) return res.status(400).json({ error: `Image description exceeds 200 character limit` });
-    }
-
-    // Create brain
-    const brainId = uuidv4();
-    await db.execute({
-      sql: 'INSERT INTO brains (id, user_id, name, description) VALUES (?, ?, ?, ?)',
-      args: [brainId, req.user.id, data.name, data.description || null],
-    });
-
-    // Insert sections
-    for (const s of data.sections) {
-      await db.execute({
-        sql: 'INSERT INTO brain_sections (id, brain_id, type, title, content, is_active, priority) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        args: [uuidv4(), brainId, s.type, s.title, s.content || '', s.is_active ?? 1, s.priority ?? 50],
-      });
-    }
-
-    // Insert images
-    for (const img of imgs) {
-      await db.execute({
-        sql: 'INSERT INTO brain_images (id, brain_id, url, description, priority) VALUES (?, ?, ?, ?, ?)',
-        args: [uuidv4(), brainId, img.url, img.description, img.priority ?? 0],
-      });
-    }
-
-    const result = await db.execute({ sql: 'SELECT * FROM brains WHERE id = ?', args: [brainId] });
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error('Import brain error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
