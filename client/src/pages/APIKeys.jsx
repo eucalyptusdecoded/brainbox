@@ -11,6 +11,7 @@ export default function APIKeys() {
   const [label, setLabel] = useState('');
   const [newKey, setNewKey] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   async function fetchData() {
     try {
       const [keysRes, brainsRes] = await Promise.all([
@@ -43,13 +44,14 @@ export default function APIKeys() {
     }
   }
 
-  async function handleRevoke(id) {
-    if (!confirm('Revoke this API key? This cannot be undone.')) return;
+  async function handleDelete() {
+    if (!deleteConfirm) return;
     try {
-      await axios.delete(`/api/keys/${id}`);
-      setKeys(prev => prev.filter(k => k.id !== id));
+      await axios.delete(`/api/keys/${deleteConfirm.id}`);
+      setKeys(prev => prev.filter(k => k.id !== deleteConfirm.id));
+      setDeleteConfirm(null);
     } catch (err) {
-      console.error('Failed to revoke key:', err);
+      console.error('Failed to delete key:', err);
     }
   }
 
@@ -119,8 +121,6 @@ export default function APIKeys() {
         {/* Keys table */}
         {loading ? (
           <p className="text-text-muted">Loading...</p>
-        ) : keys.length === 0 ? (
-          <p className="text-text-muted text-center py-12">No API keys yet. Generate one to get started.</p>
         ) : (
           <div className="border border-border rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
@@ -136,7 +136,11 @@ export default function APIKeys() {
                 </tr>
               </thead>
               <tbody>
-                {keys.map(k => (
+                {keys.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-text-muted">No API keys yet. Click Generate Key to create one.</td>
+                  </tr>
+                ) : keys.map(k => (
                   <tr key={k.id} className="border-b border-border hover:bg-bg-panel">
                     <td className="px-4 py-3 text-text-primary">{k.label || '—'}</td>
                     <td className="px-4 py-3 text-text-muted">{k.brain_name}</td>
@@ -144,12 +148,37 @@ export default function APIKeys() {
                     <td className="px-4 py-3 text-text-muted">{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never'}</td>
                     <td className="px-4 py-3 text-text-muted">{new Date(k.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3">
-                      <button onClick={() => handleRevoke(k.id)} className="text-red-600 hover:text-red-700 text-xs">Revoke</button>
+                      <button onClick={() => setDeleteConfirm(k)} className="text-red-600 hover:text-red-700 text-xs">Delete</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
+          </div>
+        )}
+        {/* Delete confirmation modal */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
+            <div onClick={e => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-md mx-4 space-y-4">
+              <h3 className="text-lg font-semibold text-brand-black">Delete API Key</h3>
+              <p className="text-sm text-text-muted">
+                Deleting this key will immediately stop any integration using it. To reconnect, generate a new API key and update your integration settings.
+              </p>
+              <div className="bg-bg-panel border border-border rounded-lg px-4 py-3 text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Label</span>
+                  <span className="text-text-primary">{deleteConfirm.label || '—'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Key</span>
+                  <span className="font-mono text-text-primary">{deleteConfirm.key_prefix}...</span>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => setDeleteConfirm(null)} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
+                <button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg">Delete Key</button>
+              </div>
             </div>
           </div>
         )}

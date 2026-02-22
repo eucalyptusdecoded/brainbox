@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil, Download, Upload } from 'lucide-react';
+import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil, Download, Upload, Plus } from 'lucide-react';
 import Header from '../components/Header';
 import brainTemplates from '../data/brainTemplates';
 
@@ -198,7 +198,7 @@ export default function Dashboard() {
 
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <h2 className="text-xl font-semibold text-brand-black">Your Brains</h2>
+          <h2 className="text-xl font-semibold text-brand-black">Your Brains <span className="text-sm font-normal text-text-muted">({brains.length}/15)</span></h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setShowImport(true); setImportError(''); }}
@@ -429,11 +429,6 @@ export default function Dashboard() {
         {/* Brain grid */}
         {loading ? (
           <p className="text-text-muted">Loading...</p>
-        ) : brains.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-text-muted text-lg">No brains yet</p>
-            <p className="text-text-muted text-sm mt-1">Create your first brain to get started.</p>
-          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {brains.map((brain) => (
@@ -492,6 +487,18 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
+            ))}
+            {Array.from({ length: 15 - brains.length }).map((_, idx) => (
+              <button
+                key={`empty-${idx}`}
+                onClick={() => setShowCreate(true)}
+                className="border-2 border-dashed border-border rounded-xl flex items-center justify-center min-h-[200px] hover:border-brand-orange/50 transition-colors group"
+              >
+                <div className="text-center text-text-muted group-hover:text-brand-orange transition-colors">
+                  <Plus size={24} className="mx-auto mb-1" />
+                  <span className="text-sm">New Brain</span>
+                </div>
+              </button>
             ))}
           </div>
         )}

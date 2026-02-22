@@ -11,6 +11,14 @@ const TYPES = [
 const TARGET = 10;
 const TOTAL_TARGET = TYPES.length * TARGET;
 
+const TYPE_DESCS = {
+  rule:      'Hard constraints that shape every response',
+  memory:    'Persistent facts about you and your domain',
+  behaviour: 'Tone, style and interaction patterns',
+  guardrail: 'Safety boundaries and topic restrictions',
+  skill:     'Step-by-step workflows and processes',
+};
+
 const TRAITS = {
   rule:      { label: 'Structured', desc: 'Follows clear constraints and formatting' },
   memory:    { label: 'Informed', desc: 'Grounded in specific knowledge and context' },
@@ -196,18 +204,18 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
       )}
 
       {/* 2-column grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 items-stretch">
         {/* Left column */}
         <div className="flex flex-col gap-6">
           {/* Brain Capacity card (merged with per-type bars) */}
           <div className="bg-bg-panel border border-border rounded-xl p-5">
-            <h3 className="font-semibold text-brand-black mb-3">Brain Capacity</h3>
-            <div className="flex justify-between text-sm text-text-muted mb-2">
-              <span>{totalCount}/{TOTAL_TARGET} neurons</span>
-              <span className="font-medium text-brand-orange">{currentLevel.label}</span>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-semibold text-brand-black">Brain Capacity</h3>
+              <span className="text-sm font-medium text-brand-orange">{currentLevel.label}</span>
             </div>
+            <p className="text-xs text-text-muted mb-3">{totalCount}/{TOTAL_TARGET} neurons</p>
             <div className="relative">
-              <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-brand-orange rounded-full transition-all duration-500"
                   style={{ width: `${totalPct}%` }}
@@ -238,15 +246,18 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
                 const count = countByType[t.key];
                 const pct = Math.min((count / TARGET) * 100, 100);
                 return (
-                  <div key={t.key} className="flex items-center gap-3 mb-3">
-                    <span className="text-sm text-text-muted w-24 flex-shrink-0">{t.plural}</span>
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div key={t.key} className="mb-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-text-muted">{t.plural}</span>
+                      <span className="text-sm text-text-muted">{count}/{TARGET}</span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-brand-orange rounded-full transition-all duration-500"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <span className="text-sm text-text-muted w-10 text-right flex-shrink-0">{count}/{TARGET}</span>
+                    <p className="text-xs text-text-muted mt-0.5">{TYPE_DESCS[t.key]}</p>
                   </div>
                 );
               })}
@@ -255,9 +266,11 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
 
           {/* Brain Profile card */}
           <div className="bg-bg-panel border border-border rounded-xl p-5">
-            <h3 className="font-semibold text-brand-black mb-3">Brain Profile</h3>
             {totalCount === 0 ? (
-              <p className="text-sm text-text-muted">Add sections to reveal your brain's profile.</p>
+              <>
+                <h3 className="font-semibold text-brand-black mb-3">Brain Profile</h3>
+                <p className="text-sm text-text-muted">Add sections to reveal your brain's profile.</p>
+              </>
             ) : (() => {
               const traitData = TYPES
                 .map(t => ({
@@ -275,16 +288,17 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
 
               return (
                 <>
-                  <div className="mb-4">
-                    <p className="text-xs text-text-muted">This brain leans</p>
-                    <p className="text-base font-semibold text-brand-orange">{summary}</p>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-semibold text-brand-black">Brain Profile</h3>
+                    <span className="text-sm font-medium text-brand-orange">{summary}</span>
                   </div>
+                  <p className="text-xs text-text-muted mb-3">Auto-derived from section distribution</p>
                   <div>
                     {traitData.map(t => (
                       <div key={t.key} className="mb-3">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-text-primary font-medium">{t.label}</span>
-                          <span className="text-xs text-text-muted">{t.pct}%</span>
+                          <span className="text-sm text-text-muted">{t.label}</span>
+                          <span className="text-sm text-text-muted">{t.pct}%</span>
                         </div>
                         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div
@@ -310,35 +324,43 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
           </div>
 
           {/* Imaging card */}
-          <div className="bg-bg-panel border border-border rounded-xl p-5">
+          <div className="bg-bg-panel border border-border rounded-xl p-5 flex-1">
             <h3 className="font-semibold text-brand-black mb-3">
               Imaging <span className="text-sm font-normal text-text-muted">({images.length}/10)</span>
             </h3>
-            {images.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {images.sort((a, b) => a.priority - b.priority).map(img => (
-                  <div key={img.id} className="group">
-                    <div className="aspect-square rounded-lg border border-border overflow-hidden bg-white">
-                      <img
-                        src={img.url}
-                        alt={img.description}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                      <div className="hidden items-center justify-center w-full h-full text-text-muted">
-                        <ImageOff size={28} />
+            {(() => {
+              const sortedImages = [...images].sort((a, b) => a.priority - b.priority);
+              return (
+                <div className="grid grid-cols-5 gap-2">
+                  {Array.from({ length: 10 }).map((_, idx) => {
+                    const img = sortedImages[idx];
+                    return img ? (
+                      <div key={img.id}>
+                        <div className="aspect-square rounded-lg border border-border overflow-hidden bg-white">
+                          <img
+                            src={img.url}
+                            alt={img.description}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div className="hidden items-center justify-center w-full h-full text-text-muted">
+                            <ImageOff size={28} />
+                          </div>
+                        </div>
+                        <p className="text-xs text-text-muted mt-1 line-clamp-1">{img.description}</p>
                       </div>
-                    </div>
-                    <p className="text-xs text-text-muted mt-1.5 line-clamp-2">{img.description}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-text-muted">No reference images yet. Add images to include visual context in your brain.</p>
-            )}
+                    ) : (
+                      <div key={`empty-${idx}`}>
+                        <div className="aspect-square rounded-lg border-2 border-dashed border-border" />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
