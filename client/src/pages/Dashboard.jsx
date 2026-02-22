@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [renameTarget, setRenameTarget] = useState(null); // brain object or null
   const [renameValue, setRenameValue] = useState('');
   const [duplicating, setDuplicating] = useState(null); // brain id or null
+  const [createError, setCreateError] = useState('');
   const [importing, setImporting] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importError, setImportError] = useState('');
@@ -47,6 +48,7 @@ export default function Dashboard() {
     setNewName('');
     setNewDesc('');
     setCreating(false);
+    setCreateError('');
   }
 
   function goBack() {
@@ -62,18 +64,23 @@ export default function Dashboard() {
   async function handleCreate(e) {
     e.preventDefault();
     if (!newName.trim()) return;
+    setCreateError('');
+    setCreating(true);
     try {
       const { data } = await axios.post('/api/brains', { name: newName, description: newDesc });
       resetModal();
       navigate(`/brain/${data.id}`);
     } catch (err) {
       console.error('Failed to create brain:', err);
+      setCreateError(err.response?.data?.error || 'Failed to create brain. Please try again.');
+      setCreating(false);
     }
   }
 
   async function handleCreateFromTemplate(e) {
     e.preventDefault();
     if (!newName.trim() || !selectedTemplate) return;
+    setCreateError('');
     setCreating(true);
     try {
       const { data: brain } = await axios.post('/api/brains', { name: newName, description: newDesc, template_id: selectedTemplate.id });
@@ -89,6 +96,7 @@ export default function Dashboard() {
       navigate(`/brain/${brain.id}`);
     } catch (err) {
       console.error('Failed to create brain from template:', err);
+      setCreateError(err.response?.data?.error || 'Failed to create brain. Please try again.');
       setCreating(false);
     }
   }
@@ -261,9 +269,12 @@ export default function Dashboard() {
                     <label className="block text-sm text-text-muted mb-1">Description (optional)</label>
                     <input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="What is this brain for?" />
                   </div>
+                  {createError && (
+                    <div className="bg-red-50 border border-red-300 text-red-600 text-sm rounded-lg px-4 py-2">{createError}</div>
+                  )}
                   <div className="flex gap-3 justify-end">
                     <button type="button" onClick={resetModal} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
-                    <button type="submit" className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg">Create</button>
+                    <button type="submit" disabled={creating} className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">{creating ? 'Creating...' : 'Create'}</button>
                   </div>
                 </form>
               )}
@@ -318,6 +329,9 @@ export default function Dashboard() {
                     <label className="block text-sm text-text-muted mb-1">Description (optional)</label>
                     <input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} />
                   </div>
+                  {createError && (
+                    <div className="bg-red-50 border border-red-300 text-red-600 text-sm rounded-lg px-4 py-2">{createError}</div>
+                  )}
                   <div className="flex gap-3 justify-end">
                     <button type="button" onClick={resetModal} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
                     <button

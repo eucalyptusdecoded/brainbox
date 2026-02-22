@@ -55,10 +55,17 @@ router.post('/', async (req, res) => {
     }
 
     const id = uuidv4();
-    await db.execute({
-      sql: 'INSERT INTO brains (id, user_id, name, description, template_id) VALUES (?, ?, ?, ?, ?)',
-      args: [id, req.user.id, name, description || null, template_id || null],
-    });
+    if (template_id) {
+      await db.execute({
+        sql: 'INSERT INTO brains (id, user_id, name, description, template_id) VALUES (?, ?, ?, ?, ?)',
+        args: [id, req.user.id, name, description || null, template_id],
+      });
+    } else {
+      await db.execute({
+        sql: 'INSERT INTO brains (id, user_id, name, description) VALUES (?, ?, ?, ?)',
+        args: [id, req.user.id, name, description || null],
+      });
+    }
 
     const result = await db.execute({
       sql: 'SELECT * FROM brains WHERE id = ?',
