@@ -163,7 +163,10 @@ export default function ContextPreview({ sections, images = [], onDelete, onDele
                             <div key={item.id} className="flex items-start gap-2 group">
                               <span className="text-xs text-text-muted mt-0.5 w-4 flex-shrink-0 text-right">{idx + 1}.</span>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-text-primary">{item.title}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium text-text-primary">{item.title}</p>
+                                  <span className="text-[10px] text-text-muted bg-bg-panel border border-border rounded px-1.5 py-0.5 flex-shrink-0">P:{item.priority}</span>
+                                </div>
                                 <p className="text-xs text-text-muted whitespace-pre-wrap mt-1">{item.content}</p>
                               </div>
                               <div className="flex items-center gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5">

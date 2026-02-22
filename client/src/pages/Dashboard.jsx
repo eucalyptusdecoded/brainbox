@@ -21,6 +21,9 @@ export default function Dashboard() {
   const [renameValue, setRenameValue] = useState('');
   const [duplicating, setDuplicating] = useState(null); // brain id or null
   const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [dragOver, setDragOver] = useState(false);
   const importRef = useRef(null);
   const navigate = useNavigate();
 
@@ -142,22 +145,37 @@ export default function Dashboard() {
     }
   }
 
-  async function handleImport(e) {
-    const file = e.target.files?.[0];
+  async function handleImportFile(file) {
     if (!file) return;
-    e.target.value = '';
+    if (!file.name.endsWith('.brainbox')) {
+      setImportError('Only .brainbox files are accepted. Export a brain from the dashboard to get a .brainbox file.');
+      return;
+    }
+    setImportError('');
     setImporting(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
       const { data } = await axios.post('/api/brains/import', formData);
+      setShowImport(false);
       navigate(`/brain/${data.id}`);
     } catch (err) {
       console.error('Failed to import brain:', err);
-      alert(err.response?.data?.error || 'Failed to import brain');
+      setImportError(err.response?.data?.error || 'Failed to import brain');
     } finally {
       setImporting(false);
     }
+  }
+
+  function handleImportInput(e) {
+    handleImportFile(e.target.files?.[0]);
+    e.target.value = '';
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    setDragOver(false);
+    handleImportFile(e.dataTransfer.files?.[0]);
   }
 
   async function handleDelete() {
@@ -183,14 +201,12 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold text-brand-black">Your Brains</h2>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => importRef.current?.click()}
-              disabled={importing}
-              className="flex items-center gap-1.5 text-sm whitespace-nowrap px-3 py-2 rounded-lg border border-border text-text-muted hover:border-brand-orange hover:text-brand-orange transition-colors disabled:opacity-50"
+              onClick={() => { setShowImport(true); setImportError(''); }}
+              className="flex items-center gap-1.5 text-sm whitespace-nowrap px-3 py-2 rounded-lg border border-border text-text-muted hover:border-brand-orange hover:text-brand-orange transition-colors"
             >
               <Upload size={14} />
-              {importing ? 'Importing...' : 'Import Brain'}
+              Import Brain
             </button>
-            <input ref={importRef} type="file" accept=".brainbox" onChange={handleImport} className="hidden" />
             <button
               onClick={() => setShowCreate(true)}
               className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium whitespace-nowrap px-4 py-2 rounded-lg transition-colors"
@@ -315,6 +331,58 @@ export default function Dashboard() {
                 </form>
               )}
 
+            </div>
+          </div>
+        )}
+
+        {/* Import modal */}
+        {showImport && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowImport(false)}>
+            <div onClick={(e) => e.stopPropagation()} className="bg-white border border-border rounded-xl p-6 w-full max-w-md mx-4 space-y-4">
+              <h3 className="text-lg font-semibold text-brand-black">Import Brain</h3>
+
+              <div
+                onClick={() => importRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragOver ? 'border-brand-orange bg-brand-orange/5' : 'border-border hover:border-brand-orange/50'}`}
+              >
+                <Upload size={32} className={`mx-auto mb-3 ${dragOver ? 'text-brand-orange' : 'text-text-muted'}`} />
+                {importing ? (
+                  <p className="text-sm text-brand-orange font-medium">Importing...</p>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium text-text-primary">Drag and drop your .brainbox file here</p>
+                    <p className="text-xs text-text-muted mt-1">or click to browse</p>
+                  </>
+                )}
+                <p className="text-xs text-text-muted mt-3">Only .brainbox files accepted</p>
+                <input ref={importRef} type="file" accept=".brainbox" onChange={handleImportInput} className="hidden" />
+              </div>
+
+              {importError && (
+                <div className="bg-red-50 border border-red-300 text-red-600 text-sm rounded-lg px-4 py-2">
+                  {importError}
+                </div>
+              )}
+
+              <details className="border border-border rounded-lg bg-bg-panel">
+                <summary className="px-3 py-2 text-sm font-medium text-text-primary cursor-pointer">
+                  Where do I get a .brainbox file?
+                </summary>
+                <div className="px-3 pb-3">
+                  <ul className="space-y-1.5 text-xs text-text-muted">
+                    <li className="flex gap-1.5"><span className="text-brand-orange flex-shrink-0">&bull;</span>Export from any brain using the <strong className="text-text-primary">&hellip;</strong> menu on the dashboard.</li>
+                    <li className="flex gap-1.5"><span className="text-brand-orange flex-shrink-0">&bull;</span>.brainbox files contain all sections, images and settings.</li>
+                    <li className="flex gap-1.5"><span className="text-brand-orange flex-shrink-0">&bull;</span>.txt context files are for pasting into LLMs — they cannot be imported into Brainbox.</li>
+                  </ul>
+                </div>
+              </details>
+
+              <div className="flex justify-end">
+                <button onClick={() => setShowImport(false)} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
+              </div>
             </div>
           </div>
         )}

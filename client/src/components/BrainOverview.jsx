@@ -11,6 +11,14 @@ const TYPES = [
 const TARGET = 10;
 const TOTAL_TARGET = TYPES.length * TARGET;
 
+const TRAITS = {
+  rule:      { label: 'Structured', desc: 'Follows clear constraints and formatting' },
+  memory:    { label: 'Informed', desc: 'Grounded in specific knowledge and context' },
+  behaviour: { label: 'Expressive', desc: 'Personality-driven tone and style' },
+  guardrail: { label: 'Guarded', desc: 'Safety-conscious with clear boundaries' },
+  skill:     { label: 'Procedural', desc: 'Workflow and process oriented' },
+};
+
 const LEVELS = [
   { min: 0, label: 'Nascent', pos: 0 },
   { min: 11, label: 'Developing', pos: 22 },
@@ -245,6 +253,62 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
             </div>
           </div>
 
+          {/* Brain Profile card */}
+          <div className="bg-bg-panel border border-border rounded-xl p-5">
+            <h3 className="font-semibold text-brand-black mb-3">Brain Profile</h3>
+            {totalCount === 0 ? (
+              <p className="text-sm text-text-muted">Add sections to reveal your brain's profile.</p>
+            ) : (() => {
+              const traitData = TYPES
+                .map(t => ({
+                  key: t.key,
+                  count: countByType[t.key] || 0,
+                  pct: Math.round(((countByType[t.key] || 0) / totalCount) * 100),
+                  ...TRAITS[t.key],
+                }))
+                .filter(t => t.count > 0)
+                .sort((a, b) => b.pct - a.pct);
+
+              const summary = traitData.length >= 2
+                ? `${traitData[0].label} & ${traitData[1].label}`
+                : traitData[0]?.label || '';
+
+              return (
+                <>
+                  <div className="mb-4">
+                    <p className="text-xs text-text-muted">This brain leans</p>
+                    <p className="text-base font-semibold text-brand-orange">{summary}</p>
+                  </div>
+                  <div>
+                    {traitData.map(t => (
+                      <div key={t.key} className="mb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm text-text-primary font-medium">{t.label}</span>
+                          <span className="text-xs text-text-muted">{t.pct}%</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-brand-orange rounded-full transition-all duration-500"
+                            style={{ width: `${t.pct}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-text-muted mt-0.5">{t.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+
+        {/* Right column — Mind Map + Imaging */}
+        <div className="flex flex-col gap-6">
+          <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col items-center">
+            <h3 className="font-semibold text-brand-black mb-3 self-start">Mind Map</h3>
+            <BrainDiagram countByType={countByType} />
+          </div>
+
           {/* Imaging card */}
           <div className="bg-bg-panel border border-border rounded-xl p-5">
             <h3 className="font-semibold text-brand-black mb-3">
@@ -276,12 +340,6 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
               <p className="text-sm text-text-muted">No reference images yet. Add images to include visual context in your brain.</p>
             )}
           </div>
-        </div>
-
-        {/* Right column — Mind Map */}
-        <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col items-center">
-          <h3 className="font-semibold text-brand-black mb-3 self-start">Mind Map</h3>
-          <BrainDiagram countByType={countByType} />
         </div>
       </div>
 
