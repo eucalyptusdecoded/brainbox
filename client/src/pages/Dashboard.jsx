@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil, Download, Upload, Plus } from 'lucide-react';
+import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil, Download, Upload, Plus, Brain, Sparkles } from 'lucide-react';
 import Header from '../components/Header';
 import brainTemplates from '../data/brainTemplates';
 
@@ -454,6 +454,61 @@ export default function Dashboard() {
         {/* Brain grid */}
         {loading ? (
           <p className="text-text-muted">Loading...</p>
+        ) : brains.length === 0 ? (
+          /* Empty state — welcome + template previews */
+          <div className="flex flex-col items-center text-center py-12">
+            <div className="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center mb-5">
+              <Brain size={32} className="text-brand-orange" />
+            </div>
+            <h3 className="text-2xl font-semibold text-brand-black mb-2">Build your first brain</h3>
+            <p className="text-text-muted max-w-md mb-6">
+              Create an AI brain with rules, memories, and behaviours — then deploy it to any LLM.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 mb-10">
+              <button
+                onClick={() => { setShowCreate(true); setCreateMode('template'); }}
+                className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <LayoutTemplate size={16} />
+                Start from Template
+              </button>
+              <button
+                onClick={() => { setShowCreate(true); setCreateMode('scratch'); }}
+                className="border border-border text-text-primary hover:border-brand-orange hover:text-brand-orange text-sm font-medium px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <FileText size={16} />
+                Start from Scratch
+              </button>
+            </div>
+
+            {/* Template previews */}
+            <div className="w-full max-w-2xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles size={14} className="text-brand-orange" />
+                <span className="text-sm font-medium text-text-muted">Popular templates</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {brainTemplates.slice(0, 3).map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    onClick={() => {
+                      setShowCreate(true);
+                      setCreateMode('template');
+                      setSelectedTemplate(tpl);
+                      setNewName(tpl.name);
+                      setNewDesc(tpl.description);
+                    }}
+                    className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors group"
+                  >
+                    <span className="text-2xl">{tpl.icon}</span>
+                    <p className="font-medium text-brand-black text-sm mt-2 group-hover:text-brand-orange transition-colors">{tpl.name}</p>
+                    <p className="text-xs text-text-muted mt-1 line-clamp-2">{tpl.description}</p>
+                    <p className="text-xs text-text-muted mt-2">{tpl.sections.length} sections</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {brains.map((brain) => (
@@ -513,7 +568,7 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
-            {Array.from({ length: 15 - brains.length }).map((_, idx) => (
+            {Array.from({ length: Math.min(3, 15 - brains.length) }).map((_, idx) => (
               <button
                 key={`empty-${idx}`}
                 onClick={() => setShowCreate(true)}
