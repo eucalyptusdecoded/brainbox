@@ -458,11 +458,11 @@ export default function Dashboard() {
           /* Empty state — welcome + template previews */
           <div className="flex flex-col items-center text-center py-12">
             <div className="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center mb-5">
-              <Brain size={32} className="text-brand-orange" />
+              <img src="/images/brainboxlogo.png" alt="" className="h-10" />
             </div>
             <h3 className="text-2xl font-semibold text-brand-black mb-2">Build your first brain</h3>
             <p className="text-text-muted max-w-md mb-6">
-              Create an AI brain with rules, memories, and behaviours — then deploy it to any LLM.
+              Create an AI brain with rules, memories, and behaviours and deploy it to any LLM.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mb-10">
               <button
