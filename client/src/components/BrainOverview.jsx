@@ -165,7 +165,7 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
   const isEmpty = totalCount === 0;
 
   return (
-    <div className="p-6 h-full overflow-y-auto">
+    <div className="p-6">
       {/* Page title — click to edit */}
       {editingName ? (
         <div className="flex items-start gap-4">

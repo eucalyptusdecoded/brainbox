@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Trash2, ScanSearch, PanelLeft, Eye, X } from 'lucide-react';
+import { Trash2, ScanSearch, PanelLeft, Eye, X, BookOpen, Layers, Plug } from 'lucide-react';
 import SectionList from '../components/SectionList';
 import SectionEditor from '../components/SectionEditor';
 import ContextPreview from '../components/ContextPreview';
@@ -25,6 +25,9 @@ export default function BrainEditor() {
   const [brainDesc, setBrainDesc] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [guideDismissed, setGuideDismissed] = useState(() => {
+    try { return localStorage.getItem(`brainbox-getting-started-dismissed-${id}`) === '1'; } catch { return false; }
+  });
 
   // Lock body scroll when mobile overlays are open
   useEffect(() => {
@@ -270,20 +273,51 @@ export default function BrainEditor() {
               onCancel={handleCancelDraft}
             />
           ) : (
-            <BrainOverview
-              sections={sections}
-              images={images}
-              onAdd={handleAddSection}
-              onUpload={handleUploadStart}
-              brain={brain}
-              editingName={editingName}
-              setEditingName={setEditingName}
-              brainName={brainName}
-              setBrainName={setBrainName}
-              brainDesc={brainDesc}
-              setBrainDesc={setBrainDesc}
-              saveBrainMeta={saveBrainMeta}
-            />
+            <div className="h-full overflow-y-auto">
+              {/* Getting started banner — shown when brain has 0 sections */}
+              {sections.length === 0 && !guideDismissed && (
+                <div className="mx-6 mt-6 bg-bg-panel border border-border rounded-xl p-5 relative">
+                  <button
+                    onClick={() => { setGuideDismissed(true); try { localStorage.setItem(`brainbox-getting-started-dismissed-${id}`, '1'); } catch {} }}
+                    className="absolute top-3 right-3 text-text-muted hover:text-brand-black p-1"
+                    aria-label="Dismiss"
+                  >
+                    <X size={16} />
+                  </button>
+                  <h3 className="font-semibold text-brand-black mb-3">Getting Started</h3>
+                  <div className="space-y-3">
+                    {[
+                      { icon: BookOpen, step: '1', text: 'Add your first rule or memory' },
+                      { icon: Layers, step: '2', text: 'Build out your brain with behaviours and guardrails' },
+                      { icon: Plug, step: '3', text: 'Go to Integration to connect to an LLM' },
+                    ].map(({ icon: Icon, step, text }) => (
+                      <div key={step} className="flex items-start gap-3">
+                        <div className="w-7 h-7 rounded-full bg-brand-orange/10 flex items-center justify-center flex-shrink-0">
+                          <Icon size={14} className="text-brand-orange" />
+                        </div>
+                        <div>
+                          <span className="text-sm text-text-primary">{text}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <BrainOverview
+                sections={sections}
+                images={images}
+                onAdd={handleAddSection}
+                onUpload={handleUploadStart}
+                brain={brain}
+                editingName={editingName}
+                setEditingName={setEditingName}
+                brainName={brainName}
+                setBrainName={setBrainName}
+                brainDesc={brainDesc}
+                setBrainDesc={setBrainDesc}
+                saveBrainMeta={saveBrainMeta}
+              />
+            </div>
           )}
         </div>
 
