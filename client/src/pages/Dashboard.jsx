@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [deleting, setDeleting] = useState(false);
   const [renameTarget, setRenameTarget] = useState(null); // brain object or null
   const [renameValue, setRenameValue] = useState('');
-  const [duplicating, setDuplicating] = useState(null); // brain id or null
+  const [duplicating, setDuplicating] = useState(null); // brain object or null
   const [createError, setCreateError] = useState('');
   const [importing, setImporting] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -114,7 +114,7 @@ export default function Dashboard() {
   }
 
   async function handleDuplicate(brain) {
-    setDuplicating(brain.id);
+    setDuplicating(brain);
     try {
       const { data: source } = await axios.get(`/api/brains/${brain.id}`);
       const { data: newBrain } = await axios.post('/api/brains', {
@@ -440,13 +440,24 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Duplicating modal */}
+        {duplicating && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white border border-border rounded-xl p-6 w-full max-w-sm mx-4 text-center space-y-3">
+              <img src="/images/brainboxlogo.png" alt="" className="h-12 mx-auto animate-pulse" />
+              <h3 className="text-lg font-semibold text-brand-black">Duplicating {duplicating.name}...</h3>
+              <p className="text-sm text-text-muted">Copying all sections and settings</p>
+            </div>
+          </div>
+        )}
+
         {/* Brain grid */}
         {loading ? (
           <p className="text-text-muted">Loading...</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {brains.map((brain) => (
-              <div key={brain.id} className={`relative border border-border rounded-xl overflow-hidden hover:border-brand-orange/50 transition-colors group ${duplicating === brain.id ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div key={brain.id} className={`relative border border-border rounded-xl overflow-hidden hover:border-brand-orange/50 transition-colors group ${duplicating?.id === brain.id ? 'opacity-50 pointer-events-none' : ''}`}>
                 <Link to={`/brain/${brain.id}`}>
                   <div className="bg-bg-panel flex items-center justify-center px-5 py-6">
                     <img src="/images/brainboxlogo.png" alt="" className="h-12 opacity-80 group-hover:opacity-100 transition-opacity" />

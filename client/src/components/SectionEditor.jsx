@@ -77,8 +77,8 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
             <label className="text-sm font-medium text-text-muted">Priority</label>
             <div className="relative group">
               <Info size={12} className="text-text-muted cursor-help" />
-              <div className="absolute top-full left-0 mt-1.5 hidden group-hover:block w-56 bg-brand-black text-white text-xs rounded-lg px-3 py-2 shadow-lg z-10">
-                Controls the order sections appear in the compiled context sent to the API. Lower numbers appear first. Default is 50 — use 1–100 to reorder sections within each type.
+              <div className="absolute top-full left-0 mt-1.5 hidden group-hover:block w-64 bg-brand-black text-white text-xs rounded-lg px-3 py-2 shadow-lg z-10">
+                Lower numbers appear first in the context sent to the AI — sections read earlier have the strongest influence on output. Default is 50. Use 1–25 for critical, 25–50 for important, 50–75 for standard, 75–100 for supplementary.
               </div>
             </div>
           </div>

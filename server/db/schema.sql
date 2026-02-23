@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS brain_sections (
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   is_active INTEGER DEFAULT 1,
-  priority INTEGER DEFAULT 0,
+  priority INTEGER DEFAULT 50,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (brain_id) REFERENCES brains(id) ON DELETE CASCADE
 );

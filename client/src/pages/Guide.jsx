@@ -287,24 +287,50 @@ export default function Guide() {
         {/* 12. Priority & Ordering */}
         <section id="priority" className="scroll-mt-20 space-y-4">
           <h2 className="text-lg font-semibold text-brand-black">Priority &amp; Ordering</h2>
-          <p className="text-sm text-text-muted">Priority controls the order sections appear in the compiled context that gets sent to the AI. Understanding priority helps you structure your brain for the best results.</p>
+          <p className="text-sm text-text-muted">Priority controls the order sections appear in the compiled context that gets sent to the AI. This matters because LLMs process context from top to bottom — instructions that appear earlier have the strongest influence on output, especially in longer contexts.</p>
 
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">How It Works</h3>
             <ul className="space-y-1.5">
-              <Bullet>Each section has a priority number (default is 50). Lower numbers appear first within each type.</Bullet>
+              <Bullet>Each section has a priority number from 1–100. Lower numbers appear first within each type.</Bullet>
               <Bullet>Sections are grouped by type in the compiled output: Rules first, then Memories, Behaviours, Guardrails, and Skills.</Bullet>
-              <Bullet>Within each type, sections are sorted by priority. Use values between 1–100 to control the order.</Bullet>
-              <Bullet>You can deactivate a section without deleting it. Inactive sections are excluded from the compiled output but remain saved in your brain.</Bullet>
+              <Bullet>Within each type, sections are sorted by priority number. This means a Rule at priority 10 appears before a Rule at priority 50, but all Rules appear before all Memories regardless of priority.</Bullet>
+              <Bullet>The default priority is 50 — the midpoint of the scale. This gives you room to place sections before (1–49) or after (51–100) the default.</Bullet>
             </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">Priority Scale</h3>
+            <div className="bg-bg-panel border border-border rounded-lg overflow-hidden text-sm">
+              <div className="grid grid-cols-[80px_1fr] border-b border-border">
+                <div className="px-3 py-2 font-medium text-brand-orange bg-white">1–25</div>
+                <div className="px-3 py-2 text-text-muted">Critical — core instructions that must shape every response. Example: a spelling rule that affects every word.</div>
+              </div>
+              <div className="grid grid-cols-[80px_1fr] border-b border-border">
+                <div className="px-3 py-2 font-medium text-brand-orange bg-white">25–50</div>
+                <div className="px-3 py-2 text-text-muted">Important — key context and frequently-used rules. Example: your brand voice description.</div>
+              </div>
+              <div className="grid grid-cols-[80px_1fr] border-b border-border">
+                <div className="px-3 py-2 font-medium text-brand-orange bg-white">50</div>
+                <div className="px-3 py-2 text-text-muted">Default — standard sections. Most sections can stay here unless ordering matters.</div>
+              </div>
+              <div className="grid grid-cols-[80px_1fr] border-b border-border">
+                <div className="px-3 py-2 font-medium text-brand-orange bg-white">50–75</div>
+                <div className="px-3 py-2 text-text-muted">Supporting — supplementary detail and less frequently-used workflows. Example: a skill for quarterly comparisons.</div>
+              </div>
+              <div className="grid grid-cols-[80px_1fr]">
+                <div className="px-3 py-2 font-medium text-brand-orange bg-white">75–100</div>
+                <div className="px-3 py-2 text-text-muted">Reference — background information the AI can draw on when needed. Example: a company history memory.</div>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">Tips</h3>
             <ul className="space-y-1.5">
-              <Bullet>Put your most important instructions at low priority numbers (e.g. 1–10) so they appear early in the context.</Bullet>
-              <Bullet>Use the default (50) for most sections. Only adjust priority when ordering matters.</Bullet>
-              <Bullet>Deactivating sections is useful for testing — toggle sections on and off to see how the AI responds differently.</Bullet>
+              <Bullet>You don't need to set priority for every section. The default of 50 works well for most cases — only adjust when you notice the AI isn't following certain instructions consistently.</Bullet>
+              <Bullet>If the AI keeps ignoring a rule, try lowering its priority number so it appears earlier in the context.</Bullet>
+              <Bullet>You can deactivate a section without deleting it. Inactive sections are excluded from the compiled output but remain saved in your brain. This is useful for testing how the AI responds with different combinations.</Bullet>
             </ul>
           </div>
         </section>
