@@ -2,15 +2,13 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const multer = require('multer');
-// Lazy-loaded to avoid slowing down builds / startup
-let PDFParse, mammoth;
 const { db } = require('../db/database');
 const authMiddleware = require('../middleware/auth');
 const { compileContext } = require('../utils/compileContext');
 
 const archiver = require('archiver');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
-const ALLOWED_EXTS = ['.txt', '.pdf', '.docx', '.csv'];
+const ALLOWED_EXTS = ['.txt', '.csv', '.md', '.json'];
 const MAX_TEXT_LENGTH = 500000;
 
 const router = express.Router();
@@ -548,17 +546,8 @@ async function extractText(file) {
   }
 
   let text = '';
-  if (ext === '.txt' || ext === '.csv') {
+  if (['.txt', '.csv', '.md', '.json'].includes(ext)) {
     text = file.buffer.toString('utf-8');
-  } else if (ext === '.pdf') {
-    if (!PDFParse) PDFParse = require('pdf-parse').PDFParse;
-    const parser = new PDFParse({ data: file.buffer });
-    const data = await parser.getText();
-    text = data.text;
-  } else if (ext === '.docx') {
-    if (!mammoth) mammoth = require('mammoth');
-    const result = await mammoth.extractRawText({ buffer: file.buffer });
-    text = result.value;
   }
 
   text = text.trim();
