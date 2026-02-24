@@ -9,7 +9,7 @@ export default function Dashboard() {
   const [brains, setBrains] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [createMode, setCreateMode] = useState(null); // null | 'scratch' | 'template'
+  const [createMode, setCreateMode] = useState(null); // null | 'scratch' | 'template' | 'ai'
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -25,7 +25,12 @@ export default function Dashboard() {
   const [showImport, setShowImport] = useState(false);
   const [importError, setImportError] = useState('');
   const [dragOver, setDragOver] = useState(false);
+  const [aiFile, setAiFile] = useState(null);
+  const [aiDescription, setAiDescription] = useState('');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiDragOver, setAiDragOver] = useState(false);
   const importRef = useRef(null);
+  const aiFileRef = useRef(null);
   const navigate = useNavigate();
 
   async function fetchBrains() {
@@ -49,6 +54,10 @@ export default function Dashboard() {
     setNewDesc('');
     setCreating(false);
     setCreateError('');
+    setAiFile(null);
+    setAiDescription('');
+    setAiGenerating(false);
+    setAiDragOver(false);
   }
 
   function goBack() {
@@ -233,25 +242,133 @@ export default function Dashboard() {
               {!createMode && (
                 <>
                   <h3 className="text-lg font-semibold text-brand-black">Create New Brain</h3>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={() => setCreateMode('ai')}
+                      className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors group flex items-start gap-3"
+                    >
+                      <Sparkles size={24} className="text-brand-orange flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-brand-black text-sm">Generate with AI <span className="text-xs font-normal text-brand-orange">(Fastest)</span></p>
+                        <p className="text-xs text-text-muted mt-1">Upload a context file or describe your brain and AI will build it for you.</p>
+                      </div>
+                    </button>
                     <button
                       onClick={() => setCreateMode('template')}
-                      className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors group"
+                      className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors group flex items-start gap-3"
                     >
-                      <LayoutTemplate size={24} className="text-brand-orange mb-2" />
-                      <p className="font-medium text-brand-black text-sm">Start from Template</p>
-                      <p className="text-xs text-text-muted mt-1">Choose a pre-built brain and customise it.</p>
+                      <LayoutTemplate size={24} className="text-brand-orange flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-brand-black text-sm">Use a Template</p>
+                        <p className="text-xs text-text-muted mt-1">Choose a pre-built brain and customise it.</p>
+                      </div>
                     </button>
                     <button
                       onClick={() => { setCreateMode('scratch'); setNewName(''); setNewDesc(''); }}
-                      className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors group"
+                      className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors group flex items-start gap-3"
                     >
-                      <FileText size={24} className="text-brand-orange mb-2" />
-                      <p className="font-medium text-brand-black text-sm">Start from Scratch</p>
-                      <p className="text-xs text-text-muted mt-1">Build your brain from an empty canvas.</p>
+                      <FileText size={24} className="text-brand-orange flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-brand-black text-sm">Start from Scratch</p>
+                        <p className="text-xs text-text-muted mt-1">Build your brain from an empty canvas.</p>
+                      </div>
                     </button>
                   </div>
                 </>
+              )}
+
+              {/* Step 2: AI Generate */}
+              {createMode === 'ai' && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <button onClick={goBack} className="text-text-muted hover:text-brand-black text-sm">&larr;</button>
+                    <h3 className="text-lg font-semibold text-brand-black">Generate with AI</h3>
+                  </div>
+
+                  {aiGenerating ? (
+                    <div className="text-center py-8 space-y-3">
+                      <Sparkles size={32} className="text-brand-orange mx-auto animate-pulse" />
+                      <p className="text-sm font-medium text-brand-black">Coming soon</p>
+                      <p className="text-xs text-text-muted">AI brain generation is under development</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Upload file */}
+                      <div>
+                        <label className="block text-sm text-text-muted mb-1">Upload a context file</label>
+                        <div
+                          onClick={() => aiFileRef.current?.click()}
+                          onDragOver={(e) => { e.preventDefault(); setAiDragOver(true); }}
+                          onDragLeave={() => setAiDragOver(false)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setAiDragOver(false);
+                            const file = e.dataTransfer.files?.[0];
+                            if (file && /\.(txt|md|json)$/i.test(file.name)) setAiFile(file);
+                          }}
+                          className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${aiDragOver ? 'border-brand-orange bg-brand-orange/5' : 'border-border hover:border-brand-orange/50'}`}
+                        >
+                          {aiFile ? (
+                            <div className="flex items-center justify-center gap-2">
+                              <FileText size={16} className="text-brand-orange" />
+                              <span className="text-sm text-text-primary font-medium">{aiFile.name}</span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setAiFile(null); }}
+                                className="text-text-muted hover:text-red-500 text-xs ml-1"
+                              >
+                                &times;
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload size={20} className={`mx-auto mb-2 ${aiDragOver ? 'text-brand-orange' : 'text-text-muted'}`} />
+                              <p className="text-sm text-text-primary font-medium">Drag and drop or click to upload</p>
+                              <p className="text-xs text-text-muted mt-1">.txt, .md, or .json files accepted</p>
+                            </>
+                          )}
+                          <input
+                            ref={aiFileRef}
+                            type="file"
+                            accept=".txt,.md,.json"
+                            onChange={(e) => { setAiFile(e.target.files?.[0] || null); e.target.value = ''; }}
+                            className="hidden"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 border-t border-border" />
+                        <span className="text-xs text-text-muted">or</span>
+                        <div className="flex-1 border-t border-border" />
+                      </div>
+
+                      {/* Describe */}
+                      <div>
+                        <label className="block text-sm text-text-muted mb-1">Describe your brain</label>
+                        <textarea
+                          value={aiDescription}
+                          onChange={(e) => setAiDescription(e.target.value)}
+                          placeholder="e.g. A customer support agent that knows our refund policy and shipping FAQ..."
+                          rows={3}
+                          className="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-brand-orange"
+                        />
+                      </div>
+
+                      <div className="flex gap-3 justify-end">
+                        <button onClick={resetModal} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
+                        <button
+                          onClick={() => setAiGenerating(true)}
+                          disabled={!aiFile && !aiDescription.trim()}
+                          className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 flex items-center gap-1.5"
+                        >
+                          <Sparkles size={14} />
+                          Generate
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
 
               {/* Step 2a: Scratch — name/description form */}
@@ -464,20 +581,36 @@ export default function Dashboard() {
             <p className="text-text-muted max-w-md mb-6">
               Create an AI brain with rules, memories, and behaviours and deploy it to any LLM.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 mb-10">
+            <div className="w-full max-w-md flex flex-col gap-3 mb-10">
+              <button
+                onClick={() => { setShowCreate(true); setCreateMode('ai'); }}
+                className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors flex items-start gap-3"
+              >
+                <Sparkles size={22} className="text-brand-orange flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-brand-black text-sm">Generate with AI <span className="text-xs font-normal text-brand-orange">(Fastest)</span></p>
+                  <p className="text-xs text-text-muted mt-1">Upload a context file or describe your brain and AI will build it for you.</p>
+                </div>
+              </button>
               <button
                 onClick={() => { setShowCreate(true); setCreateMode('template'); }}
-                className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+                className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors flex items-start gap-3"
               >
-                <LayoutTemplate size={16} />
-                Start from Template
+                <LayoutTemplate size={22} className="text-brand-orange flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-brand-black text-sm">Use a Template</p>
+                  <p className="text-xs text-text-muted mt-1">Choose a pre-built brain and customise it.</p>
+                </div>
               </button>
               <button
                 onClick={() => { setShowCreate(true); setCreateMode('scratch'); }}
-                className="border border-border text-text-primary hover:border-brand-orange hover:text-brand-orange text-sm font-medium px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+                className="border border-border rounded-xl p-4 text-left hover:border-brand-orange/50 transition-colors flex items-start gap-3"
               >
-                <FileText size={16} />
-                Start from Scratch
+                <FileText size={22} className="text-brand-orange flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-brand-black text-sm">Start from Scratch</p>
+                  <p className="text-xs text-text-muted mt-1">Build your brain from an empty canvas.</p>
+                </div>
               </button>
             </div>
 
