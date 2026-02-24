@@ -150,7 +150,9 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel, bra
           {suggestError && <p className="text-xs text-red-600">{suggestError}</p>}
         </div>
       ) : canSuggest === false && (
-        <p className="text-xs text-text-muted">Add a description or at least one section to enable AI suggestions.</p>
+        <div className="bg-brand-orange/5 border border-brand-orange/20 rounded-lg px-3 py-2">
+          <p className="text-xs text-brand-orange font-medium">💡 Add a brain description or at least one section to unlock AI suggestions.</p>
+        </div>
       )}
 
       <div className="flex items-center justify-between pt-2">

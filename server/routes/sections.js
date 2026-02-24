@@ -6,6 +6,10 @@ const authMiddleware = require('../middleware/auth');
 const router = express.Router({ mergeParams: true });
 router.use(authMiddleware);
 
+// Rate limiting for AI suggestions
+const suggestCooldowns = new Map();
+const SUGGEST_COOLDOWN_MS = 30 * 1000;
+
 // Helper: verify brain ownership
 async function verifyBrainOwner(brainId, userId) {
   const result = await db.execute({
@@ -38,6 +42,15 @@ router.post('/suggest', async (req, res) => {
   try {
     if (!(await verifyBrainOwner(req.params.id, req.user.id))) {
       return res.status(404).json({ error: 'Brain not found' });
+    }
+
+    const lastSuggest = suggestCooldowns.get(req.user.id);
+    if (lastSuggest) {
+      const elapsed = Date.now() - lastSuggest;
+      if (elapsed < SUGGEST_COOLDOWN_MS) {
+        const waitSeconds = Math.ceil((SUGGEST_COOLDOWN_MS - elapsed) / 1000);
+        return res.status(429).json({ error: `Please wait before generating another brain. Try again in ${waitSeconds} seconds.` });
+      }
     }
 
     const { type } = req.body;
@@ -137,6 +150,7 @@ Guidelines:
       return res.status(502).json({ error: 'AI returned an incomplete response. Please try again.' });
     }
 
+    suggestCooldowns.set(req.user.id, Date.now());
     res.json({ title: parsed.title.slice(0, 50), content: parsed.content.slice(0, 2000) });
   } catch (err) {
     console.error('Suggest section error:', err);

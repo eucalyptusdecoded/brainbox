@@ -127,14 +127,23 @@ export default function Dashboard() {
     setAiGenerating(true);
     setAiError('');
     try {
-      let fileContent = null;
-      if (aiFile) {
-        fileContent = await aiFile.text();
+      let data;
+      const ext = aiFile ? aiFile.name.split('.').pop().toLowerCase() : null;
+      if (aiFile && (ext === 'pdf' || ext === 'docx')) {
+        const formData = new FormData();
+        formData.append('file', aiFile);
+        if (aiDescription.trim()) formData.append('description', aiDescription.trim());
+        ({ data } = await axios.post('/api/brains/generate-with-file', formData));
+      } else {
+        let fileContent = null;
+        if (aiFile) {
+          fileContent = await aiFile.text();
+        }
+        ({ data } = await axios.post('/api/brains/generate', {
+          description: aiDescription.trim() || null,
+          fileContent,
+        }));
       }
-      const { data } = await axios.post('/api/brains/generate', {
-        description: aiDescription.trim() || null,
-        fileContent,
-      });
       resetModal();
       fetchBrains();
       navigate(`/brain/${data.id}`);
@@ -401,7 +410,7 @@ export default function Dashboard() {
                             e.preventDefault();
                             setAiDragOver(false);
                             const file = e.dataTransfer.files?.[0];
-                            if (file && /\.(txt|md|json)$/i.test(file.name)) setAiFile(file);
+                            if (file && /\.(txt|md|json|pdf|docx|csv)$/i.test(file.name)) setAiFile(file);
                           }}
                           className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${aiDragOver ? 'border-brand-orange bg-brand-orange/5' : 'border-border hover:border-brand-orange/50'}`}
                         >
@@ -420,13 +429,13 @@ export default function Dashboard() {
                             <>
                               <Upload size={20} className={`mx-auto mb-2 ${aiDragOver ? 'text-brand-orange' : 'text-text-muted'}`} />
                               <p className="text-sm text-text-primary font-medium">Drag and drop or click to upload</p>
-                              <p className="text-xs text-text-muted mt-1">.txt, .md, or .json files accepted</p>
+                              <p className="text-xs text-text-muted mt-1">.txt, .md, .json, .pdf, .docx, or .csv files accepted</p>
                             </>
                           )}
                           <input
                             ref={aiFileRef}
                             type="file"
-                            accept=".txt,.md,.json"
+                            accept=".txt,.md,.json,.pdf,.docx,.csv"
                             onChange={(e) => { setAiFile(e.target.files?.[0] || null); e.target.value = ''; }}
                             className="hidden"
                           />
