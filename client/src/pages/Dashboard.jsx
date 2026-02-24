@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil, Download, Upload, Plus, Brain, Sparkles } from 'lucide-react';
+import { FileText, LayoutTemplate, MoreVertical, Trash2, Copy, Pencil, Download, Upload, Plus, Brain, Sparkles, X } from 'lucide-react';
 import Header from '../components/Header';
 import brainTemplates from '../data/brainTemplates';
 
@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [aiDragOver, setAiDragOver] = useState(false);
   const importRef = useRef(null);
   const aiFileRef = useRef(null);
+  const matrixCanvasRef = useRef(null);
   const navigate = useNavigate();
 
   async function fetchBrains() {
@@ -46,6 +47,54 @@ export default function Dashboard() {
 
   useEffect(() => { fetchBrains(); }, []);
 
+  // Matrix rain animation for AI generating state
+  useEffect(() => {
+    if (!aiGenerating) return;
+    const canvas = matrixCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789{}[]<>/=+-*&@#$%!?';
+    const fontSize = 13;
+
+    function resize() {
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    resize();
+
+    const cols = Math.floor(canvas.offsetWidth / fontSize);
+    const drops = Array(cols).fill(0).map(() => Math.random() * -20);
+
+    let animId;
+    function draw() {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < cols; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        const alpha = 0.15 + Math.random() * 0.5;
+        ctx.fillStyle = `rgba(255, 122, 0, ${alpha})`;
+        ctx.fillText(char, x, y);
+        if (y > canvas.offsetHeight && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i] += 0.5 + Math.random() * 0.5;
+      }
+      animId = requestAnimationFrame(draw);
+    }
+
+    // Fill initial background
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+    draw();
+
+    return () => cancelAnimationFrame(animId);
+  }, [aiGenerating]);
+
   function resetModal() {
     setShowCreate(false);
     setCreateMode(null);
@@ -58,6 +107,7 @@ export default function Dashboard() {
     setAiDescription('');
     setAiGenerating(false);
     setAiDragOver(false);
+    setAiError('');
   }
 
   function goBack() {
@@ -67,6 +117,30 @@ export default function Dashboard() {
       setNewDesc('');
     } else {
       setCreateMode(null);
+    }
+  }
+
+  const [aiError, setAiError] = useState('');
+
+  async function handleAiGenerate() {
+    if (!aiFile && !aiDescription.trim()) return;
+    setAiGenerating(true);
+    setAiError('');
+    try {
+      let fileContent = null;
+      if (aiFile) {
+        fileContent = await aiFile.text();
+      }
+      const { data } = await axios.post('/api/brains/generate', {
+        description: aiDescription.trim() || null,
+        fileContent,
+      });
+      resetModal();
+      fetchBrains();
+      navigate(`/brain/${data.id}`);
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Failed to generate brain. Please try again.';
+      setAiError(msg);
     }
   }
 
@@ -286,10 +360,33 @@ export default function Dashboard() {
                   </div>
 
                   {aiGenerating ? (
-                    <div className="text-center py-8 space-y-3">
-                      <Sparkles size={32} className="text-brand-orange mx-auto animate-pulse" />
-                      <p className="text-sm font-medium text-brand-black">Coming soon</p>
-                      <p className="text-xs text-text-muted">AI brain generation is under development</p>
+                    <div className="space-y-4">
+                      <div className="relative h-40 rounded-lg overflow-hidden border border-border bg-white">
+                        <canvas
+                          ref={matrixCanvasRef}
+                          className="w-full h-full"
+                          style={{ display: 'block' }}
+                        />
+                        {aiError && (
+                          <div className="absolute inset-0 bg-white/90 flex flex-col items-center justify-center text-center px-4">
+                            <button
+                              onClick={() => { setAiGenerating(false); setAiError(''); }}
+                              className="absolute top-2 right-2 text-text-muted hover:text-brand-black p-1"
+                              aria-label="Close"
+                            >
+                              <X size={18} />
+                            </button>
+                            <p className="text-sm font-semibold text-brand-black">AI is unavailable right now</p>
+                            <p className="text-xs text-text-muted mt-1">Please try again later.</p>
+                          </div>
+                        )}
+                      </div>
+                      {!aiError && (
+                        <div className="text-center space-y-1">
+                          <p className="text-sm font-semibold text-brand-black">Building your brain...</p>
+                          <p className="text-xs text-text-muted">This usually takes 15–30 seconds</p>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <>
@@ -355,10 +452,14 @@ export default function Dashboard() {
                         />
                       </div>
 
+                      {aiError && (
+                        <p className="text-xs text-red-600 font-medium">{aiError}</p>
+                      )}
+
                       <div className="flex gap-3 justify-end">
                         <button onClick={resetModal} className="text-sm text-text-muted hover:text-brand-black px-4 py-2">Cancel</button>
                         <button
-                          onClick={() => setAiGenerating(true)}
+                          onClick={handleAiGenerate}
                           disabled={!aiFile && !aiDescription.trim()}
                           className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50 flex items-center gap-1.5"
                         >

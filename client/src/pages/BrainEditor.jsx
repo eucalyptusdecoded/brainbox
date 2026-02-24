@@ -271,6 +271,8 @@ export default function BrainEditor() {
               onSave={handleSaveSection}
               onDelete={handleDelete}
               onCancel={handleCancelDraft}
+              brainId={id}
+              canSuggest={!!(brain?.description?.trim() || sections.length > 0)}
             />
           ) : (
             <div className="h-full overflow-y-auto">

@@ -123,16 +123,22 @@ export default function Guide() {
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">Creating a Brain</h3>
             <ol className="space-y-1.5 text-sm text-text-primary list-decimal list-inside">
-              <li>Click + New Brain on the dashboard.</li>
-              <li>Choose Start from Template to begin with a pre-built brain, or Start from Scratch for a blank canvas.</li>
-              <li>Give your brain a name and optional description, then click Create.</li>
-              <li>You'll be taken to the brain editor where you can start adding sections.</li>
+              <li>Click <strong>+ New Brain</strong> on the dashboard.</li>
+              <li>Choose your starting point:
+                <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                  <li><strong>Start from Template</strong> — begin with a pre-built brain you can customise.</li>
+                  <li><strong>Start from Scratch</strong> — create a blank brain and add sections manually.</li>
+                  <li><strong>Generate with AI</strong> — describe what you need or upload a document, and AI builds your brain automatically.</li>
+                </ul>
+              </li>
+              <li>Follow the on-screen steps to name and create your brain.</li>
+              <li>You'll be taken to the brain editor where you can review and refine your sections.</li>
             </ol>
           </div>
 
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">Templates</h3>
-            <p className="text-sm text-text-primary">Templates are pre-built brains that show you how a well-structured brain looks. They come with example rules, memories, behaviours, guardrails, and skills that you can customise. They're the fastest way to get started.</p>
+            <p className="text-sm text-text-primary">Templates are pre-built brains that show you how a well-structured brain looks. They come with example rules, memories, behaviours, guardrails, and skills that you can customise. Unlike AI generation, templates give you a fixed starting point designed for a specific use case — they're ideal if your needs match one of the available templates.</p>
           </div>
 
           <div className="space-y-2">
@@ -142,6 +148,56 @@ export default function Guide() {
               <li>To import, click Import Brain on the dashboard and upload a .brainbox file. This creates a new brain with all the original content.</li>
               <li>Use import and export to share brains with colleagues, back up your work, or move brains between accounts.</li>
             </ol>
+          </div>
+        </section>
+
+        {/* 2b. Generate with AI */}
+        <div className="bg-bg-panel border border-border rounded-xl p-5 space-y-3">
+          <h2 className="text-lg font-semibold text-brand-black">Generate with AI</h2>
+          <p className="text-sm text-text-primary">AI generation creates a complete brain from a description or uploaded document. It analyses your input and produces structured sections across all five types — rules, memories, behaviours, guardrails, and skills. It's the fastest way to get a working brain.</p>
+        </div>
+
+        <section id="ai-generate" className="scroll-mt-20 space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">How It Works</h3>
+            <ol className="space-y-1.5 text-sm text-text-primary list-decimal list-inside">
+              <li>Click <strong>+ New Brain</strong> on the dashboard and select <strong>Generate with AI</strong>.</li>
+              <li>Either upload a context file (.txt, .md, or .json) or write a description of the brain you want — or both.</li>
+              <li>Click <strong>Generate</strong>. AI will analyse your input and build a complete brain with 8–15 structured sections.</li>
+              <li>Generation usually takes 15–30 seconds. You'll see a progress animation while your brain is being built.</li>
+              <li>Once complete, you'll be taken to the brain editor where you can review, edit, and refine every generated section.</li>
+            </ol>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">What You Can Upload</h3>
+            <ul className="space-y-1.5">
+              <Bullet><code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> files — plain text documents like company guidelines, FAQs, or product descriptions.</Bullet>
+              <Bullet><code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.md</code> files — markdown documents with formatting preserved in the extracted text.</Bullet>
+              <Bullet><code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.json</code> files — structured data files that the AI will interpret and convert into brain sections.</Bullet>
+              <Bullet>Maximum file size is 50KB of extracted text. Larger documents are trimmed automatically.</Bullet>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">Writing Good Descriptions</h3>
+            <ul className="space-y-1.5">
+              <Bullet>Be specific about the brain's purpose — "A customer support agent for a SaaS product that handles billing questions, refund requests, and onboarding help" is much better than "A support bot".</Bullet>
+              <Bullet>Mention your industry, audience, and tone — the AI uses these details to tailor the generated sections.</Bullet>
+              <Bullet>Include any hard requirements — if you need specific rules (e.g. "Always respond in French") mention them in the description and the AI will create dedicated sections for them.</Bullet>
+              <Bullet>Combining a file with a description works best — upload your existing docs and add a description to guide how the AI should interpret them.</Bullet>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">After Generation</h3>
+            <ul className="space-y-1.5">
+              <Bullet>Review every section — AI generation gives you a strong starting point, but you should refine the content to match your exact needs.</Bullet>
+              <Bullet>Add missing context — the AI can only work with what you provide. If something important is missing, add it as a new section manually.</Bullet>
+              <Bullet>Adjust priorities — generated sections use default priority (50). Promote critical rules to a lower number so they appear earlier in the compiled context.</Bullet>
+              <Bullet>Toggle sections on/off — if a generated section isn't relevant, deactivate it rather than deleting. You can always re-enable it later.</Bullet>
+              <Bullet>Use the Brain Context preview to check the final output before connecting your brain to an LLM.</Bullet>
+            </ul>
           </div>
         </section>
 

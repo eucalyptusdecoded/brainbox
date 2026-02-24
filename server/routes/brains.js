@@ -142,6 +142,127 @@ router.post('/import', importUpload.single('file'), async (req, res) => {
   }
 });
 
+// POST /api/brains/generate — generate a brain using DeepSeek AI
+router.post('/generate', async (req, res) => {
+  try {
+    const { description, fileContent } = req.body;
+    if (!description && !fileContent) {
+      return res.status(400).json({ error: 'Provide a description or file content' });
+    }
+
+    if (await checkBrainLimit(req.user.id)) {
+      return res.status(400).json({ error: `You can have a maximum of ${MAX_BRAINS_PER_USER} brains. Delete an existing brain to create a new one.` });
+    }
+
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'AI generation is not configured' });
+    }
+
+    const userInput = fileContent
+      ? `Here is the context document:\n\n${fileContent.slice(0, 50000)}${description ? `\n\nAdditional instructions: ${description}` : ''}`
+      : description;
+
+    const systemPrompt = `You are an AI brain builder for Brainbox, a platform that creates portable AI context files. Given a user's description or document, generate a complete brain with structured sections.
+
+Return ONLY valid JSON in this exact format (no markdown, no code fences):
+{
+  "name": "Short brain name (2-5 words)",
+  "description": "One sentence describing what this brain does",
+  "sections": [
+    {
+      "type": "rule",
+      "title": "Section title",
+      "content": "Detailed section content",
+      "priority": 50
+    }
+  ]
+}
+
+Section types and their purposes:
+- "rule": Core instructions the AI must follow (e.g. tone of voice, formatting rules, response structure)
+- "memory": Facts, knowledge, and context the AI should know (e.g. company info, product details, FAQs)
+- "behaviour": How the AI should act and respond (e.g. personality, conversation style, handling edge cases)
+- "guardrail": Boundaries and restrictions (e.g. topics to avoid, compliance requirements, safety rules)
+- "skill": Specific capabilities or tasks the AI can perform (e.g. writing emails, analysing data, generating reports)
+
+Guidelines:
+- Generate 8-15 sections across multiple types for a well-rounded brain
+- Each section should have substantive, actionable content (3-8 sentences)
+- Priority ranges from 0 (highest) to 100 (lowest), default 50
+- Make the content specific and practical, not generic
+- Use the context provided to make sections relevant and detailed`;
+
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userInput },
+        ],
+        temperature: 0.7,
+        max_tokens: 4000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error('DeepSeek API error:', response.status, errBody);
+      return res.status(502).json({ error: 'AI generation failed. Please try again.' });
+    }
+
+    const aiResult = await response.json();
+    const content = aiResult.choices?.[0]?.message?.content;
+    if (!content) {
+      return res.status(502).json({ error: 'AI returned an empty response. Please try again.' });
+    }
+
+    // Parse the JSON response — strip markdown fences if present
+    let parsed;
+    try {
+      const cleaned = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error('Failed to parse AI response:', content);
+      return res.status(502).json({ error: 'AI returned an invalid response. Please try again.' });
+    }
+
+    if (!parsed.name || !Array.isArray(parsed.sections) || parsed.sections.length === 0) {
+      return res.status(502).json({ error: 'AI returned an incomplete response. Please try again.' });
+    }
+
+    // Validate section types
+    const VALID_TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
+    const validSections = parsed.sections.filter(s => VALID_TYPES.includes(s.type) && s.title && s.content);
+
+    // Create the brain
+    const brainId = uuidv4();
+    await db.execute({
+      sql: 'INSERT INTO brains (id, user_id, name, description) VALUES (?, ?, ?, ?)',
+      args: [brainId, req.user.id, parsed.name, parsed.description || null],
+    });
+
+    // Create sections
+    for (const s of validSections) {
+      await db.execute({
+        sql: 'INSERT INTO brain_sections (id, brain_id, type, title, content, is_active, priority) VALUES (?, ?, ?, ?, ?, 1, ?)',
+        args: [uuidv4(), brainId, s.type, s.title, s.content, s.priority ?? 50],
+      });
+    }
+
+    const result = await db.execute({ sql: 'SELECT * FROM brains WHERE id = ?', args: [brainId] });
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Generate brain error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/brains/:id
 router.get('/:id', async (req, res) => {
   try {

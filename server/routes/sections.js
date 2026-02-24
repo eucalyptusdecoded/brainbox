@@ -33,6 +33,117 @@ router.get('/', async (req, res) => {
   }
 });
 
+// POST /api/brains/:id/sections/suggest — AI-suggested section content
+router.post('/suggest', async (req, res) => {
+  try {
+    if (!(await verifyBrainOwner(req.params.id, req.user.id))) {
+      return res.status(404).json({ error: 'Brain not found' });
+    }
+
+    const { type } = req.body;
+    const validTypes = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
+    if (!type || !validTypes.includes(type)) {
+      return res.status(400).json({ error: `type must be one of: ${validTypes.join(', ')}` });
+    }
+
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'AI suggestions are not configured' });
+    }
+
+    const brain = await db.execute({
+      sql: 'SELECT name, description FROM brains WHERE id = ? AND user_id = ?',
+      args: [req.params.id, req.user.id],
+    });
+
+    const sections = await db.execute({
+      sql: 'SELECT type, title FROM brain_sections WHERE brain_id = ? ORDER BY type, priority',
+      args: [req.params.id],
+    });
+
+    const typeLabels = { rule: 'Rules', memory: 'Memories', behaviour: 'Behaviours', guardrail: 'Guardrails', skill: 'Skills' };
+    const grouped = {};
+    for (const s of sections.rows) {
+      const label = typeLabels[s.type] || s.type;
+      if (!grouped[label]) grouped[label] = [];
+      grouped[label].push(s.title);
+    }
+    const existingList = Object.entries(grouped)
+      .map(([label, titles]) => `${label}: ${titles.join(', ')}`)
+      .join('\n') || 'None yet';
+
+    const b = brain.rows[0];
+    const systemPrompt = `You are helping build an AI brain in Brainbox. Given the brain's existing context, suggest a single new ${type} section that would complement what already exists.
+
+The brain is called "${b.name}"${b.description ? ` and is described as: "${b.description}"` : ''}.
+
+Existing sections:
+${existingList}
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "title": "Short descriptive title (under 50 chars)",
+  "content": "Detailed section content (under 2000 chars)"
+}
+
+Guidelines:
+- Don't duplicate what already exists
+- Make the content specific, actionable, and relevant to this brain's purpose
+- For rules: clear constraints the AI must follow
+- For memories: specific facts or context
+- For behaviours: tone and interaction style guidance
+- For guardrails: boundaries and restrictions
+- For skills: step-by-step workflows`;
+
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Suggest a new ${type} section for this brain.` },
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error('DeepSeek suggest error:', response.status, errBody);
+      return res.status(502).json({ error: 'AI suggestion failed. Please try again.' });
+    }
+
+    const aiResult = await response.json();
+    const content = aiResult.choices?.[0]?.message?.content;
+    if (!content) {
+      return res.status(502).json({ error: 'AI returned an empty response.' });
+    }
+
+    let parsed;
+    try {
+      const cleaned = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error('Failed to parse AI suggestion:', content);
+      return res.status(502).json({ error: 'AI returned an invalid response. Please try again.' });
+    }
+
+    if (!parsed.title || !parsed.content) {
+      return res.status(502).json({ error: 'AI returned an incomplete response. Please try again.' });
+    }
+
+    res.json({ title: parsed.title.slice(0, 50), content: parsed.content.slice(0, 2000) });
+  } catch (err) {
+    console.error('Suggest section error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // POST /api/brains/:id/sections
 router.post('/', async (req, res) => {
   try {

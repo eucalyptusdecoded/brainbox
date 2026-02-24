@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Info } from 'lucide-react';
+import axios from 'axios';
+import { Info, Sparkles } from 'lucide-react';
 import WritingTips from './WritingTips';
 
 const TYPES = ['rule', 'memory', 'behaviour', 'guardrail', 'skill'];
@@ -20,12 +21,14 @@ const CONTENT_PLACEHOLDERS = {
   skill:     'e.g. When asked to write a blog post:\n1. Ask for the topic and target audience.\n2. Propose three title options.\n3. Write a 500-word draft once a title is approved.',
 };
 
-export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
+export default function SectionEditor({ section, onSave, onDelete, onCancel, brainId, canSuggest }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [type, setType] = useState('rule');
   const [priority, setPriority] = useState(50);
   const [saving, setSaving] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestError, setSuggestError] = useState('');
 
   useEffect(() => {
     if (section) {
@@ -40,6 +43,21 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
     setSaving(true);
     await onSave({ ...section, title, content, type, priority });
     setSaving(false);
+  }
+
+  async function handleSuggest() {
+    if (!brainId || suggesting) return;
+    setSuggesting(true);
+    setSuggestError('');
+    try {
+      const { data } = await axios.post(`/api/brains/${brainId}/sections/suggest`, { type });
+      setTitle(data.title);
+      setContent(data.content);
+    } catch (err) {
+      setSuggestError(err.response?.data?.error || 'Failed to generate suggestion.');
+    } finally {
+      setSuggesting(false);
+    }
   }
 
   if (!section) {
@@ -118,6 +136,22 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel }) {
         />
         <p className="text-sm text-text-muted mt-1 text-right">{content.length}/2000</p>
       </div>
+
+      {canSuggest ? (
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSuggest}
+            disabled={suggesting}
+            className="flex items-center gap-1.5 text-sm text-brand-orange hover:text-brand-orange-hover border border-brand-orange/30 rounded-lg px-3 py-1.5 disabled:opacity-50 transition-colors"
+          >
+            <Sparkles size={14} className={suggesting ? 'animate-pulse' : ''} />
+            {suggesting ? 'Suggesting...' : 'Suggest with AI'}
+          </button>
+          {suggestError && <p className="text-xs text-red-600">{suggestError}</p>}
+        </div>
+      ) : canSuggest === false && (
+        <p className="text-xs text-text-muted">Add a description or at least one section to enable AI suggestions.</p>
+      )}
 
       <div className="flex items-center justify-between pt-2">
         {section._draft ? (
