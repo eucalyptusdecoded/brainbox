@@ -2,8 +2,8 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const multer = require('multer');
-const { PDFParse } = require('pdf-parse');
-const mammoth = require('mammoth');
+// Lazy-loaded to avoid slowing down builds / startup
+let PDFParse, mammoth;
 const { db } = require('../db/database');
 const authMiddleware = require('../middleware/auth');
 const { compileContext } = require('../utils/compileContext');
@@ -551,10 +551,12 @@ async function extractText(file) {
   if (ext === '.txt' || ext === '.csv') {
     text = file.buffer.toString('utf-8');
   } else if (ext === '.pdf') {
+    if (!PDFParse) PDFParse = require('pdf-parse').PDFParse;
     const parser = new PDFParse({ data: file.buffer });
     const data = await parser.getText();
     text = data.text;
   } else if (ext === '.docx') {
+    if (!mammoth) mammoth = require('mammoth');
     const result = await mammoth.extractRawText({ buffer: file.buffer });
     text = result.value;
   }
