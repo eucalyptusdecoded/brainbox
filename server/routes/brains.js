@@ -8,6 +8,7 @@ const { db } = require('../db/database');
 const authMiddleware = require('../middleware/auth');
 const { compileContext } = require('../utils/compileContext');
 
+const archiver = require('archiver');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 const ALLOWED_EXTS = ['.txt', '.pdf', '.docx', '.csv'];
 const MAX_TEXT_LENGTH = 500000;
@@ -289,6 +290,60 @@ router.get('/:id/context', async (req, res) => {
   } catch (err) {
     console.error('Download context error:', err);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/brains/:id/images/download — download reference images as a zip
+router.get('/:id/images/download', async (req, res) => {
+  try {
+    const brain = await db.execute({
+      sql: 'SELECT * FROM brains WHERE id = ? AND user_id = ?',
+      args: [req.params.id, req.user.id],
+    });
+    if (brain.rows.length === 0) {
+      return res.status(404).json({ error: 'Brain not found' });
+    }
+
+    const images = await db.execute({
+      sql: 'SELECT * FROM brain_images WHERE brain_id = ? ORDER BY priority ASC',
+      args: [req.params.id],
+    });
+    if (images.rows.length === 0) {
+      return res.status(404).json({ error: 'No images found for this brain' });
+    }
+
+    const brainName = brain.rows[0].name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-');
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="brainbox-${brainName}-images.zip"`);
+
+    const archive = archiver('zip', { zlib: { level: 5 } });
+    archive.pipe(res);
+
+    for (let i = 0; i < images.rows.length; i++) {
+      const img = images.rows[i];
+      try {
+        const response = await fetch(img.url);
+        if (!response.ok) continue;
+        const contentType = response.headers.get('content-type') || '';
+        const ext = contentType.includes('png') ? '.png'
+          : contentType.includes('webp') ? '.webp'
+          : contentType.includes('gif') ? '.gif'
+          : contentType.includes('svg') ? '.svg'
+          : '.jpg';
+        const safeName = (img.description || `image-${i + 1}`).replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-').slice(0, 60);
+        const buffer = Buffer.from(await response.arrayBuffer());
+        archive.append(buffer, { name: `${safeName}${ext}` });
+      } catch (fetchErr) {
+        console.error(`Failed to fetch image ${img.url}:`, fetchErr.message);
+      }
+    }
+
+    await archive.finalize();
+  } catch (err) {
+    console.error('Download images error:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 });
 

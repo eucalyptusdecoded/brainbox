@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Copy, Check, Key, Download } from 'lucide-react';
+import { Copy, Check, Key, Download, ImageIcon } from 'lucide-react';
 import Header from '../components/Header';
 
 const PLATFORMS = [
@@ -24,6 +24,7 @@ export default function Integration() {
   const [generatedKey, setGeneratedKey] = useState(null); // full key shown once
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [brainImages, setBrainImages] = useState([]);
 
   useEffect(() => {
     axios.get('/api/brains').then(({ data }) => {
@@ -32,12 +33,15 @@ export default function Integration() {
     });
   }, []);
 
-  // Fetch keys when brain changes
+  // Fetch keys and images when brain changes
   useEffect(() => {
     if (!selectedBrain) return;
     setGeneratedKey(null);
     axios.get('/api/keys').then(({ data }) => {
       setKeys(data.filter(k => k.brain_id === selectedBrain));
+    });
+    axios.get(`/api/brains/${selectedBrain}`).then(({ data }) => {
+      setBrainImages(data.images || []);
     });
   }, [selectedBrain]);
 
@@ -82,7 +86,10 @@ export default function Integration() {
     }
   }
 
+
   const selectedBrainObj = brains.find(b => b.id === selectedBrain);
+
+  const gptSystemPrompt = `You have been provided a Brainbox context file in your knowledge. Apply everything in it — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. Follow the context file as your primary instructions.`;
 
   const geminiSystemPrompt = `You have been provided a Brainbox context file. Apply everything in it — all rules, memories, behaviours, guardrails, and skills — before responding to any user message. Follow the context file as your primary instructions.`;
 
@@ -196,97 +203,203 @@ export default function Integration() {
 
         {platform === 'custom-gpt' && (<>
 
-        {/* Step 1: API Key */}
-        <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-2">Step 1: Your API Key</h3>
-          <p className="text-sm text-text-muted mb-3">Generate an API key for this brain. You'll need it to authenticate your Custom GPT.</p>
+        {/* Custom GPT Setup (No Code) */}
+        <details open className="bg-bg-panel border border-border rounded-xl">
+          <summary className="font-semibold text-brand-black p-5 cursor-pointer select-none">
+            Custom GPT Setup
+          </summary>
+          <div className="px-5 pb-5 space-y-5">
+            {/* Step 1: Download Context */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 1: Download Brain Context</h3>
+              <p className="text-sm text-text-muted">Download your brain's context as a text file to upload to your Custom GPT.</p>
+              <button
+                onClick={handleDownloadContext}
+                disabled={downloading || !selectedBrain}
+                className="flex items-center gap-2 bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+              >
+                <Download size={16} />
+                {downloading ? 'Downloading...' : 'Download Context File'}
+              </button>
+              <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
 
-          {generatedKey ? (
+              {brainImages.length > 0 && (
+                <div className="mt-2 border-t border-border pt-3">
+                  <div className="flex items-start gap-2 mb-3">
+                    <ImageIcon size={16} className="text-text-muted mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-text-muted">
+                      Context files are text-only and don't include images directly. To use your reference images, download them below and upload them to your Custom GPT's <strong>Knowledge</strong> section.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {brainImages.map((img, i) => (
+                      <a key={img.id || i} href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-brand-orange hover:text-brand-orange-hover">
+                        <Download size={14} />
+                        {img.description || `Image ${i + 1}`}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Step 2: Create Custom GPT */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 2: Create Your Custom GPT</h3>
+              <p className="text-sm text-text-muted">Create a new Custom GPT in ChatGPT and upload your brain context.</p>
+              <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
+                <li>Open <strong>chatgpt.com</strong>, click your profile icon and select <strong>My GPTs</strong></li>
+                <li>Click <strong>Create a GPT</strong>, then go to the <strong>Configure</strong> tab</li>
+                <li>Copy the <strong>Name</strong>, <strong>Description</strong>, and <strong>Instructions</strong> from Step 3 below into the corresponding fields</li>
+                <li>In the <strong>Knowledge</strong> section, click <strong>Upload files</strong> and select the <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> file from Step 1</li>
+                <li>Click <strong>Save</strong>, choose your visibility, and click <strong>Confirm</strong></li>
+              </ol>
+            </div>
+
+            {/* Step 3: GPT Configuration */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <code className="bg-white px-3 py-2 rounded text-xs text-text-primary flex-1 font-mono overflow-x-auto border border-border">{generatedKey}</code>
+              <h3 className="text-sm font-medium text-text-primary">Step 3: Configure Your GPT</h3>
+              <p className="text-sm text-text-muted">Copy and paste each of these into your Custom GPT's fields:</p>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary border border-border">{selectedBrainObj?.name || ''}</pre>
+                  <button
+                    onClick={() => copy(selectedBrainObj?.name || '', 'gpt-name')}
+                    className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                  >
+                    {copied === 'gpt-name' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Description</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{selectedBrainObj?.description || '—'}</pre>
+                  <button
+                    onClick={() => copy(selectedBrainObj?.description || '', 'gpt-desc')}
+                    className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                  >
+                    {copied === 'gpt-desc' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-text-muted mb-1">Instructions</label>
+                <div className="relative">
+                  <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{gptSystemPrompt}</pre>
+                  <button
+                    onClick={() => copy(gptSystemPrompt, 'gpt-prompt')}
+                    className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                  >
+                    {copied === 'gpt-prompt' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        {/* Custom GPT with Actions (Auto-Sync) */}
+        <details className="bg-bg-panel border border-border rounded-xl">
+          <summary className="font-semibold text-brand-black p-5 cursor-pointer select-none">
+            Custom GPT with Actions (Auto-Sync)
+          </summary>
+          <div className="px-5 pb-5 space-y-5">
+            <p className="text-sm text-text-muted">Use Actions to have your Custom GPT automatically fetch the latest brain context via API — no need to re-download and re-upload the context file after every change.</p>
+
+            {/* Step 1: API Key */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 1: Generate an API Key</h3>
+              <p className="text-sm text-text-muted">Generate an API key for this brain. You'll need it to authenticate your Custom GPT.</p>
+
+              {generatedKey ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <code className="bg-white px-3 py-2 rounded text-xs text-text-primary flex-1 font-mono overflow-x-auto border border-border">{generatedKey}</code>
+                    <button onClick={() => copy(generatedKey, 'apikey')} className="text-brand-orange hover:text-brand-orange-hover flex-shrink-0 p-1" title="Copy">
+                      {copied === 'apikey' ? <Check size={16} /> : <Copy size={16} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-amber-600 font-medium">Copy this key now — it won't be shown again.</p>
+                </div>
+              ) : brainHasKey ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Key size={14} className="text-text-muted" />
+                    <code className="text-sm text-text-muted font-mono">{keys[0].key_prefix}...</code>
+                    <span className="text-xs text-text-muted">— API key exists for this brain</span>
+                  </div>
+                  <p className="text-xs text-text-muted">
+                    Need a new key? <Link to="/keys" className="text-brand-orange hover:text-brand-orange-hover">Manage keys</Link> or generate another below.
+                  </p>
+                  <button onClick={handleGenerateKey} disabled={generating} className="text-xs text-brand-orange hover:text-brand-orange-hover border border-brand-orange/30 rounded-lg px-3 py-1.5 disabled:opacity-50">
+                    {generating ? 'Generating...' : 'Generate New Key'}
+                  </button>
+                </div>
+              ) : (
+                <button onClick={handleGenerateKey} disabled={generating || !selectedBrain} className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">
+                  {generating ? 'Generating...' : 'Generate API Key'}
+                </button>
+              )}
+            </div>
+
+            {/* Step 2: Create GPT with Actions */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 2: Create Your Custom GPT</h3>
+              <p className="text-sm text-text-muted">Create a Custom GPT and configure it with an Action to fetch your brain context.</p>
+              <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
+                <li>Open <strong>chatgpt.com</strong>, click your profile icon and select <strong>My GPTs</strong></li>
+                <li>Click <strong>Create a GPT</strong>, then go to the <strong>Configure</strong> tab</li>
+                <li>Paste the <strong>Instructions</strong> from Step 4 below into the Instructions field</li>
+                <li>Scroll down to <strong>Actions</strong> and click <strong>Create new action</strong></li>
+                <li>Paste the <strong>Action Schema</strong> from Step 3 into the Schema field</li>
+                <li>Click the <strong>Authentication gear icon</strong> and set:
+                  <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                    <li>Authentication Type: <strong>API Key</strong></li>
+                    <li>Auth Type: <strong>Custom</strong></li>
+                    <li>Custom Header Name: <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">X-API-Key</code></li>
+                    <li>Paste your API key from Step 1 and click <strong>Save</strong></li>
+                  </ul>
+                </li>
+                <li>Click <strong>Save</strong>, choose your visibility, and click <strong>Confirm</strong></li>
+              </ol>
+            </div>
+
+            {/* Step 3: Action Schema */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 3: Action Schema</h3>
+              <p className="text-sm text-text-muted">Paste this into your Custom GPT's Action Schema field:</p>
+              <div className="relative">
+                <pre className="bg-white rounded-lg p-4 text-xs text-text-primary font-mono overflow-x-auto max-h-80 border border-border">{actionSchema}</pre>
                 <button
-                  onClick={() => copy(generatedKey, 'apikey')}
-                  className="text-brand-orange hover:text-brand-orange-hover flex-shrink-0 p-1"
-                  title="Copy"
+                  onClick={() => copy(actionSchema, 'schema')}
+                  className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
                 >
-                  {copied === 'apikey' ? <Check size={16} /> : <Copy size={16} />}
+                  {copied === 'schema' ? 'Copied!' : 'Copy'}
                 </button>
               </div>
-              <p className="text-xs text-amber-600 font-medium">Copy this key now — it won't be shown again.</p>
             </div>
-          ) : brainHasKey ? (
+
+            {/* Step 4: System Prompt */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Key size={14} className="text-text-muted" />
-                <code className="text-sm text-text-muted font-mono">{keys[0].key_prefix}...</code>
-                <span className="text-xs text-text-muted">— API key exists for this brain</span>
+              <h3 className="text-sm font-medium text-text-primary">Step 4: Instructions</h3>
+              <p className="text-sm text-text-muted">Paste this into your Custom GPT's Instructions field:</p>
+              <div className="relative">
+                <pre className="bg-white rounded-lg px-4 py-3 text-sm text-text-primary whitespace-pre-wrap border border-border">{systemPrompt}</pre>
+                <button
+                  onClick={() => copy(systemPrompt, 'prompt')}
+                  className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                >
+                  {copied === 'prompt' ? 'Copied!' : 'Copy'}
+                </button>
               </div>
-              <p className="text-xs text-text-muted">
-                Need a new key? <Link to="/keys" className="text-brand-orange hover:text-brand-orange-hover">Manage keys</Link> or generate another below.
-              </p>
-              <button
-                onClick={handleGenerateKey}
-                disabled={generating}
-                className="text-xs text-brand-orange hover:text-brand-orange-hover border border-brand-orange/30 rounded-lg px-3 py-1.5 disabled:opacity-50"
-              >
-                {generating ? 'Generating...' : 'Generate New Key'}
-              </button>
             </div>
-          ) : (
-            <button
-              onClick={handleGenerateKey}
-              disabled={generating || !selectedBrain}
-              className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
-            >
-              {generating ? 'Generating...' : 'Generate API Key'}
-            </button>
-          )}
-        </div>
-
-        {/* Step 2: Action Schema */}
-        <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-2">Step 2: Custom GPT Action Schema</h3>
-          <p className="text-sm text-text-muted mb-3">Paste this into your Custom GPT's Actions configuration (Schema tab).</p>
-          <div className="relative">
-            <pre className="bg-white rounded-lg p-4 text-xs text-text-primary font-mono overflow-x-auto max-h-80 border border-border">{actionSchema}</pre>
-            <button
-              onClick={() => copy(actionSchema, 'schema')}
-              className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
-            >
-              {copied === 'schema' ? 'Copied!' : 'Copy'}
-            </button>
           </div>
-        </div>
-
-        {/* Step 3: Authentication Setup */}
-        <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-2">Step 3: Authentication Setup</h3>
-          <p className="text-sm text-text-muted mb-3">Configure the API key authentication in your Custom GPT.</p>
-          <ol className="text-sm text-text-primary space-y-2 list-decimal list-inside">
-            <li>In your Custom GPT's Actions, click the <strong>Authentication gear icon</strong></li>
-            <li>Set Authentication Type to <strong>API Key</strong></li>
-            <li>Set Auth Type to <strong>Custom</strong></li>
-            <li>Set Custom Header Name to <code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">X-API-Key</code></li>
-            <li>Paste your API key from Step 1 into the API Key field</li>
-            <li>Click <strong>Save</strong></li>
-          </ol>
-        </div>
-
-        {/* Step 4: System Prompt */}
-        <div className="bg-bg-panel border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-brand-black mb-2">Step 4: System Prompt Instructions</h3>
-          <p className="text-sm text-text-muted mb-3">Add this to your Custom GPT's system instructions:</p>
-          <div className="relative">
-            <pre className="bg-white rounded-lg p-4 text-sm text-text-primary whitespace-pre-wrap border border-border">{systemPrompt}</pre>
-            <button
-              onClick={() => copy(systemPrompt, 'prompt')}
-              className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
-            >
-              {copied === 'prompt' ? 'Copied!' : 'Copy'}
-            </button>
-          </div>
-        </div>
+        </details>
 
         </>)}
 
@@ -305,6 +418,31 @@ export default function Integration() {
             {downloading ? 'Downloading...' : 'Download Context File'}
           </button>
           <p className="text-xs text-amber-600 font-medium mt-3">Re-download this file after making changes to your brain.</p>
+
+          {brainImages.length > 0 && (
+            <div className="mt-4 border-t border-border pt-4">
+              <div className="flex items-start gap-2 mb-3">
+                <ImageIcon size={16} className="text-text-muted mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-text-muted">
+                  Context files are text-only and don't include images directly. To use your reference images, download them below and upload them alongside your context file in your Gem's <strong>Knowledge</strong> section.
+                </p>
+              </div>
+              <div className="space-y-2">
+                {brainImages.map((img, i) => (
+                  <a
+                    key={img.id || i}
+                    href={img.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-brand-orange hover:text-brand-orange-hover"
+                  >
+                    <Download size={14} />
+                    {img.description || `Image ${i + 1}`}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Step 2: Create Gem */}
@@ -393,6 +531,25 @@ export default function Integration() {
                 {downloading ? 'Downloading...' : 'Download Context File'}
               </button>
               <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
+
+              {brainImages.length > 0 && (
+                <div className="mt-2 border-t border-border pt-3">
+                  <div className="flex items-start gap-2 mb-3">
+                    <ImageIcon size={16} className="text-text-muted mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-text-muted">
+                      Context files are text-only and don't include images directly. To use your reference images, download them below and upload them to your Project's <strong>Project knowledge</strong> section.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {brainImages.map((img, i) => (
+                      <a key={img.id || i} href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-brand-orange hover:text-brand-orange-hover">
+                        <Download size={14} />
+                        {img.description || `Image ${i + 1}`}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Create Project */}
@@ -603,6 +760,25 @@ print(message.content[0].text)`}</pre>
                 {downloading ? 'Downloading...' : 'Download Context File'}
               </button>
               <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
+
+              {brainImages.length > 0 && (
+                <div className="mt-2 border-t border-border pt-3">
+                  <div className="flex items-start gap-2 mb-3">
+                    <ImageIcon size={16} className="text-text-muted mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-text-muted">
+                      Context files are text-only and don't include images directly. To use your reference images, download them below and upload them as files in your Space's <strong>Sources</strong> section.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {brainImages.map((img, i) => (
+                      <a key={img.id || i} href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-brand-orange hover:text-brand-orange-hover">
+                        <Download size={14} />
+                        {img.description || `Image ${i + 1}`}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Create Space */}
@@ -680,6 +856,25 @@ print(message.content[0].text)`}</pre>
                 {downloading ? 'Downloading...' : 'Download Context File'}
               </button>
               <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
+
+              {brainImages.length > 0 && (
+                <div className="mt-2 border-t border-border pt-3">
+                  <div className="flex items-start gap-2 mb-3">
+                    <ImageIcon size={16} className="text-text-muted mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-text-muted">
+                      Context files are text-only and don't include images directly. To use your reference images, download them below and upload them to your Agent's <strong>Knowledge</strong> section.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {brainImages.map((img, i) => (
+                      <a key={img.id || i} href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-brand-orange hover:text-brand-orange-hover">
+                        <Download size={14} />
+                        {img.description || `Image ${i + 1}`}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Create Agent */}
@@ -757,6 +952,25 @@ print(message.content[0].text)`}</pre>
                 {downloading ? 'Downloading...' : 'Download Context File'}
               </button>
               <p className="text-xs text-amber-600 font-medium">Re-download this file after making changes to your brain.</p>
+
+              {brainImages.length > 0 && (
+                <div className="mt-2 border-t border-border pt-3">
+                  <div className="flex items-start gap-2 mb-3">
+                    <ImageIcon size={16} className="text-text-muted mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-text-muted">
+                      Context files are text-only and don't include images directly. To use your reference images, download them below and attach them to your Grok conversation.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {brainImages.map((img, i) => (
+                      <a key={img.id || i} href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-brand-orange hover:text-brand-orange-hover">
+                        <Download size={14} />
+                        {img.description || `Image ${i + 1}`}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Set Custom Instructions */}
