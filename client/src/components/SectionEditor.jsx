@@ -134,7 +134,17 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel, bra
           placeholder={CONTENT_PLACEHOLDERS[type]}
           maxLength={2000}
         />
-        <p className="text-sm text-text-muted mt-1 text-right">{content.length}/2000</p>
+        <div className="flex items-center justify-between mt-1">
+          <div className="text-xs">
+            {content.length > 1500 && (
+              <p className="text-amber-600">Consider splitting into two focused sections for better LLM comprehension.</p>
+            )}
+            {content.length > 0 && content.length < 50 && (
+              <p className="text-amber-600">Very short — consider adding more detail or merging with a related section.</p>
+            )}
+          </div>
+          <p className="text-sm text-text-muted text-right">{content.length}/2000</p>
+        </div>
       </div>
 
       {canSuggest ? (

@@ -737,6 +737,109 @@ print(message.content[0].text)`}</pre>
           </div>
         </details>
 
+        {/* Claude with MCP (Auto-Sync) */}
+        <details className="bg-bg-panel border border-border rounded-xl">
+          <summary className="font-semibold text-brand-black p-5 cursor-pointer select-none">
+            Claude with MCP (Auto-Sync)
+          </summary>
+          <div className="px-5 pb-5 space-y-5">
+            <p className="text-sm text-text-muted">MCP (Model Context Protocol) lets Claude Desktop and Claude Code pull your brain context automatically — no copy-pasting or re-downloading needed. When you update your brain in Brainbox, Claude gets the latest version.</p>
+
+            {/* Step 1: Generate API Key */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-text-primary">Step 1: Generate an API Key</h3>
+              <p className="text-sm text-text-muted">You need a Brainbox API key so the MCP server can fetch your brain context.</p>
+              {generatedKey ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <code className="bg-white px-3 py-2 rounded text-xs text-text-primary flex-1 font-mono overflow-x-auto border border-border">{generatedKey}</code>
+                    <button onClick={() => copy(generatedKey, 'mcp-apikey')} className="text-brand-orange hover:text-brand-orange-hover flex-shrink-0 p-1" title="Copy">
+                      {copied === 'mcp-apikey' ? <Check size={16} /> : <Copy size={16} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-amber-600 font-medium">Copy this key now — it won't be shown again.</p>
+                </div>
+              ) : brainHasKey ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Key size={14} className="text-text-muted" />
+                    <code className="text-sm text-text-muted font-mono">{keys[0].key_prefix}...</code>
+                    <span className="text-xs text-text-muted">— API key exists for this brain</span>
+                  </div>
+                  <button onClick={handleGenerateKey} disabled={generating} className="text-xs text-brand-orange hover:text-brand-orange-hover border border-brand-orange/30 rounded-lg px-3 py-1.5 disabled:opacity-50">
+                    {generating ? 'Generating...' : 'Generate New Key'}
+                  </button>
+                </div>
+              ) : (
+                <button onClick={handleGenerateKey} disabled={generating || !selectedBrain} className="bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50">
+                  {generating ? 'Generating...' : 'Generate API Key'}
+                </button>
+              )}
+            </div>
+
+            {/* Step 2: Install */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 2: Install Node.js</h3>
+              <p className="text-sm text-text-muted">The MCP server requires Node.js 18 or later. If you don't have it, download it from <strong>nodejs.org</strong>.</p>
+            </div>
+
+            {/* Step 3: Configure Claude */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-text-primary">Step 3: Configure Claude Desktop</h3>
+              <p className="text-sm text-text-muted">Open your Claude Desktop config file and add the Brainbox MCP server:</p>
+
+              <div className="space-y-1">
+                <p className="text-xs text-text-muted">Config file location:</p>
+                <ul className="text-xs text-text-muted space-y-0.5">
+                  <li><strong>macOS:</strong> <code className="bg-white px-1.5 py-0.5 rounded border border-border font-mono">~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+                  <li><strong>Windows:</strong> <code className="bg-white px-1.5 py-0.5 rounded border border-border font-mono">%APPDATA%\Claude\claude_desktop_config.json</code></li>
+                </ul>
+              </div>
+
+              <div className="relative">
+                <pre className="bg-white rounded-lg p-4 text-xs text-text-primary font-mono overflow-x-auto border border-border whitespace-pre">{JSON.stringify({
+  mcpServers: {
+    brainbox: {
+      command: "npx",
+      args: ["-y", "brainbox-mcp"],
+      env: {
+        BRAINBOX_API_KEY: generatedKey || "your_api_key_here",
+        BRAINBOX_BRAIN_ID: selectedBrain || "your_brain_id_here"
+      }
+    }
+  }
+}, null, 2)}</pre>
+                <button
+                  onClick={() => copy(JSON.stringify({
+                    mcpServers: {
+                      brainbox: {
+                        command: "npx",
+                        args: ["-y", "brainbox-mcp"],
+                        env: {
+                          BRAINBOX_API_KEY: generatedKey || "your_api_key_here",
+                          BRAINBOX_BRAIN_ID: selectedBrain || "your_brain_id_here"
+                        }
+                      }
+                    }
+                  }, null, 2), 'mcp-config')}
+                  className="absolute top-2 right-2 text-xs text-brand-orange hover:text-brand-orange-hover px-3 py-1 border border-brand-orange/30 rounded-lg bg-white"
+                >
+                  {copied === 'mcp-config' ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+
+              <p className="text-xs text-text-muted">If you already have other MCP servers configured, add the <code className="bg-white px-1 py-0.5 rounded border border-border font-mono">brainbox</code> entry inside your existing <code className="bg-white px-1 py-0.5 rounded border border-border font-mono">mcpServers</code> object.</p>
+            </div>
+
+            {/* Step 4: Restart */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-text-primary">Step 4: Restart Claude</h3>
+              <p className="text-sm text-text-muted">Quit Claude Desktop completely (<strong>Cmd+Q</strong> on macOS, <strong>Alt+F4</strong> on Windows) and reopen it. You should see an MCP icon in the chat input — click it to verify the Brainbox resource is available.</p>
+              <p className="text-sm text-text-muted">Claude will now have access to your brain context in every conversation. When you update your brain in Brainbox, Claude automatically gets the latest version next time it reads the resource.</p>
+            </div>
+          </div>
+        </details>
+
         </>)}
 
         {platform === 'perplexity' && (<>

@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Trash2, ScanSearch, PanelLeft, Eye, X, BookOpen, Layers, Plug } from 'lucide-react';
+import { Trash2, ScanSearch, PanelLeft, Eye, X, BookOpen, Layers, Plug, FileText } from 'lucide-react';
 import SectionList from '../components/SectionList';
 import SectionEditor from '../components/SectionEditor';
 import ContextPreview from '../components/ContextPreview';
 import BrainOverview from '../components/BrainOverview';
 import FileUploader from '../components/FileUploader';
 import ImageEditor from '../components/ImageEditor';
+import BrainContextView from '../components/BrainContextView';
 import Header from '../components/Header';
 import useMediaQuery from '../hooks/useMediaQuery';
 
@@ -64,13 +65,15 @@ export default function BrainEditor() {
     }
   }
 
+  const TYPE_DEFAULT_PRIORITY = { rule: 25, memory: 50, behaviour: 50, guardrail: 25, skill: 75 };
+
   function handleAddSection(type) {
     setSelected({
       _draft: true,
       type,
       title: '',
       content: '',
-      priority: 50,
+      priority: TYPE_DEFAULT_PRIORITY[type] ?? 50,
     });
     setSidebarOpen(false);
   }
@@ -233,14 +236,21 @@ export default function BrainEditor() {
             </button>
           </div>
 
-          {/* Overview link */}
-          <div className="px-3 pt-3">
+          {/* Overview + Context links */}
+          <div className="px-3 pt-3 space-y-1">
             <button
               onClick={() => { setSelected(null); setSidebarOpen(false); }}
-              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-brand-orange hover:bg-bg-panel transition-colors font-medium"
+              className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors font-medium ${!selected ? 'text-brand-orange bg-bg-panel' : 'text-brand-orange hover:bg-bg-panel'}`}
             >
               <ScanSearch size={14} />
               Brain Scan
+            </button>
+            <button
+              onClick={() => { setSelected({ _context: true }); setSidebarOpen(false); }}
+              className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors font-medium ${selected?._context ? 'text-brand-orange bg-bg-panel' : 'text-brand-orange hover:bg-bg-panel'}`}
+            >
+              <FileText size={14} />
+              Brain Context
             </button>
           </div>
 
@@ -252,7 +262,15 @@ export default function BrainEditor() {
 
         {/* Centre: Section editor or Overview */}
         <div className="flex-1 overflow-y-auto">
-          {selected?._upload ? (
+          {selected?._context ? (
+            <BrainContextView
+              sections={sections}
+              images={images}
+              onEdit={setSelected}
+              onDelete={handleDelete}
+              onDeleteImage={handleDeleteImage}
+            />
+          ) : selected?._upload ? (
             <FileUploader
               brainId={id}
               onSave={handleSaveSection}
@@ -326,7 +344,7 @@ export default function BrainEditor() {
         {/* Right: Context preview — desktop only */}
         {showPreview && !isMobile && (
           <div className="w-80 border-l border-border overflow-y-auto flex-shrink-0 bg-bg-panel">
-            <ContextPreview sections={sections} images={images} onDelete={handleDelete} onDeleteImage={handleDeleteImage} onEdit={setSelected} />
+            <ContextPreview sections={sections} images={images} />
           </div>
         )}
       </div>
@@ -341,13 +359,7 @@ export default function BrainEditor() {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <ContextPreview
-              sections={sections}
-              images={images}
-              onDelete={handleDelete}
-              onDeleteImage={handleDeleteImage}
-              onEdit={(item) => { setSelected(item); setShowPreview(false); }}
-            />
+            <ContextPreview sections={sections} images={images} />
           </div>
         </div>
       )}

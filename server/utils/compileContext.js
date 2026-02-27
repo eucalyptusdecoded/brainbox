@@ -21,19 +21,33 @@ function compileContext(sections, filterTypes = null, images = []) {
     if (items.length > 0) grouped[type] = items;
   });
 
-  const parts = Object.entries(grouped)
-    .map(([type, items]) => {
-      const label = SECTION_LABELS[type];
-      const content = items
-        .map(i => `[${i.title}]\n${i.content}`)
-        .join('\n\n');
-      return `## ${label}\n\n${content}`;
-    });
+  const parts = [];
+
+  // Preamble — positions critical framing at the start where LLMs pay most attention
+  parts.push('You are an AI assistant. Follow the instructions, rules, and context below exactly.');
+
+  Object.entries(grouped).forEach(([type, items]) => {
+    const label = SECTION_LABELS[type];
+    const content = items
+      .map(i => `[${i.title}]\n${i.content}`)
+      .join('\n\n');
+    parts.push(`## ${label}\n\n${content}`);
+  });
 
   if (images.length > 0) {
     const sorted = [...images].sort((a, b) => a.priority - b.priority);
     const imageContent = sorted.map(img => `${img.description}: ${img.url}`).join('\n');
     parts.push(`## REFERENCE IMAGES\n\n${imageContent}`);
+  }
+
+  // Closing reinforcement — exploits recency bias so LLMs don't drift
+  const hasRules = !!grouped.rule;
+  const hasGuardrails = !!grouped.guardrail;
+  if (hasRules || hasGuardrails) {
+    const reminders = [];
+    if (hasRules) reminders.push('RULES');
+    if (hasGuardrails) reminders.push('GUARDRAILS');
+    parts.push(`---\nRemember: Follow all ${reminders.join(' and ')} above without exception.`);
   }
 
   return parts.join('\n\n');

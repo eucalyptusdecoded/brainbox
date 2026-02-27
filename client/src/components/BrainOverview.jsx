@@ -1,4 +1,6 @@
-import { Upload, ImageOff } from 'lucide-react';
+import { useState } from 'react';
+import { Upload, ImageOff, ChevronDown, ChevronUp } from 'lucide-react';
+import { calculateHealth } from './BrainHealth';
 
 const TYPES = [
   { key: 'rule', label: 'Rule', plural: 'Rules' },
@@ -64,7 +66,6 @@ function BrainDiagram({ countByType }) {
 
   return (
     <svg viewBox="0 0 400 400" className="w-full max-w-[420px]" aria-hidden="true">
-      {/* Faint pentagon outline */}
       <polygon
         points={polygonPoints}
         fill="rgba(255,122,0,0.03)"
@@ -72,22 +73,18 @@ function BrainDiagram({ countByType }) {
         strokeWidth="0.5"
         opacity="0.25"
       />
-
-      {/* Arms: background tracks + filled portions */}
       {nodes.map(n => {
         const armLen = R;
         const dashFill = armLen * n.pct;
         const dashGap = armLen - dashFill;
         return (
           <g key={n.key}>
-            {/* Track */}
             <line
               x1={CX} y1={CY} x2={n.x} y2={n.y}
               stroke="#E6E6E6"
               strokeWidth="6"
               strokeLinecap="round"
             />
-            {/* Fill */}
             <line
               x1={CX} y1={CY} x2={n.x} y2={n.y}
               stroke="#FF7A00"
@@ -99,8 +96,6 @@ function BrainDiagram({ countByType }) {
           </g>
         );
       })}
-
-      {/* Node circles */}
       {nodes.map(n => (
         <g key={`node-${n.key}`}>
           <circle
@@ -110,7 +105,6 @@ function BrainDiagram({ countByType }) {
             strokeWidth={n.count > 0 ? 2.5 : 1.5}
             style={{ transition: 'stroke 0.3s ease' }}
           />
-          {/* Count inside node */}
           <text
             x={n.x} y={n.y}
             textAnchor="middle"
@@ -122,7 +116,6 @@ function BrainDiagram({ countByType }) {
           >
             {n.count}/{TARGET}
           </text>
-          {/* Label below/above node */}
           <text
             x={n.x}
             y={n.y < CY - 20 ? n.y - NODE_R - 10 : n.y + NODE_R + 18}
@@ -136,8 +129,6 @@ function BrainDiagram({ countByType }) {
           </text>
         </g>
       ))}
-
-      {/* Central brain circle */}
       <circle
         cx={CX} cy={CY} r={36}
         fill="#FFFFFF"
@@ -163,10 +154,13 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
   const totalPct = Math.min((totalCount / TOTAL_TARGET) * 100, 100);
   const currentLevel = getBrainLevel(totalCount);
   const isEmpty = totalCount === 0;
+  const { score, tips, tokens } = calculateHealth(sections);
+  const [showTips, setShowTips] = useState(false);
+  const scoreColor = score >= 8 ? 'text-green-600' : score >= 5 ? 'text-brand-orange' : 'text-red-600';
 
   return (
-    <div className="p-6">
-      {/* Page title — click to edit */}
+    <div className="p-4 md:p-6 space-y-6">
+      {/* Header — brain name + description (click to edit) */}
       {editingName ? (
         <div className="flex items-start gap-4">
           <img src="/images/brainboxlogo.png" alt="" className="w-12 h-12 rounded-full object-cover bg-bg-panel flex-shrink-0" />
@@ -203,171 +197,198 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
         </button>
       )}
 
-      {/* 2-column grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 items-stretch">
-        {/* Left column */}
-        <div className="flex flex-col gap-6">
-          {/* Brain Capacity card (merged with per-type bars) */}
-          <div className="bg-bg-panel border border-border rounded-xl p-5">
-            <div className="flex items-center justify-between mb-1">
-              <h3 className="font-semibold text-brand-black">Brain Capacity</h3>
-              <span className="text-sm font-medium text-brand-orange">{currentLevel.label}</span>
-            </div>
-            <p className="text-xs text-text-muted mb-3">{totalCount}/{TOTAL_TARGET} neurons</p>
-            <div className="relative">
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-brand-orange rounded-full transition-all duration-500"
-                  style={{ width: `${totalPct}%` }}
-                />
+      {/* Brain Health card */}
+      {totalCount > 0 && (
+        <div className="bg-white border border-border rounded-xl p-5">
+          {/* Top row: score, title, level badge */}
+          <div className="flex items-center gap-4">
+            <div className={`text-3xl font-bold ${scoreColor}`}>{score}<span className="text-base font-normal text-text-muted">/10</span></div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-brand-black">Brain Health</p>
+                <span className="text-xs font-medium text-brand-orange bg-brand-orange/10 rounded px-2 py-0.5">{currentLevel.label}</span>
               </div>
-              {/* Level tick marks — hidden on mobile */}
-              <div className="relative mt-1.5 h-6 hidden md:block">
-                {LEVELS.map((level) => {
-                  const isActive = totalCount >= level.min;
-                  return (
-                    <div
-                      key={level.label}
-                      className="absolute flex flex-col items-center"
-                      style={{ left: `${level.pos}%`, transform: level.pos === 100 ? 'translateX(-100%)' : level.pos === 0 ? 'none' : 'translateX(-50%)' }}
-                    >
-                      <div className={`w-px h-2 ${isActive ? 'bg-brand-orange' : 'bg-gray-300'}`} />
-                      <span className={`text-[10px] mt-0.5 whitespace-nowrap ${isActive ? 'text-brand-orange font-medium' : 'text-text-muted'}`}>
-                        {level.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              <p className="text-xs text-text-muted mt-0.5">{totalCount}/{TOTAL_TARGET} neurons &middot; ~{(tokens || 0).toLocaleString()} tokens</p>
             </div>
-            {/* Per-type progress bars */}
-            <div className="mt-4">
-              {TYPES.map(t => {
-                const count = countByType[t.key];
-                const pct = Math.min((count / TARGET) * 100, 100);
+          </div>
+
+          {/* Capacity progress bar + level ticks */}
+          <div className="relative mt-4">
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-brand-orange rounded-full transition-all duration-500"
+                style={{ width: `${totalPct}%` }}
+              />
+            </div>
+            <div className="relative mt-1.5 h-5 hidden md:block">
+              {LEVELS.map((level) => {
+                const isActive = totalCount >= level.min;
                 return (
-                  <div key={t.key} className="mb-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-text-muted">{t.plural}</span>
-                      <span className="text-sm text-text-muted">{count}/{TARGET}</span>
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-brand-orange rounded-full transition-all duration-500"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-text-muted mt-0.5">{TYPE_DESCS[t.key]}</p>
+                  <div
+                    key={level.label}
+                    className="absolute flex flex-col items-center"
+                    style={{ left: `${level.pos}%`, transform: level.pos === 100 ? 'translateX(-100%)' : level.pos === 0 ? 'none' : 'translateX(-50%)' }}
+                  >
+                    <div className={`w-px h-1.5 ${isActive ? 'bg-brand-orange' : 'bg-gray-300'}`} />
+                    <span className={`text-[11px] mt-0.5 whitespace-nowrap ${isActive ? 'text-brand-orange font-medium' : 'text-text-muted'}`}>
+                      {level.label}
+                    </span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Brain Profile card */}
-          <div className="bg-bg-panel border border-border rounded-xl p-5">
-            {totalCount === 0 ? (
-              <>
-                <h3 className="font-semibold text-brand-black mb-3">Brain Profile</h3>
-                <p className="text-sm text-text-muted">Add sections to reveal your brain's profile.</p>
-              </>
-            ) : (() => {
-              const traitData = TYPES
-                .map(t => ({
-                  key: t.key,
-                  count: countByType[t.key] || 0,
-                  pct: Math.round(((countByType[t.key] || 0) / totalCount) * 100),
-                  ...TRAITS[t.key],
-                }))
-                .filter(t => t.count > 0)
-                .sort((a, b) => b.pct - a.pct);
-
-              const summary = traitData.length >= 2
-                ? `${traitData[0].label} & ${traitData[1].label}`
-                : traitData[0]?.label || '';
-
-              return (
-                <>
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-brand-black">Brain Profile</h3>
-                    <span className="text-sm font-medium text-brand-orange">{summary}</span>
-                  </div>
-                  <p className="text-xs text-text-muted mb-3">Auto-derived from section distribution</p>
-                  <div>
-                    {traitData.map(t => (
-                      <div key={t.key} className="mb-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-text-muted">{t.label}</span>
-                          <span className="text-sm text-text-muted">{t.pct}%</span>
-                        </div>
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-brand-orange rounded-full transition-all duration-500"
-                            style={{ width: `${t.pct}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-text-muted mt-0.5">{t.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              );
-            })()}
-          </div>
+          {/* Expandable tips */}
+          <button
+            onClick={() => setShowTips(!showTips)}
+            className="mt-4 w-full flex items-center justify-between border-t border-border pt-3"
+          >
+            <span className="text-xs font-medium text-text-muted">{tips.length} tip{tips.length !== 1 ? 's' : ''}</span>
+            {showTips ? <ChevronUp size={14} className="text-text-muted" /> : <ChevronDown size={14} className="text-text-muted" />}
+          </button>
+          {showTips && (
+            <ul className="mt-2 space-y-1.5">
+              {tips.map((tip, i) => (
+                <li key={i} className="text-xs text-text-primary flex gap-2 leading-relaxed">
+                  <span className="text-brand-orange flex-shrink-0">&bull;</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+      )}
 
-        {/* Right column — Mind Map + Imaging */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col items-center">
-            <h3 className="font-semibold text-brand-black mb-3 self-start">Mind Map</h3>
-            <BrainDiagram countByType={countByType} />
-          </div>
-
-          {/* Imaging card */}
-          <div className="bg-bg-panel border border-border rounded-xl p-5 flex-1">
-            <h3 className="font-semibold text-brand-black mb-3">
-              Imaging <span className="text-sm font-normal text-text-muted">({images.length}/10)</span>
-            </h3>
-            {(() => {
-              const sortedImages = [...images].sort((a, b) => a.priority - b.priority);
+      {/* 2-column grid: Brain Capacity + Brain Profile */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Brain Capacity */}
+        <div className="bg-white border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-brand-black mb-4">Brain Capacity</h3>
+          <div className="space-y-3">
+            {TYPES.map(t => {
+              const count = countByType[t.key];
+              const pct = Math.min((count / TARGET) * 100, 100);
               return (
-                <div className="grid grid-cols-5 gap-2">
-                  {Array.from({ length: 10 }).map((_, idx) => {
-                    const img = sortedImages[idx];
-                    return img ? (
-                      <div key={img.id}>
-                        <div className="aspect-square rounded-lg border border-border overflow-hidden bg-white">
-                          <img
-                            src={img.url}
-                            alt={img.description}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                          <div className="hidden items-center justify-center w-full h-full text-text-muted">
-                            <ImageOff size={28} />
-                          </div>
-                        </div>
-                        <p className="text-xs text-text-muted mt-1 line-clamp-1">{img.description}</p>
-                      </div>
-                    ) : (
-                      <div key={`empty-${idx}`}>
-                        <div className="aspect-square rounded-lg border-2 border-dashed border-border" />
-                      </div>
-                    );
-                  })}
+                <div key={t.key}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-text-primary font-medium">{t.plural}</span>
+                    <span className="text-xs text-text-muted">{count}/{TARGET}</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-brand-orange rounded-full transition-all duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-text-muted mt-0.5">{TYPE_DESCS[t.key]}</p>
                 </div>
               );
-            })()}
+            })}
           </div>
         </div>
+
+        {/* Brain Profile */}
+        <div className="bg-white border border-border rounded-xl p-5">
+          {totalCount === 0 ? (
+            <>
+              <h3 className="text-sm font-semibold text-brand-black mb-3">Brain Profile</h3>
+              <p className="text-sm text-text-muted">Add sections to reveal your brain's profile.</p>
+            </>
+          ) : (() => {
+            const traitData = TYPES
+              .map(t => ({
+                key: t.key,
+                count: countByType[t.key] || 0,
+                pct: Math.round(((countByType[t.key] || 0) / totalCount) * 100),
+                ...TRAITS[t.key],
+              }))
+              .filter(t => t.count > 0)
+              .sort((a, b) => b.pct - a.pct);
+
+            const summary = traitData.length >= 2
+              ? `${traitData[0].label} & ${traitData[1].label}`
+              : traitData[0]?.label || '';
+
+            return (
+              <>
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-sm font-semibold text-brand-black">Brain Profile</h3>
+                  <span className="text-xs font-medium text-brand-orange bg-brand-orange/10 rounded px-2 py-0.5">{summary}</span>
+                </div>
+                <p className="text-xs text-text-muted mb-4">Auto-derived from section distribution</p>
+                <div className="space-y-3">
+                  {traitData.map(t => (
+                    <div key={t.key}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-text-primary font-medium">{t.label}</span>
+                        <span className="text-xs text-text-muted">{t.pct}%</span>
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-brand-orange rounded-full transition-all duration-500"
+                          style={{ width: `${t.pct}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-text-muted mt-0.5">{t.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      </div>
+
+      {/* Mind Map — full width */}
+      <div className="bg-white border border-border rounded-xl p-5 flex flex-col items-center">
+        <h3 className="text-sm font-semibold text-brand-black mb-3 self-start">Mind Map</h3>
+        <BrainDiagram countByType={countByType} />
+      </div>
+
+      {/* Imaging card */}
+      <div className="bg-white border border-border rounded-xl p-5">
+        <h3 className="text-sm font-semibold text-brand-black mb-3">
+          Imaging <span className="text-xs font-normal text-text-muted">({images.length}/10)</span>
+        </h3>
+        {(() => {
+          const sortedImages = [...images].sort((a, b) => a.priority - b.priority);
+          return (
+            <div className="grid grid-cols-5 gap-2">
+              {Array.from({ length: 10 }).map((_, idx) => {
+                const img = sortedImages[idx];
+                return img ? (
+                  <div key={img.id}>
+                    <div className="aspect-square rounded-lg border border-border overflow-hidden bg-bg-panel">
+                      <img
+                        src={img.url}
+                        alt={img.description}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="hidden items-center justify-center w-full h-full text-text-muted">
+                        <ImageOff size={28} />
+                      </div>
+                    </div>
+                    <p className="text-xs text-text-muted mt-1 line-clamp-1">{img.description}</p>
+                  </div>
+                ) : (
+                  <div key={`empty-${idx}`}>
+                    <div className="aspect-square rounded-lg border-2 border-dashed border-border" />
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Empty state CTA */}
       {isEmpty && (
-        <div className="border border-dashed border-border rounded-xl p-6 text-center mt-6">
+        <div className="border border-dashed border-border rounded-xl p-6 text-center">
           <p className="text-text-muted text-sm mb-1">Your brain is empty.</p>
           <p className="text-text-muted text-sm mb-4">Add your first neuron to get started.</p>
           <div className="flex flex-wrap gap-2 justify-center">

@@ -1,0 +1,24 @@
+{
+  "name": "brainbox-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Brainbox — connect your AI brain context to Claude Desktop and Claude Code",
+  "type": "module",
+  "bin": {
+    "brainbox-mcp": "./index.js"
+  },
+  "main": "index.js",
+  "keywords": [
+    "mcp",
+    "brainbox",
+    "claude",
+    "ai",
+    "context"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
