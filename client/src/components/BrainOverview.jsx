@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, ImageOff, ChevronDown, ChevronUp } from 'lucide-react';
+import { Upload, ImageOff, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { calculateHealth } from './BrainHealth';
 
 const TYPES = [
@@ -29,20 +29,6 @@ const TRAITS = {
   skill:     { label: 'Procedural', desc: 'Workflow and process oriented' },
 };
 
-const LEVELS = [
-  { min: 0, label: 'Nascent', pos: 0 },
-  { min: 11, label: 'Developing', pos: 22 },
-  { min: 26, label: 'Sharp', pos: 52 },
-  { min: 41, label: 'Brilliant', pos: 82 },
-  { min: 50, label: 'Genius', pos: 100 },
-];
-
-function getBrainLevel(count) {
-  for (let i = LEVELS.length - 1; i >= 0; i--) {
-    if (count >= LEVELS[i].min) return LEVELS[i];
-  }
-  return LEVELS[0];
-}
 const CX = 200;
 const CY = 200;
 const R = 140;
@@ -151,10 +137,8 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
   });
 
   const totalCount = sections.length;
-  const totalPct = Math.min((totalCount / TOTAL_TARGET) * 100, 100);
-  const currentLevel = getBrainLevel(totalCount);
   const isEmpty = totalCount === 0;
-  const { score, tips, tokens } = calculateHealth(sections);
+  const { score, tips, tokens, criteria } = calculateHealth(sections);
   const [showTips, setShowTips] = useState(false);
   const scoreColor = score >= 8 ? 'text-green-600' : score >= 5 ? 'text-brand-orange' : 'text-red-600';
 
@@ -200,44 +184,92 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
       {/* Brain Health card */}
       {totalCount > 0 && (
         <div className="bg-white border border-border rounded-xl p-5">
-          {/* Top row: score, title, level badge */}
+          {/* Top row: score + title + metric badges */}
           <div className="flex items-center gap-4">
             <div className={`text-3xl font-bold ${scoreColor}`}>{score}<span className="text-base font-normal text-text-muted">/10</span></div>
             <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-brand-black">Brain Health</p>
-                <span className="text-xs font-medium text-brand-orange bg-brand-orange/10 rounded px-2 py-0.5">{currentLevel.label}</span>
+              <p className="text-sm font-semibold text-brand-black">Brain Health</p>
+              <div className="flex items-center gap-2 mt-1">
+                {/* Neurons badge with tooltip */}
+                <div className="relative group inline-flex">
+                  <span className="text-xs font-medium text-text-muted bg-gray-100 rounded px-2 py-0.5 cursor-help">
+                    {totalCount}/{TOTAL_TARGET} neurons
+                  </span>
+                  <div className="absolute top-full left-0 mt-1.5 hidden group-hover:block w-72 bg-brand-black text-white text-xs rounded-xl px-4 py-3 shadow-lg z-10 space-y-3">
+                    <div>
+                      <p className="font-semibold text-sm mb-1">What are neurons?</p>
+                      <p className="text-white/70 leading-relaxed">Each neuron is a single piece of context in your brain. You can have up to {TOTAL_TARGET} neurons — {TARGET} per type (Rules, Memories, Behaviours, Guardrails, Skills).</p>
+                    </div>
+                    <div className="border-t border-white/10 pt-3">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-white/90 font-medium">Capacity</span>
+                        <span className="text-white/60">{totalCount}/{TOTAL_TARGET}</span>
+                      </div>
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-brand-orange rounded-full" style={{ width: `${Math.min((totalCount / TOTAL_TARGET) * 100, 100)}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Tokens badge with tooltip */}
+                {(() => {
+                  const tokenColor = tokens < 5000 ? 'text-green-600 bg-green-50'
+                    : tokens < 15000 ? 'text-amber-600 bg-amber-50'
+                    : 'text-red-600 bg-red-50';
+                  return (
+                    <div className="relative group inline-flex">
+                      <span className={`text-xs font-medium rounded px-2 py-0.5 cursor-help ${tokenColor}`}>
+                        ~{(tokens || 0).toLocaleString()} tokens
+                      </span>
+                      <div className="absolute top-full left-0 mt-1.5 hidden group-hover:block w-72 bg-brand-black text-white text-xs rounded-xl px-4 py-3 shadow-lg z-10 space-y-3">
+                        <div>
+                          <p className="font-semibold text-sm mb-1">What are tokens?</p>
+                          <p className="text-white/70 leading-relaxed">Tokens measure how much of the AI's context window your brain uses. Fewer tokens = stronger influence on output.</p>
+                        </div>
+                        <div className="border-t border-white/10 pt-3 space-y-1.5">
+                          <p className="font-medium text-white/90">Thresholds</p>
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span><span className="text-white/80">Under 5,000 — Optimal</span></div>
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></span><span className="text-white/80">5,000–15,000 — Good</span></div>
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0"></span><span className="text-white/80">Over 15,000 — Consider trimming</span></div>
+                        </div>
+                        <div className="border-t border-white/10 pt-3">
+                          <p className="text-white/60 leading-relaxed">To reduce tokens, shorten or deactivate neurons with lower priority.</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
-              <p className="text-xs text-text-muted mt-0.5">{totalCount}/{TOTAL_TARGET} neurons &middot; ~{(tokens || 0).toLocaleString()} tokens</p>
             </div>
           </div>
 
-          {/* Capacity progress bar + level ticks */}
-          <div className="relative mt-4">
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-brand-orange rounded-full transition-all duration-500"
-                style={{ width: `${totalPct}%` }}
-              />
-            </div>
-            <div className="relative mt-1.5 h-5 hidden md:block">
-              {LEVELS.map((level) => {
-                const isActive = totalCount >= level.min;
-                return (
-                  <div
-                    key={level.label}
-                    className="absolute flex flex-col items-center"
-                    style={{ left: `${level.pos}%`, transform: level.pos === 100 ? 'translateX(-100%)' : level.pos === 0 ? 'none' : 'translateX(-50%)' }}
-                  >
-                    <div className={`w-px h-1.5 ${isActive ? 'bg-brand-orange' : 'bg-gray-300'}`} />
-                    <span className={`text-[11px] mt-0.5 whitespace-nowrap ${isActive ? 'text-brand-orange font-medium' : 'text-text-muted'}`}>
-                      {level.label}
-                    </span>
+          {/* Segmented health bar */}
+          {criteria.length > 0 && (
+            <div className="mt-4">
+              <div className="flex gap-0.5">
+                {criteria.map((c) => {
+                  const fillPct = (c.score / c.max) * 100;
+                  return (
+                    <div key={c.label} className="flex-1">
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-brand-orange rounded-full transition-all duration-500"
+                          style={{ width: `${fillPct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex gap-0.5 mt-1.5">
+                {criteria.map((c) => (
+                  <div key={c.label} className="flex-1 text-center">
+                    <span className="text-[11px] text-text-muted">{c.label}</span>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Expandable tips */}
           <button
@@ -293,7 +325,7 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
           {totalCount === 0 ? (
             <>
               <h3 className="text-sm font-semibold text-brand-black mb-3">Brain Profile</h3>
-              <p className="text-sm text-text-muted">Add sections to reveal your brain's profile.</p>
+              <p className="text-sm text-text-muted">Add neurons to reveal your brain's profile.</p>
             </>
           ) : (() => {
             const traitData = TYPES
@@ -316,8 +348,7 @@ export default function BrainOverview({ sections, images = [], onAdd, onUpload, 
                   <h3 className="text-sm font-semibold text-brand-black">Brain Profile</h3>
                   <span className="text-xs font-medium text-brand-orange bg-brand-orange/10 rounded px-2 py-0.5">{summary}</span>
                 </div>
-                <p className="text-xs text-text-muted mb-4">Auto-derived from section distribution</p>
-                <div className="space-y-3">
+                <div className="mt-4 space-y-3">
                   {traitData.map(t => (
                     <div key={t.key}>
                       <div className="flex items-center justify-between mb-1">

@@ -20,7 +20,7 @@ const TIPS = {
     tips: [
       'Write memories as factual statements — "The user\'s name is Alex."',
       'Include context that would be tedious to repeat every conversation.',
-      'Group related facts into a single memory section for clarity.',
+      'Group related facts into a single memory neuron for clarity.',
       'Choose a clear, descriptive name — it appears as a sub-header in the context sent to the AI.',
     ],
     example: 'The user is a frontend developer working with React and TypeScript at a fintech startup.',

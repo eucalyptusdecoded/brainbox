@@ -63,7 +63,7 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel, bra
   if (!section) {
     return (
       <div className="flex items-center justify-center h-full text-text-muted">
-        <p>Select a section to edit, or add a new one.</p>
+        <p>Select a neuron to edit, or add a new one.</p>
       </div>
     );
   }
@@ -96,7 +96,7 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel, bra
             <div className="relative group">
               <Info size={12} className="text-text-muted cursor-help" />
               <div className="absolute top-full left-0 mt-1.5 hidden group-hover:block w-64 bg-brand-black text-white text-xs rounded-lg px-3 py-2 shadow-lg z-10">
-                Lower numbers appear first in the context sent to the AI — sections read earlier have the strongest influence on output. Default is 50. Use 1–25 for critical, 25–50 for important, 50–75 for standard, 75–100 for supplementary.
+                Lower numbers appear first in the context sent to the AI — neurons read earlier have the strongest influence on output. Default is 50. Use 1–25 for critical, 25–50 for important, 50–75 for standard, 75–100 for supplementary.
               </div>
             </div>
           </div>
@@ -137,10 +137,10 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel, bra
         <div className="flex items-center justify-between mt-1">
           <div className="text-xs">
             {content.length > 1500 && (
-              <p className="text-amber-600">Consider splitting into two focused sections for better LLM comprehension.</p>
+              <p className="text-amber-600">Consider splitting into two focused neurons for better LLM comprehension.</p>
             )}
             {content.length > 0 && content.length < 50 && (
-              <p className="text-amber-600">Very short — consider adding more detail or merging with a related section.</p>
+              <p className="text-amber-600">Very short — consider adding more detail or merging with a related neuron.</p>
             )}
           </div>
           <p className="text-sm text-text-muted text-right">{content.length}/2000</p>
@@ -161,7 +161,7 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel, bra
         </div>
       ) : canSuggest === false && (
         <div className="bg-brand-orange/5 border border-brand-orange/20 rounded-lg px-3 py-2">
-          <p className="text-xs text-brand-orange font-medium">💡 Add a brain description or at least one section to unlock AI suggestions.</p>
+          <p className="text-xs text-brand-orange font-medium">💡 Add a brain description or at least one neuron to unlock AI suggestions.</p>
         </div>
       )}
 
@@ -178,7 +178,7 @@ export default function SectionEditor({ section, onSave, onDelete, onCancel, bra
             onClick={() => onDelete(section)}
             className="text-base md:text-sm text-red-600 hover:text-red-700"
           >
-            Delete section
+            Delete neuron
           </button>
         )}
         <button

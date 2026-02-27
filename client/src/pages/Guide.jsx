@@ -25,7 +25,7 @@ const SECTIONS = [
       'Write memories as factual statements — "The user\'s name is Alex and they prefer metric units."',
       'Include context that would be tedious to repeat every conversation.',
       'Update memories when facts change rather than adding contradictory ones.',
-      'Group related facts into a single memory node for clarity.',
+      'Group related facts into a single memory neuron for clarity.',
     ],
     examples: [
       'The user is a frontend developer working with React and TypeScript at a fintech startup.',
@@ -127,12 +127,12 @@ export default function Guide() {
               <li>Choose your starting point:
                 <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
                   <li><strong>Start from Template</strong> — begin with a pre-built brain you can customise.</li>
-                  <li><strong>Start from Scratch</strong> — create a blank brain and add sections manually.</li>
+                  <li><strong>Start from Scratch</strong> — create a blank brain and add neurons manually.</li>
                   <li><strong>Generate with AI</strong> — describe what you need or upload a document, and AI builds your brain automatically.</li>
                 </ul>
               </li>
               <li>Follow the on-screen steps to name and create your brain.</li>
-              <li>You'll be taken to the brain editor where you can review and refine your sections.</li>
+              <li>You'll be taken to the brain editor where you can review and refine your neurons.</li>
             </ol>
           </div>
 
@@ -144,7 +144,7 @@ export default function Guide() {
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">Import &amp; Export</h3>
             <ol className="space-y-1.5 text-sm text-text-primary list-decimal list-inside">
-              <li>To export, open the dashboard menu (&hellip;) on any brain and click Export. This saves a .brainbox file containing all sections, images, and settings.</li>
+              <li>To export, open the dashboard menu (&hellip;) on any brain and click Export. This saves a .brainbox file containing all neurons, images, and settings.</li>
               <li>To import, click Import Brain on the dashboard and upload a .brainbox file. This creates a new brain with all the original content.</li>
               <li>Use import and export to share brains with colleagues, back up your work, or move brains between accounts.</li>
             </ol>
@@ -154,7 +154,7 @@ export default function Guide() {
         {/* 2b. Generate with AI */}
         <div className="bg-bg-panel border border-border rounded-xl p-5 space-y-3">
           <h2 className="text-lg font-semibold text-brand-black">Generate with AI</h2>
-          <p className="text-sm text-text-primary">AI generation creates a complete brain from a description or uploaded document. It analyses your input and produces structured sections across all five types — rules, memories, behaviours, guardrails, and skills. It's the fastest way to get a working brain.</p>
+          <p className="text-sm text-text-primary">AI generation creates a complete brain from a description or uploaded document. It analyses your input and produces structured neurons across all five types — rules, memories, behaviours, guardrails, and skills. It's the fastest way to get a working brain.</p>
         </div>
 
         <section id="ai-generate" className="scroll-mt-20 space-y-4">
@@ -163,9 +163,9 @@ export default function Guide() {
             <ol className="space-y-1.5 text-sm text-text-primary list-decimal list-inside">
               <li>Click <strong>+ New Brain</strong> on the dashboard and select <strong>Generate with AI</strong>.</li>
               <li>Either upload a context file (.txt, .md, or .json) or write a description of the brain you want — or both.</li>
-              <li>Click <strong>Generate</strong>. AI will analyse your input and build a complete brain with 8–15 structured sections.</li>
+              <li>Click <strong>Generate</strong>. AI will analyse your input and build a complete brain with 8–15 structured neurons.</li>
               <li>Generation usually takes 15–30 seconds. You'll see a progress animation while your brain is being built.</li>
-              <li>Once complete, you'll be taken to the brain editor where you can review, edit, and refine every generated section.</li>
+              <li>Once complete, you'll be taken to the brain editor where you can review, edit, and refine every generated neuron.</li>
             </ol>
           </div>
 
@@ -174,7 +174,7 @@ export default function Guide() {
             <ul className="space-y-1.5">
               <Bullet><code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.txt</code> files — plain text documents like company guidelines, FAQs, or product descriptions.</Bullet>
               <Bullet><code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.md</code> files — markdown documents with formatting preserved in the extracted text.</Bullet>
-              <Bullet><code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.json</code> files — structured data files that the AI will interpret and convert into brain sections.</Bullet>
+              <Bullet><code className="bg-white px-1.5 py-0.5 rounded border border-border text-xs font-mono">.json</code> files — structured data files that the AI will interpret and convert into brain neurons.</Bullet>
               <Bullet>Maximum file size is 50KB of extracted text. Larger documents are trimmed automatically.</Bullet>
             </ul>
           </div>
@@ -183,8 +183,8 @@ export default function Guide() {
             <h3 className="text-sm font-medium text-text-primary">Writing Good Descriptions</h3>
             <ul className="space-y-1.5">
               <Bullet>Be specific about the brain's purpose — "A customer support agent for a SaaS product that handles billing questions, refund requests, and onboarding help" is much better than "A support bot".</Bullet>
-              <Bullet>Mention your industry, audience, and tone — the AI uses these details to tailor the generated sections.</Bullet>
-              <Bullet>Include any hard requirements — if you need specific rules (e.g. "Always respond in French") mention them in the description and the AI will create dedicated sections for them.</Bullet>
+              <Bullet>Mention your industry, audience, and tone — the AI uses these details to tailor the generated neurons.</Bullet>
+              <Bullet>Include any hard requirements — if you need specific rules (e.g. "Always respond in French") mention them in the description and the AI will create dedicated neurons for them.</Bullet>
               <Bullet>Combining a file with a description works best — upload your existing docs and add a description to guide how the AI should interpret them.</Bullet>
             </ul>
           </div>
@@ -192,10 +192,10 @@ export default function Guide() {
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">After Generation</h3>
             <ul className="space-y-1.5">
-              <Bullet>Review every section — AI generation gives you a strong starting point, but you should refine the content to match your exact needs.</Bullet>
-              <Bullet>Add missing context — the AI can only work with what you provide. If something important is missing, add it as a new section manually.</Bullet>
-              <Bullet>Adjust priorities — generated sections use default priority (50). Promote critical rules to a lower number so they appear earlier in the compiled context.</Bullet>
-              <Bullet>Toggle sections on/off — if a generated section isn't relevant, deactivate it rather than deleting. You can always re-enable it later.</Bullet>
+              <Bullet>Review every neuron — AI generation gives you a strong starting point, but you should refine the content to match your exact needs.</Bullet>
+              <Bullet>Add missing context — the AI can only work with what you provide. If something important is missing, add it as a new neuron manually.</Bullet>
+              <Bullet>Adjust priorities — generated neurons use default priority (50). Promote critical rules to a lower number so they appear earlier in the compiled context.</Bullet>
+              <Bullet>Toggle neurons on/off — if a generated neuron isn't relevant, deactivate it rather than deleting. You can always re-enable it later.</Bullet>
               <Bullet>Use the Brain Context preview to check the final output before connecting your brain to an LLM.</Bullet>
             </ul>
           </div>
@@ -203,8 +203,8 @@ export default function Guide() {
 
         {/* 3. Understanding Section Types */}
         <div className="bg-bg-panel border border-border rounded-xl p-5 space-y-3">
-          <h2 className="text-lg font-semibold text-brand-black">Understanding Section Types</h2>
-          <p className="text-sm text-text-muted">A brain is made up of 5 types of sections. Each type serves a different purpose. You can have up to 10 sections of each type.</p>
+          <h2 className="text-lg font-semibold text-brand-black">Understanding Neuron Types</h2>
+          <p className="text-sm text-text-muted">A brain is made up of 5 types of neurons. Each type serves a different purpose. You can have up to 10 neurons of each type.</p>
           <div className="space-y-2 mt-2">
             <div className="flex gap-3 text-sm">
               <span className="text-brand-orange font-semibold w-24 flex-shrink-0">Rules</span>
@@ -227,7 +227,7 @@ export default function Guide() {
               <span className="text-text-primary">Step-by-step workflows — e.g. "When writing a blog post, follow these steps..."</span>
             </div>
           </div>
-          <p className="text-sm text-text-muted mt-2">Each type is explained in detail below with tips and examples.</p>
+          <p className="text-sm text-text-muted mt-2">Each neuron type is explained in detail below with tips and examples.</p>
         </div>
 
         {/* 4–8. Per-type sections */}
@@ -261,12 +261,12 @@ export default function Guide() {
         {/* 9. Writing Best Practices */}
         <div className="bg-bg-panel border border-border rounded-xl p-5 space-y-3">
           <h2 className="text-lg font-semibold text-brand-black">Writing Best Practices</h2>
-          <p className="text-sm text-text-muted">General tips that apply to all section types.</p>
+          <p className="text-sm text-text-muted">General tips that apply to all neuron types.</p>
           <ul className="space-y-2 text-sm text-text-primary">
             <li className="flex gap-2"><span className="text-brand-orange font-bold">1.</span><span>Write for an AI audience — be literal and precise. Avoid sarcasm or implied meaning.</span></li>
-            <li className="flex gap-2"><span className="text-brand-orange font-bold">2.</span><span>Keep nodes focused — each node should address one concept. Split complex instructions into multiple nodes.</span></li>
+            <li className="flex gap-2"><span className="text-brand-orange font-bold">2.</span><span>Keep neurons focused — each neuron should address one concept. Split complex instructions into multiple neurons.</span></li>
             <li className="flex gap-2"><span className="text-brand-orange font-bold">3.</span><span>Use priority to control order — lower numbers appear first in the compiled context sent to the AI.</span></li>
-            <li className="flex gap-2"><span className="text-brand-orange font-bold">4.</span><span>Test and iterate — after adding nodes, use the Brain Context panel to see the compiled output and refine.</span></li>
+            <li className="flex gap-2"><span className="text-brand-orange font-bold">4.</span><span>Test and iterate — after adding neurons, use the Brain Context panel to see the compiled output and refine.</span></li>
           </ul>
         </div>
 
@@ -282,8 +282,8 @@ export default function Guide() {
               <li>Select a file from your device. Supported formats: TXT, PDF, DOCX, and CSV.</li>
               <li>Brainbox extracts the text content from your file on the server. The original file is not stored — only the extracted text is kept.</li>
               <li>The extracted text and a name (auto-filled from the filename) appear in the form for you to review.</li>
-              <li>Choose a section type (e.g. Memory, Rule) and adjust the priority if needed, then click Save.</li>
-              <li>The content is saved as a regular brain section. You can edit it afterwards just like any other section.</li>
+              <li>Choose a neuron type (e.g. Memory, Rule) and adjust the priority if needed, then click Save.</li>
+              <li>The content is saved as a regular brain neuron. You can edit it afterwards just like any other neuron.</li>
             </ol>
           </div>
 
@@ -291,7 +291,7 @@ export default function Guide() {
             <h3 className="text-sm font-medium text-text-primary">Tips</h3>
             <ul className="space-y-1.5">
               <Bullet>Maximum extracted text size is 500KB per file. Very large documents will be rejected — consider splitting them into smaller files.</Bullet>
-              <Bullet>Choose the section type that best fits the content — use Memory for reference documents, Rule for guidelines, Skill for process docs.</Bullet>
+              <Bullet>Choose the neuron type that best fits the content — use Memory for reference documents, Rule for guidelines, Skill for process docs.</Bullet>
               <Bullet>After saving, review and trim the extracted content. Removing unnecessary boilerplate or headers keeps your brain clean and focused.</Bullet>
               <Bullet>PDF extraction works best with text-based PDFs. Scanned documents or image-heavy PDFs may produce poor results.</Bullet>
             </ul>
@@ -343,15 +343,15 @@ export default function Guide() {
         {/* 12. Priority & Ordering */}
         <section id="priority" className="scroll-mt-20 space-y-4">
           <h2 className="text-lg font-semibold text-brand-black">Priority &amp; Ordering</h2>
-          <p className="text-sm text-text-muted">Priority controls the order sections appear in the compiled context that gets sent to the AI. This matters because LLMs process context from top to bottom — instructions that appear earlier have the strongest influence on output, especially in longer contexts.</p>
+          <p className="text-sm text-text-muted">Priority controls the order neurons appear in the compiled context that gets sent to the AI. This matters because LLMs process context from top to bottom — instructions that appear earlier have the strongest influence on output, especially in longer contexts.</p>
 
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">How It Works</h3>
             <ul className="space-y-1.5">
-              <Bullet>Each section has a priority number from 1–100. Lower numbers appear first within each type.</Bullet>
-              <Bullet>Sections are grouped by type in the compiled output: Rules first, then Memories, Behaviours, Guardrails, and Skills.</Bullet>
-              <Bullet>Within each type, sections are sorted by priority number. This means a Rule at priority 10 appears before a Rule at priority 50, but all Rules appear before all Memories regardless of priority.</Bullet>
-              <Bullet>The default priority is 50 — the midpoint of the scale. This gives you room to place sections before (1–49) or after (51–100) the default.</Bullet>
+              <Bullet>Each neuron has a priority number from 1–100. Lower numbers appear first within each type.</Bullet>
+              <Bullet>Neurons are grouped by type in the compiled output: Rules first, then Memories, Behaviours, Guardrails, and Skills.</Bullet>
+              <Bullet>Within each type, neurons are sorted by priority number. This means a Rule at priority 10 appears before a Rule at priority 50, but all Rules appear before all Memories regardless of priority.</Bullet>
+              <Bullet>The default priority is 50 — the midpoint of the scale. This gives you room to place neurons before (1–49) or after (51–100) the default.</Bullet>
             </ul>
           </div>
 
@@ -368,7 +368,7 @@ export default function Guide() {
               </div>
               <div className="grid grid-cols-[80px_1fr] border-b border-border">
                 <div className="px-3 py-2 font-medium text-brand-orange bg-white">50</div>
-                <div className="px-3 py-2 text-text-muted">Default — standard sections. Most sections can stay here unless ordering matters.</div>
+                <div className="px-3 py-2 text-text-muted">Default — standard neurons. Most neurons can stay here unless ordering matters.</div>
               </div>
               <div className="grid grid-cols-[80px_1fr] border-b border-border">
                 <div className="px-3 py-2 font-medium text-brand-orange bg-white">50–75</div>
@@ -384,9 +384,9 @@ export default function Guide() {
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">Tips</h3>
             <ul className="space-y-1.5">
-              <Bullet>You don't need to set priority for every section. The default of 50 works well for most cases — only adjust when you notice the AI isn't following certain instructions consistently.</Bullet>
+              <Bullet>You don't need to set priority for every neuron. The default of 50 works well for most cases — only adjust when you notice the AI isn't following certain instructions consistently.</Bullet>
               <Bullet>If the AI keeps ignoring a rule, try lowering its priority number so it appears earlier in the context.</Bullet>
-              <Bullet>You can deactivate a section without deleting it. Inactive sections are excluded from the compiled output but remain saved in your brain. This is useful for testing how the AI responds with different combinations.</Bullet>
+              <Bullet>You can deactivate a neuron without deleting it. Inactive neurons are excluded from the compiled output but remain saved in your brain. This is useful for testing how the AI responds with different combinations.</Bullet>
             </ul>
           </div>
         </section>
@@ -394,14 +394,14 @@ export default function Guide() {
         {/* 13. Brain Context Preview */}
         <section id="preview" className="scroll-mt-20 space-y-4">
           <h2 className="text-lg font-semibold text-brand-black">Brain Context Preview</h2>
-          <p className="text-sm text-text-muted">The Brain Context panel shows you exactly what gets sent to the AI — the compiled output of all your active sections, formatted and ordered by type and priority.</p>
+          <p className="text-sm text-text-muted">The Brain Context panel shows you exactly what gets sent to the AI — the compiled output of all your active neurons, formatted and ordered by type and priority.</p>
 
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-text-primary">How It Works</h3>
             <ol className="space-y-1.5 text-sm text-text-primary list-decimal list-inside">
               <li>Open any brain from the dashboard.</li>
               <li>The Brain Context panel appears on the right side of the editor.</li>
-              <li>It updates in real time as you add, edit, or toggle sections.</li>
+              <li>It updates in real time as you add, edit, or toggle neurons.</li>
               <li>Click the expand icon to see the full preview with complete content and priority badges.</li>
             </ol>
           </div>
@@ -410,8 +410,8 @@ export default function Guide() {
             <h3 className="text-sm font-medium text-text-primary">Tips</h3>
             <ul className="space-y-1.5">
               <Bullet>Always check the preview before connecting your brain to an LLM. It shows the exact text the AI will receive.</Bullet>
-              <Bullet>The preview only includes active sections. Deactivated sections won't appear.</Bullet>
-              <Bullet>Section titles appear as sub-headers in the compiled output, so choose clear, descriptive names.</Bullet>
+              <Bullet>The preview only includes active neurons. Deactivated neurons won't appear.</Bullet>
+              <Bullet>Neuron titles appear as sub-headers in the compiled output, so choose clear, descriptive names.</Bullet>
             </ul>
           </div>
         </section>
@@ -449,7 +449,7 @@ export default function Guide() {
             <h3 className="text-sm font-medium text-text-primary">Tips</h3>
             <ul className="space-y-1.5">
               <Bullet>Each platform has different instructions — the Integration page shows step-by-step setup for whichever platform you select.</Bullet>
-              <Bullet>Your compiled context includes only active sections, ordered by priority within each type.</Bullet>
+              <Bullet>Your compiled context includes only active neurons, ordered by priority within each type.</Bullet>
               <Bullet>You can preview exactly what gets sent to the AI using the Brain Context panel inside any brain.</Bullet>
             </ul>
           </div>

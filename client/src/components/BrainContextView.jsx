@@ -39,7 +39,7 @@ function TokenBadge({ tokens }) {
           <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0"></span><span className="text-white/80">Over 15,000 — Consider trimming</span></div>
         </div>
         <div className="border-t border-white/10 pt-3">
-          <p className="text-white/60 leading-relaxed">To reduce tokens, shorten or deactivate sections with lower priority.</p>
+          <p className="text-white/60 leading-relaxed">To reduce tokens, shorten or deactivate neurons with lower priority.</p>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@ export default function BrainContextView({ sections, images = [], onEdit, onDele
               <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 hidden group-hover:block w-80 bg-brand-black text-white text-xs rounded-xl px-4 py-3 shadow-lg z-10 space-y-3">
                 <div>
                   <p className="font-semibold text-sm mb-1">Position Tags</p>
-                  <p className="text-white/70 leading-relaxed">Shows where each section sits in the compiled context sent to the AI.</p>
+                  <p className="text-white/70 leading-relaxed">Shows where each neuron sits in the compiled context sent to the AI.</p>
                 </div>
 
                 <div className="border-t border-white/10 pt-3 space-y-2.5">
@@ -98,7 +98,7 @@ export default function BrainContextView({ sections, images = [], onEdit, onDele
 
                 <div className="border-t border-white/10 pt-3">
                   <p className="font-medium text-white/90 mb-1">How is position determined?</p>
-                  <p className="text-white/60 leading-relaxed">Section type order (Rules first, Skills last) then priority within each type. Lower priority numbers = closer to the top.</p>
+                  <p className="text-white/60 leading-relaxed">Neuron type order (Rules first, Skills last) then priority within each type. Lower priority numbers = closer to the top.</p>
                 </div>
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function BrainContextView({ sections, images = [], onEdit, onDele
         </div>
 
         {active.length === 0 ? (
-          <p className="text-text-muted text-sm">No active sections. Add sections to see your brain's context.</p>
+          <p className="text-text-muted text-sm">No active neurons. Add neurons to see your brain's context.</p>
         ) : (
           <div className="space-y-8">
             {SECTION_ORDER.map(type => {

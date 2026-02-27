@@ -737,7 +737,7 @@ export default function Dashboard() {
                     <h3 className="font-semibold text-brand-black group-hover:text-brand-orange transition-colors">{brain.name}</h3>
                     {brain.description && <p className="text-sm text-text-muted mt-1 line-clamp-2">{brain.description}</p>}
                     <div className="flex items-center gap-3 mt-3 text-xs text-text-muted">
-                      <span>{brain.section_count || 0}/50 nodes</span>
+                      <span>{brain.section_count || 0}/50 neurons</span>
                       <span>Updated {new Date(brain.updated_at).toLocaleDateString()}</span>
                     </div>
                   </div>

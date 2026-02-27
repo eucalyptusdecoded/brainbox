@@ -26,14 +26,14 @@ export default function ContextPreview({ sections, images = [] }) {
     <div className="flex flex-col h-full">
       <div className="px-4 py-3 border-b border-border">
         <h3 className="text-sm font-semibold text-text-primary">Brain Preview</h3>
-        <p className="text-xs text-text-muted mt-0.5">{totalUsed} active section{totalUsed !== 1 ? 's' : ''}</p>
+        <p className="text-xs text-text-muted mt-0.5">{totalUsed}/50 neurons</p>
       </div>
 
       <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
         <BrainHealth sections={sections} />
 
         {active.length === 0 ? (
-          <p className="text-text-muted text-sm">No active sections</p>
+          <p className="text-text-muted text-sm">No active neurons</p>
         ) : (
           <div className="space-y-1">
             {SECTION_ORDER.map(type => {

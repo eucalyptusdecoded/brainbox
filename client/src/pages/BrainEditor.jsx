@@ -203,7 +203,7 @@ export default function BrainEditor() {
           className="flex items-center gap-1.5 text-sm text-text-muted hover:text-brand-black"
         >
           <PanelLeft size={16} />
-          Sections
+          Neurons
         </button>
         <button
           onClick={() => setShowPreview(true)}
@@ -230,7 +230,7 @@ export default function BrainEditor() {
         `}>
           {/* Mobile close button */}
           <div className="flex items-center justify-between px-3 pt-3 lg:hidden">
-            <span className="text-sm font-medium text-text-muted">Sections</span>
+            <span className="text-sm font-medium text-text-muted">Neurons</span>
             <button onClick={() => setSidebarOpen(false)} className="text-text-muted hover:text-brand-black p-1">
               <X size={18} />
             </button>
@@ -373,8 +373,8 @@ export default function BrainEditor() {
                 <Trash2 size={20} className="text-brand-orange" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-brand-black">Remove {deleteTarget._isImage ? 'image' : 'section'}</h3>
-                <p className="text-xs text-text-muted mt-0.5">This will permanently delete this {deleteTarget._isImage ? 'image' : 'section'} from your brain.</p>
+                <h3 className="text-sm font-semibold text-brand-black">Remove {deleteTarget._isImage ? 'image' : 'neuron'}</h3>
+                <p className="text-xs text-text-muted mt-0.5">This will permanently delete this {deleteTarget._isImage ? 'image' : 'neuron'} from your brain.</p>
               </div>
             </div>
             <div className="bg-bg-panel rounded-lg px-3 py-2">
